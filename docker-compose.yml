@@ -1,0 +1,216 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database for context store
+  postgres:
+    image: postgres:15-alpine
+    container_name: ai_sdlc_postgres
+    environment:
+      POSTGRES_USER: ai_sdlc
+      POSTGRES_PASSWORD: ai_sdlc_password
+      POSTGRES_DB: ai_sdlc_team
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ai_sdlc"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ai_sdlc_network
+
+  # Redis for caching and message queue
+  redis:
+    image: redis:7-alpine
+    container_name: ai_sdlc_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ai_sdlc_network
+
+  # Main application container
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ai_sdlc_app
+    environment:
+      ENVIRONMENT: production
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      DATABASE_URL: postgresql://ai_sdlc:ai_sdlc_password@postgres:5432/ai_sdlc_team
+      REDIS_URL: redis://redis:6379/0
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+      GITHUB_OWNER: ${GITHUB_OWNER:-}
+      GITHUB_REPO: ${GITHUB_REPO:-}
+      SLACK_WEBHOOK_URL: ${SLACK_WEBHOOK_URL:-}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      CLAUDE_MODEL: claude-sonnet-4-20250514
+      CLAUDE_TEMPERATURE: 0.7
+      CLAUDE_MAX_TOKENS: 2048
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - .:/app
+      - ./ai_sdlc_work:/app/ai_sdlc_work
+    networks:
+      - ai_sdlc_network
+    restart: unless-stopped
+    command: python -m uvicorn orchestrator.api:app --host 0.0.0.0 --port 8000 --reload
+
+  # PO Agent service (optional - for independent execution)
+  po_agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ai_sdlc_po_agent
+    environment:
+      ENVIRONMENT: production
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      REDIS_URL: redis://redis:6379/0
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    depends_on:
+      - redis
+    volumes:
+      - .:/app
+      - ./ai_sdlc_work:/app/ai_sdlc_work
+    networks:
+      - ai_sdlc_network
+    command: python -m po_agent_workspace.agents.workflow
+    restart: unless-stopped
+
+  # EM Agent service (optional)
+  em_agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ai_sdlc_em_agent
+    environment:
+      ENVIRONMENT: production
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      REDIS_URL: redis://redis:6379/0
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    depends_on:
+      - redis
+    volumes:
+      - .:/app
+      - ./ai_sdlc_work:/app/ai_sdlc_work
+    networks:
+      - ai_sdlc_network
+    command: python -m em_agent_workspace.agents.workflow
+    restart: unless-stopped
+
+  # UX Agent service (optional)
+  ux_agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ai_sdlc_ux_agent
+    environment:
+      ENVIRONMENT: production
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      REDIS_URL: redis://redis:6379/0
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    depends_on:
+      - redis
+    volumes:
+      - .:/app
+      - ./ai_sdlc_work:/app/ai_sdlc_work
+    networks:
+      - ai_sdlc_network
+    command: python -m ux_agent_workspace.agents.workflow
+    restart: unless-stopped
+
+  # Backend Agent service (optional)
+  backend_agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ai_sdlc_backend_agent
+    environment:
+      ENVIRONMENT: production
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      REDIS_URL: redis://redis:6379/0
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    depends_on:
+      - redis
+    volumes:
+      - .:/app
+      - ./ai_sdlc_work:/app/ai_sdlc_work
+    networks:
+      - ai_sdlc_network
+    command: python -m backend_agent_workspace.agents.workflow
+    restart: unless-stopped
+
+  # Frontend Agent service (optional)
+  frontend_agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ai_sdlc_frontend_agent
+    environment:
+      ENVIRONMENT: production
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      REDIS_URL: redis://redis:6379/0
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    depends_on:
+      - redis
+    volumes:
+      - .:/app
+      - ./ai_sdlc_work:/app/ai_sdlc_work
+    networks:
+      - ai_sdlc_network
+    command: python -m frontend_agent_workspace.agents.workflow
+    restart: unless-stopped
+
+  # PgAdmin for database management (optional)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: ai_sdlc_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    networks:
+      - ai_sdlc_network
+    profiles:
+      - debug
+
+  # Redis Commander for cache inspection (optional)
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: ai_sdlc_redis_commander
+    environment:
+      REDIS_HOSTS: local:redis:6379
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+    networks:
+      - ai_sdlc_network
+    profiles:
+      - debug
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  ai_sdlc_network:
+    driver: bridge
