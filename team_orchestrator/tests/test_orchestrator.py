@@ -2,8 +2,8 @@
 
 import pytest
 
-# Import from parent package using relative imports
-from .. import TeamOrchestrator, Event, EventType, EventSeverity
+# Import from team_orchestrator package
+from team_orchestrator import TeamOrchestrator, Event, EventType, EventSeverity
 
 
 class TestEventBus:

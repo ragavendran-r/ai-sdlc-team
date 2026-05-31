@@ -68,7 +68,7 @@ jobs:
           pip install -r ux-agent-workspace/agents/requirements.txt
           pip install -r backend-agent-workspace/agents/requirements.txt
           pip install -r frontend-agent-workspace/agents/requirements.txt
-          pip install -r team-orchestrator/requirements.txt
+          pip install -r team_orchestrator/requirements.txt
 
       # Code quality checks
       - name: Lint with flake8
@@ -94,7 +94,7 @@ jobs:
         env:
           PYTHONPATH: ${{ github.workspace }}
         run: |
-          pytest team-orchestrator/tests/ -v --cov=team_orchestrator --cov-report=xml --tb=short
+          pytest team_orchestrator/tests/ -v --cov=team_orchestrator --cov-report=xml --tb=short
 
       - name: Run PO Agent Tests
         env:
