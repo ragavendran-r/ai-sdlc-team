@@ -23,7 +23,7 @@ COPY em-agent-workspace/agents/requirements.txt ./em-requirements.txt
 COPY ux-agent-workspace/agents/requirements.txt ./ux-requirements.txt
 COPY backend-agent-workspace/agents/requirements.txt ./backend-requirements.txt
 COPY frontend-agent-workspace/agents/requirements.txt ./frontend-requirements.txt
-COPY team-orchestrator/requirements.txt ./orchestrator-requirements.txt
+COPY team_orchestrator/requirements.txt ./orchestrator-requirements.txt
 
 # Install Python dependencies
 RUN pip install --upgrade pip setuptools wheel && \
