@@ -1,7 +1,5 @@
 """Agent nodes for UX Agent workflow."""
 
-from typing import Optional, List
-from datetime import datetime
 from langchain_anthropic import ChatAnthropic
 from .state import UXWorkflowState
 from .tools import (
@@ -16,14 +14,12 @@ from team_contracts.schemas import (
     UserPersona,
     UserFlow,
     FlowStep,
-    DecisionPoint,
     IAStructure,
     NavNode,
     WireframeBrief,
     ComponentRequirement,
     InteractionPattern,
     DesignComplianceReport,
-    ComponentGap,
     AccessibilityFlag,
     AccessibilitySeverity,
     WCAGLevel,
@@ -40,8 +36,6 @@ llm = ChatAnthropic(
 def story_intake(state: UXWorkflowState) -> UXWorkflowState:
     """Filter stories relevant to UX."""
     state.current_agent = "story_intake"
-
-    tool_result = ContextStoreTool.read_user_stories()
 
     # Create sample stories
     if not state.input_stories:
@@ -89,9 +83,6 @@ def story_intake(state: UXWorkflowState) -> UXWorkflowState:
 def persona_agent(state: UXWorkflowState) -> UXWorkflowState:
     """Generate user personas from stories."""
     state.current_agent = "persona_agent"
-
-    research_result = ResearchTool.read_research_docs()
-    analytics_result = ResearchTool.read_analytics()
 
     # Generate personas from story roles
     personas = []
@@ -205,8 +196,6 @@ def wireframe_brief(state: UXWorkflowState) -> UXWorkflowState:
     """Generate wireframe briefs."""
     state.current_agent = "wireframe_brief"
 
-    design_system_result = DesignSystemTool.read_design_system_components()
-
     briefs = []
 
     for flow in state.user_flows[:2]:
@@ -251,8 +240,6 @@ def wireframe_brief(state: UXWorkflowState) -> UXWorkflowState:
 def design_system_compliance(state: UXWorkflowState) -> UXWorkflowState:
     """Check compliance with design system."""
     state.current_agent = "design_system_compliance"
-
-    ds_result = DesignSystemTool.read_design_system_docs()
 
     # Check briefs against DS
     compliant = 0
@@ -394,7 +381,6 @@ def handoff_spec(state: UXWorkflowState) -> UXWorkflowState:
     state.current_agent = "handoff_spec"
 
     # Compile UXHandoff
-    components = []
     if state.wireframe_briefs:
         for brief in state.wireframe_briefs:
             # Convert brief components to UXHandoff components

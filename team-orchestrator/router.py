@@ -138,7 +138,7 @@ class WorkflowRouter:
                         f"{route.target_workflow}"
                     )
                     print(f"   Event: {event.event_type.value}")
-                    print(f"   Status: success")
+                    print("   Status: success")
                     print(f"   Stored as: {artifact_key}")
 
                     results.append(result)

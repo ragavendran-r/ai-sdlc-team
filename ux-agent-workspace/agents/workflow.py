@@ -14,7 +14,7 @@ from .nodes import (
     figma_annotation,
     handoff_spec,
 )
-from .checkpoints import should_proceed_to_figma, should_revise_briefs
+from .checkpoints import should_proceed_to_figma
 
 
 def create_ux_workflow() -> StateGraph:
