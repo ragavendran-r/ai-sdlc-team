@@ -2,7 +2,6 @@
 
 import sys
 import json
-from pathlib import Path
 from typing import Optional, List
 import argparse
 
@@ -119,7 +118,7 @@ Examples:
         )
 
         # Config command
-        config_parser = subparsers.add_parser("config", help="Show configuration")
+        subparsers.add_parser("config", help="Show configuration")
 
         return parser
 
@@ -399,10 +398,10 @@ Examples:
         print("\n" + "=" * 80)
         print(" TEAM ORCHESTRATOR CONFIGURATION")
         print("=" * 80)
-        print(f"\nContext Store: team-contracts/context-store")
+        print("\nContext Store: team-contracts/context-store")
         print(f"Workflows: {', '.join(self.orchestrator.workflow_states.keys())}")
         print(f"Routes: {len(self.orchestrator.router.routes)}")
-        print(f"\nDefault Routes:")
+        print("\nDefault Routes:")
         for route in self.orchestrator.router.routes:
             print(
                 f"  {route.source_workflow} "

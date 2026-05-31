@@ -1,7 +1,7 @@
 """WireframeBrief schema: wireframe specifications for screens."""
 
 from datetime import datetime
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict
 from pydantic import BaseModel, Field
 
 
@@ -102,9 +102,24 @@ class WireframeBrief(BaseModel):
             "user_flow_id": self.user_flow_id,
             "purpose": self.purpose,
             "description": self.description,
-            "components": [{"component_name": c.component_name, "purpose": c.purpose, "content": c.content, "state": c.state} for c in self.components],
+            "components": [
+                {
+                    "component_name": c.component_name,
+                    "purpose": c.purpose,
+                    "content": c.content,
+                    "state": c.state,
+                }
+                for c in self.components
+            ],
             "content_requirements": self.content_requirements,
-            "interactions": [{"trigger": i.trigger, "action": i.action, "result": i.result} for i in self.interactions],
+            "interactions": [
+                {
+                    "trigger": i.trigger,
+                    "action": i.action,
+                    "result": i.result,
+                }
+                for i in self.interactions
+            ],
             "layout_type": self.layout_type,
             "viewport_sizes": self.viewport_sizes,
             "design_system_mappings": self.design_system_mappings,

@@ -1,9 +1,9 @@
 """UXHandoff contract: UX/Design → Frontend workflow."""
 
 from datetime import datetime
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict
 from enum import Enum
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field
 
 
 class ComponentType(str, Enum):
@@ -339,7 +339,7 @@ class UXHandoff(BaseModel):
         if self.browser_support:
             lines.extend([
                 "",
-                f"## Browser Support",
+                "## Browser Support",
                 self.browser_support,
             ])
 

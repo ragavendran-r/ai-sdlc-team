@@ -7,12 +7,7 @@ from anthropic import Anthropic
 from .state import BackendWorkflowState
 from .tools import (
     ContextStoreTool,
-    DatabaseTool,
-    CodeGenerationTool,
-    GitHubTool,
-    ValidationTool,
     EventTool,
-    ToolResult,
 )
 
 # LLM Configuration
@@ -59,7 +54,8 @@ For each story requiring backend work, identify:
 User Stories:
 {stories_context}
 
-Return a JSON array of requirements with: id, user_story_id, title, description, requirement_type, data_needs, business_rules, external_integrations, constraints."""
+Return JSON array with: id, user_story_id, title, description, requirement_type,
+data_needs, business_rules, external_integrations, constraints."""
 
         message = client.messages.create(
             model=MODEL,
@@ -120,7 +116,8 @@ Identify:
 Requirements:
 {reqs_context}
 
-Return a JSON object with: id, feature_name, description, entities (list with name, description, plural, attributes), relationships (list with from_entity, to_entity, relation_type), ubiquitous_language (dict), invariants (list)."""
+Return JSON with: id, feature_name, description, entities, relationships,
+ubiquitous_language, invariants."""
 
         message = client.messages.create(
             model=MODEL,
@@ -176,7 +173,8 @@ Produce:
 Domain Model:
 {model_context}
 
-Return a JSON object with: id, feature_name, ddl_sql (complete SQL string), sqlalchemy_models (complete Python code string), migration_notes."""
+Return JSON with: id, feature_name, ddl_sql, sqlalchemy_models,
+migration_notes."""
 
         message = client.messages.create(
             model=MODEL,
@@ -232,7 +230,8 @@ Requirements:
 Domain Model:
 {model_context}
 
-Return a JSON object matching APIContract schema with: id, feature_name, user_story_id, base_url, endpoints (list), global_auth_requirements, global_headers, security_notes."""
+Return JSON with: id, feature_name, user_story_id, base_url, endpoints,
+global_auth_requirements, global_headers, security_notes."""
 
         message = client.messages.create(
             model=MODEL,
@@ -296,7 +295,8 @@ Domain Model:
 API Contract:
 {contract_context}
 
-Return a JSON array of ServiceScaffold objects with: id, entity_name, class_name, python_code (complete class string), methods (list with name, description, parameters, return_type, business_rules), dependencies."""
+Return JSON array with: id, entity_name, class_name, python_code,
+methods, dependencies."""
 
         message = client.messages.create(
             model=MODEL,
@@ -349,7 +349,8 @@ Requirements:
 API Contract:
 {contract_context}
 
-Return a JSON array of ValidationModule objects with: id, request_name, endpoint_id, python_code (complete Pydantic model string), rules (list), test_cases (list of valid/invalid examples)."""
+Return JSON array with: id, request_name, endpoint_id, python_code,
+rules, test_cases."""
 
         message = client.messages.create(
             model=MODEL,
@@ -401,7 +402,8 @@ API Contract:
 Requirements:
 {reqs_context}
 
-Return a JSON array of SecurityFlag objects with: id, endpoint_id, title, description, severity (critical/high/medium/low), category, vulnerable_code, remediation, reference_url."""
+Return JSON array with: id, endpoint_id, title, description, severity,
+category, vulnerable_code, remediation, reference_url."""
 
         message = client.messages.create(
             model=MODEL,
@@ -462,7 +464,8 @@ API Contract:
 Validators:
 {validators_context}
 
-Return a JSON array of test file objects with: id, service_name, file_path, test_code (complete pytest string), test_methods (list with name, type, description), mocks_required."""
+Return JSON array with: id, service_name, file_path, test_code,
+test_methods, mocks_required."""
 
         message = client.messages.create(
             model=MODEL,
@@ -636,7 +639,8 @@ Service Code:
 Tests:
 {tests_context}
 
-Return a JSON array of review comments with: id, severity (blocker/major/minor/suggestion), category, title, message, suggested_fix."""
+Return JSON array with: id, severity, category, title, message,
+suggested_fix."""
 
         message = client.messages.create(
             model=MODEL,

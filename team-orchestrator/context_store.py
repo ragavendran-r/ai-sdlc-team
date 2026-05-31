@@ -1,7 +1,6 @@
 """Shared context store for team orchestrator."""
 
 import json
-import os
 from datetime import datetime
 from typing import Any, Dict, Optional, List
 from pathlib import Path

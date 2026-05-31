@@ -101,8 +101,25 @@ class UserFlow(BaseModel):
             "title": self.title,
             "description": self.description,
             "entry_point": self.entry_point,
-            "steps": [{"step_number": s.step_number, "action": s.action, "system_response": s.system_response, "screen_or_state": s.screen_or_state} for s in self.steps],
-            "decision_points": [{"step_number": dp.step_number, "question": dp.question, "option_a": dp.option_a, "option_b": dp.option_b, "other_options": dp.other_options} for dp in self.decision_points],
+            "steps": [
+                {
+                    "step_number": s.step_number,
+                    "action": s.action,
+                    "system_response": s.system_response,
+                    "screen_or_state": s.screen_or_state,
+                }
+                for s in self.steps
+            ],
+            "decision_points": [
+                {
+                    "step_number": dp.step_number,
+                    "question": dp.question,
+                    "option_a": dp.option_a,
+                    "option_b": dp.option_b,
+                    "other_options": dp.other_options,
+                }
+                for dp in self.decision_points
+            ],
             "exit_point": self.exit_point,
             "complexity": self.complexity,
             "error_scenarios": self.error_scenarios,
