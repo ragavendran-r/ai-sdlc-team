@@ -1,14 +1,9 @@
 """Tests for team orchestrator."""
 
-import importlib
 import pytest
 
-# Import using importlib to handle hyphens in directory name
-team_orch = importlib.import_module('team-orchestrator')
-TeamOrchestrator = team_orch.TeamOrchestrator
-Event = team_orch.Event
-EventType = team_orch.EventType
-EventSeverity = team_orch.EventSeverity
+# Import from parent package using relative imports
+from .. import TeamOrchestrator, Event, EventType, EventSeverity
 
 
 class TestEventBus:
