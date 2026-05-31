@@ -56,12 +56,13 @@ grep -r "^import\|^from" . --include="*.py" | grep F401
 
 ```
 ai-sdlc-team/
-├── CLAUDE.md                 # This file - rules Claude follows
+├── CLAUDE.md                 # This file - rules Claude follows (auto-loaded)
 ├── CODING_STANDARDS.md       # Detailed guidelines for all contributors
-├── rules/                    # Folder with specific rule files
-│   ├── naming.md            # Python naming conventions
-│   ├── testing.md           # Testing standards
-│   └── ci_cd.md             # CI/CD pipeline rules
+├── .claude/
+│   └── rules/               # Detailed rule files (referenced in CLAUDE.md)
+│       ├── naming.md        # Python naming conventions
+│       ├── testing.md       # Testing standards
+│       └── ci_cd.md         # CI/CD pipeline rules
 ├── po-agent-workspace/
 ├── em-agent-workspace/
 ├── ux-agent-workspace/
@@ -104,6 +105,8 @@ ai-sdlc-team/
 
 ## Helpful References
 
-- See `CODING_STANDARDS.md` for detailed guidelines
-- See `rules/` folder for specific rule files
-- See `.github/workflows/tests.yml` for CI/CD pipeline
+- See `CODING_STANDARDS.md` for detailed guidelines for all contributors
+- See `.claude/rules/naming.md` for detailed Python naming conventions
+- See `.claude/rules/testing.md` for testing organization and patterns
+- See `.claude/rules/ci_cd.md` for CI/CD pipeline debugging and updates
+- See `.github/workflows/tests.yml` for the actual CI/CD pipeline
