@@ -1,12 +1,20 @@
 """Tests for team orchestrator."""
 
+import sys
+from pathlib import Path
+import importlib
+
+# Add parent directory to path to allow module imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
 import pytest
-from team_orchestrator import (
-    TeamOrchestrator,
-    Event,
-    EventType,
-    EventSeverity,
-)
+
+# Import using importlib to handle hyphens in directory name
+team_orch = importlib.import_module('team-orchestrator')
+TeamOrchestrator = team_orch.TeamOrchestrator
+Event = team_orch.Event
+EventType = team_orch.EventType
+EventSeverity = team_orch.EventSeverity
 
 
 class TestEventBus:
