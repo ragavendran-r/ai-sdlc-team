@@ -1,12 +1,6 @@
 """Tests for team orchestrator."""
 
-import sys
-from pathlib import Path
 import importlib
-
-# Add parent directory to path to allow module imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
 import pytest
 
 # Import using importlib to handle hyphens in directory name
