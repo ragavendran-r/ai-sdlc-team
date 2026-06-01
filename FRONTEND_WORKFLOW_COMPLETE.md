@@ -7,7 +7,7 @@ A fully functional Frontend Agent LangGraph workflow with **2,115+ lines** of pr
 ### Files Created
 
 ```
-frontend-agent-workspace/agents/
+frontend_agent_workspace/agents/
 ├── state.py (150 lines)          ✅ FrontendWorkflowState with 25+ fields
 ├── tools.py (300 lines)          ✅ 5 tool suites (15 tools total)
 ├── nodes.py (850 lines)          ✅ 11 agent node implementations
@@ -16,11 +16,11 @@ frontend-agent-workspace/agents/
 ├── __init__.py                   ✅ Module exports
 └── requirements.txt              ✅ Dependencies
 
-frontend-agent-workspace/tests/
+frontend_agent_workspace/tests/
 ├── test_nodes.py (400+ lines)    ✅ 10 test classes
 └── __init__.py                   ✅ Test module
 
-team-contracts/schemas/
+team_contracts/schemas/
 ├── component_spec.py             ✅ NEW FrontendComponentSpec
 ├── scaffolded_component.py       ✅ NEW ScaffoldedComponent
 ├── state_plan.py                 ✅ NEW StatePlan + StateGroup + StateManagementType
@@ -28,7 +28,7 @@ team-contracts/schemas/
 ├── review_comment.py             ✅ NEW ReviewComment + ReviewSeverity + ReviewCategory
 └── __init__.py                   ✅ UPDATED with new schemas
 
-frontend-agent-workspace/
+frontend_agent_workspace/
 └── README.md                     ✅ Complete documentation
 ```
 
@@ -221,12 +221,12 @@ Each with multiple test methods validating:
 
 1. **Run the workflow**
    ```bash
-   python frontend-agent-workspace/agents/workflow.py
+   python frontend_agent_workspace/agents/workflow.py
    ```
 
 2. **Run tests**
    ```bash
-   pytest frontend-agent-workspace/tests/ -v
+   pytest frontend_agent_workspace/tests/ -v
    ```
 
 3. **Integrate inputs**

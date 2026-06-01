@@ -13,15 +13,18 @@ class EventType(str, Enum):
     # PO Agent Events
     USER_STORIES_CREATED = "user_stories_created"
     USER_STORIES_UPDATED = "user_stories_updated"
+    BACKLOG_PUBLISHED = "backlog_published"
 
     # EM Agent Events
     SPRINT_CREATED = "sprint_created"
     SPRINT_UPDATED = "sprint_updated"
+    SPRINT_PLANNED = "sprint_planned"
     BLOCKERS_DETECTED = "blockers_detected"
 
     # UX Agent Events
     HANDOFF_CREATED = "ux_handoff_created"
     HANDOFF_UPDATED = "ux_handoff_updated"
+    UX_HANDOFF_READY = "ux_handoff_ready"
     DESIGN_TOKENS_DEFINED = "design_tokens_defined"
 
     # Backend Agent Events

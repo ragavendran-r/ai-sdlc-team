@@ -7,7 +7,7 @@ A fully functional LangGraph-based PO Agent workflow with **1,853 lines** of pro
 ### Files Created
 
 ```
-po-agent-workspace/agents/
+po_agent_workspace/agents/
 ├── state.py (150 lines)          ✅ Typed workflow state (PoWorkflowState)
 ├── tools.py (530 lines)          ✅ 9 stubbed tools with clear interfaces
 ├── nodes.py (450 lines)          ✅ 9 agent node implementations
@@ -285,7 +285,7 @@ All tools are stubbed and ready for real integrations:
 
 ### Installation
 ```bash
-cd po-agent-workspace/agents
+cd po_agent_workspace/agents
 pip install -r requirements.txt
 export ANTHROPIC_API_KEY="your-key"
 ```
@@ -371,7 +371,7 @@ print(f"Jira Tickets: {final_state.jira_tickets_created}")
 
 1. **Test the Workflow**
    ```bash
-   cd po-agent-workspace/agents
+   cd po_agent_workspace/agents
    python workflow.py  # Run with human checkpoints
    ```
 

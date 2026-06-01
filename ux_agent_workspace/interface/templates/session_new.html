@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>New design session</h1>
+<p class="muted">The pipeline reads the published sprint plan, generates personas,
+user flows, information architecture, and wireframe briefs for your review.</p>
+
+{% if not sprint_ready %}
+<div class="banner amber">
+  No sprint plan is available. Ask the EM workspace to publish one first.
+</div>
+{% else %}
+<form method="post" action="/sessions/run">
+  <div class="field">
+    <label for="session_name">Session name</label>
+    <input type="text" id="session_name" name="session_name" placeholder="e.g. Checkout redesign" required>
+  </div>
+  <button type="submit" class="btn">Run UX pipeline</button>
+</form>
+{% endif %}
+
+{% endblock %}

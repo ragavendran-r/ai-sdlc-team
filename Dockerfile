@@ -18,11 +18,11 @@ RUN apt-get update && apt-get install -y \
 
 # Copy requirements files
 COPY requirements.txt .
-COPY po-agent-workspace/agents/requirements.txt ./po-requirements.txt
-COPY em-agent-workspace/agents/requirements.txt ./em-requirements.txt
-COPY ux-agent-workspace/agents/requirements.txt ./ux-requirements.txt
-COPY backend-agent-workspace/agents/requirements.txt ./backend-requirements.txt
-COPY frontend-agent-workspace/agents/requirements.txt ./frontend-requirements.txt
+COPY po_agent_workspace/agents/requirements.txt ./po-requirements.txt
+COPY em_agent_workspace/agents/requirements.txt ./em-requirements.txt
+COPY ux_agent_workspace/agents/requirements.txt ./ux-requirements.txt
+COPY backend_agent_workspace/agents/requirements.txt ./backend-requirements.txt
+COPY frontend_agent_workspace/agents/requirements.txt ./frontend-requirements.txt
 COPY team_orchestrator/requirements.txt ./orchestrator-requirements.txt
 
 # Install Python dependencies
@@ -40,7 +40,7 @@ RUN pip install --upgrade pip setuptools wheel && \
 COPY . .
 
 # Create directories for artifacts
-RUN mkdir -p ai_sdlc_work team-contracts/context-store
+RUN mkdir -p ai_sdlc_work team_contracts/context-store
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \

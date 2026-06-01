@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Product backlog</h1>
+
+{% if not has_backlog %}
+<div class="banner banner-amber">No backlog published yet. Approve a session to publish one.</div>
+<a class="btn btn-primary" href="/sessions/new">Start a session</a>
+{% else %}
+
+<div class="card">
+  <div class="row">
+    <div>
+      <strong>{{ total_stories }}</strong> stories ·
+      <strong>{{ total_points }}</strong> points
+      <span class="muted">
+        {% for p, c in priority_counts.items() %}{{ p }}: {{ c }}{% if not loop.last %} · {% endif %}{% endfor %}
+      </span>
+    </div>
+    <div>
+      <a class="btn" href="/backlog/export/csv">Download as CSV</a>
+      <a class="btn" href="/backlog/export/markdown">Download as Markdown</a>
+    </div>
+  </div>
+</div>
+
+{% for theme, stories in by_theme.items() %}
+<details class="card" open>
+  <summary style="font-weight:600; cursor:pointer;">{{ theme }} ({{ stories|length }})</summary>
+  <table style="margin-top:12px;">
+    <thead><tr><th>ID</th><th>Title</th><th>Priority</th><th>Points</th><th>Status</th></tr></thead>
+    <tbody>
+      {% for story in stories %}
+      <tr>
+        <td>{{ story.id }}</td>
+        <td>{{ story.title }}</td>
+        <td>{% if story.priority %}<span class="badge badge-gray">{{ story.priority|upper }}</span>{% endif %}</td>
+        <td>{{ story.story_points or "—" }}</td>
+        <td class="muted">{{ story.status or "ready" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</details>
+{% endfor %}
+
+{% endif %}
+{% endblock %}

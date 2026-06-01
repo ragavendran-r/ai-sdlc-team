@@ -72,7 +72,7 @@ pytest . -v
 pytest team_orchestrator/tests/ -v
 
 # Run specific test file
-pytest po-agent-workspace/tests/test_nodes.py -v
+pytest po_agent_workspace/tests/test_nodes.py -v
 
 # Run with coverage
 pytest . -v --cov=. --cov-report=html

@@ -21,7 +21,7 @@ class TeamOrchestrator:
     - Execution lifecycle and status
     """
 
-    def __init__(self, context_store_path: str = "team-contracts/context-store"):
+    def __init__(self, context_store_path: str = "team_contracts/context-store"):
         """
         Initialize the orchestrator.
 

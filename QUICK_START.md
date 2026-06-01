@@ -55,17 +55,17 @@ python run_team_pipeline.py context --list
 ## View Code (2 minutes)
 
 **Agent Workflows:**
-- `po-agent-workspace/` - Product Owner agent
-- `em-agent-workspace/` - Engineering Manager agent
-- `ux-agent-workspace/` - UX Designer agent
-- `backend-agent-workspace/` - Backend Engineer agent
-- `frontend-agent-workspace/` - Frontend Engineer agent
+- `po_agent_workspace/` - Product Owner agent
+- `em_agent_workspace/` - Engineering Manager agent
+- `ux_agent_workspace/` - UX Designer agent
+- `backend_agent_workspace/` - Backend Engineer agent
+- `frontend_agent_workspace/` - Frontend Engineer agent
 
 **Orchestrator:**
 - `team-orchestrator/` - Central coordination system
 
 **Schemas:**
-- `team-contracts/schemas/` - 23 shared data contracts
+- `team_contracts/schemas/` - 23 shared data contracts
 
 ## Run Tests
 
@@ -74,11 +74,11 @@ python run_team_pipeline.py context --list
 pytest team-orchestrator/tests/ -v
 
 # Test individual agents
-pytest po-agent-workspace/tests/ -v
-pytest em-agent-workspace/tests/ -v
-pytest ux-agent-workspace/tests/ -v
-pytest backend-agent-workspace/tests/ -v
-pytest frontend-agent-workspace/tests/ -v
+pytest po_agent_workspace/tests/ -v
+pytest em_agent_workspace/tests/ -v
+pytest ux_agent_workspace/tests/ -v
+pytest backend_agent_workspace/tests/ -v
+pytest frontend_agent_workspace/tests/ -v
 ```
 
 ## CLI Commands Reference
@@ -120,7 +120,7 @@ Feature request: "User Authentication"
 
 ### 1. PO Agent
 ```bash
-cd po-agent-workspace
+cd po_agent_workspace
 python agents/workflow.py
 ```
 - Creates UserStory for "User login"
@@ -129,7 +129,7 @@ python agents/workflow.py
 
 ### 2. EM Agent  
 ```bash
-cd ../em-agent-workspace
+cd ../em_agent_workspace
 python agents/workflow.py
 ```
 - Ingests user stories
@@ -138,7 +138,7 @@ python agents/workflow.py
 
 ### 3. UX Agent
 ```bash
-cd ../ux-agent-workspace
+cd ../ux_agent_workspace
 python agents/workflow.py
 ```
 - Designs login flow
@@ -147,7 +147,7 @@ python agents/workflow.py
 
 ### 4. Backend Agent
 ```bash
-cd ../backend-agent-workspace
+cd ../backend_agent_workspace
 python agents/workflow.py
 ```
 - Designs domain model
@@ -157,7 +157,7 @@ python agents/workflow.py
 
 ### 5. Frontend Agent
 ```bash
-cd ../frontend-agent-workspace
+cd ../frontend_agent_workspace
 python agents/workflow.py
 ```
 - Scaffolds components
@@ -181,7 +181,7 @@ Sprint Plan (EM)
 
 ```
 ai-sdlc-team/
-├── po-agent-workspace/           # Product Owner agent
+├── po_agent_workspace/           # Product Owner agent
 │   ├── agents/
 │   │   ├── workflow.py
 │   │   ├── nodes.py
@@ -189,19 +189,19 @@ ai-sdlc-team/
 │   ├── tests/
 │   └── README.md
 │
-├── em-agent-workspace/           # Engineering Manager agent
+├── em_agent_workspace/           # Engineering Manager agent
 │   ├── agents/
 │   └── tests/
 │
-├── ux-agent-workspace/           # UX Designer agent
+├── ux_agent_workspace/           # UX Designer agent
 │   ├── agents/
 │   └── tests/
 │
-├── backend-agent-workspace/      # Backend Engineer agent
+├── backend_agent_workspace/      # Backend Engineer agent
 │   ├── agents/
 │   └── tests/
 │
-├── frontend-agent-workspace/     # Frontend Engineer agent
+├── frontend_agent_workspace/     # Frontend Engineer agent
 │   ├── agents/
 │   └── tests/
 │
@@ -213,7 +213,7 @@ ai-sdlc-team/
 │   ├── cli.py
 │   └── tests/
 │
-├── team-contracts/               # Shared schemas
+├── team_contracts/               # Shared schemas
 │   ├── schemas/                  # 23 Pydantic schemas
 │   └── context-store/            # Artifact storage
 │
@@ -250,7 +250,7 @@ cat debug_state.json | jq '.artifacts | group_by(.workflow)'  # Group by workflo
 
 ### Run Individual Test
 ```bash
-pytest po-agent-workspace/tests/test_nodes.py::TestUserStoryIntake::test_creates_stories -v
+pytest po_agent_workspace/tests/test_nodes.py::TestUserStoryIntake::test_creates_stories -v
 ```
 
 ## Troubleshooting

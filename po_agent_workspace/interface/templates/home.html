@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>PO Workspace</h1>
+
+{% if awaiting %}
+<div class="banner banner-amber">
+  You have {{ awaiting|length }} session(s) waiting for your review:
+  {% for s in awaiting %}
+    <a href="/sessions/{{ s.session_id }}/review">{{ s.session_name }}</a>{% if not loop.last %}, {% endif %}
+  {% endfor %}
+</div>
+{% endif %}
+
+<h2>Pipeline status</h2>
+<div class="card">
+  {% if backlog %}
+    <div>Backlog: <strong>{{ backlog_count }}</strong> stories
+      {% if backlog.published_at %}<span class="muted">— updated {{ backlog.published_at }}</span>{% endif %}
+    </div>
+  {% else %}
+    <div class="muted">No backlog published yet.</div>
+  {% endif %}
+  {% if sprint %}
+    <div>Sprint: <strong>{{ sprint.sprint_name or sprint.session_name or "(unnamed)" }}</strong></div>
+  {% endif %}
+  {% if backlog %}
+    <div class="muted" style="margin-top:8px;">
+      Downstream EM workspace can read this backlog to begin sprint planning.
+    </div>
+  {% endif %}
+</div>
+
+<div class="row">
+  <h2>Sessions</h2>
+  <a class="btn btn-primary" href="/sessions/new">Start new session</a>
+</div>
+
+<div class="card">
+  {% if sessions %}
+  <table>
+    <thead>
+      <tr><th>Session</th><th>Status</th><th>Created</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for s in sessions %}
+      <tr>
+        <td>{{ s.session_name }}</td>
+        <td>
+          {% if s.status == "running" %}<span class="badge badge-gray">In progress</span>
+          {% elif s.status == "awaiting_review" %}<span class="badge badge-amber">Needs your review</span>
+          {% elif s.status == "approved" %}<span class="badge badge-green">Approved</span>
+          {% elif s.status == "rejected" %}<span class="badge badge-red">Rejected</span>
+          {% else %}<span class="badge badge-red">Error</span>{% endif %}
+        </td>
+        <td class="muted">{{ s.created_at.strftime("%Y-%m-%d %H:%M") }}</td>
+        <td>
+          {% if s.status == "awaiting_review" %}
+            <a class="btn" href="/sessions/{{ s.session_id }}/review">Review</a>
+          {% elif s.status == "running" %}
+            <a class="btn" href="/sessions/{{ s.session_id }}/progress">View progress</a>
+          {% else %}
+            <a class="btn" href="/sessions/{{ s.session_id }}/review">View</a>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="muted">No sessions yet. Start one to generate user stories.</div>
+  {% endif %}
+</div>
+{% endblock %}

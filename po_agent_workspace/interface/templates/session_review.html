@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block content %}
+{% if not ready %}
+  <h1>Review generated stories</h1>
+  <div class="banner banner-amber">This session is not ready for review.</div>
+  <a class="btn" href="/">Back to home</a>
+{% else %}
+<h1>Review generated stories — {{ session.session_name }}</h1>
+
+{% if session.ambiguity_flags %}
+<div class="banner banner-amber">
+  <strong>Ambiguities detected — review before approving</strong>
+  <ul>{% for f in session.ambiguity_flags %}<li>{{ f }}</li>{% endfor %}</ul>
+</div>
+{% endif %}
+{% if session.conflict_flags %}
+<div class="banner banner-red">
+  <strong>Conflicts detected — resolve before approving</strong>
+  <ul>{% for f in session.conflict_flags %}<li>{{ f }}</li>{% endfor %}</ul>
+</div>
+{% endif %}
+
+<div id="story-cards">
+  {% for story in session.generated_stories %}
+  <div class="card story-card" data-story-id="{{ story.id }}">
+    <div class="muted">{{ story.id }}</div>
+    <div class="story-title" style="font-weight:600; font-size:16px;">{{ story.title }}</div>
+    <p class="story-description">{{ story.description }}</p>
+
+    {% if story.priority %}<span class="badge badge-gray">{{ story.priority|upper }}</span>{% endif %}
+    {% if story.story_points %}<span class="muted">{{ story.story_points }} pts</span>{% endif %}
+
+    {% if story.acceptance_criteria %}
+    <table style="margin-top:12px;">
+      <thead><tr><th>Given</th><th>When</th><th>Then</th></tr></thead>
+      <tbody>
+        {% for c in story.acceptance_criteria %}
+        <tr><td colspan="3">{{ c }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+
+    <div class="row" style="margin-top:12px;">
+      <div>
+        <button type="button" class="btn-green btn-approve">Approve</button>
+        <button type="button" class="btn btn-edit">Edit</button>
+        <button type="button" class="btn-red btn-remove">Remove</button>
+      </div>
+    </div>
+
+    <div class="edit-form" style="display:none; margin-top:12px;">
+      <label>Title</label>
+      <input type="text" class="edit-title" value="{{ story.title }}">
+      <label>Description</label>
+      <textarea class="edit-description" rows="3">{{ story.description }}</textarea>
+      <label>Given</label>
+      <textarea class="edit-given" rows="2"></textarea>
+      <label>When</label>
+      <textarea class="edit-when" rows="2"></textarea>
+      <label>Then</label>
+      <textarea class="edit-then" rows="2"></textarea>
+      <button type="button" class="btn btn-save" style="margin-top:8px;">Save edits</button>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="card" style="position:sticky; bottom:0;">
+  <div class="row">
+    <div id="approve-counter" class="muted">0 of {{ session.generated_stories|length }} stories approved</div>
+    <div>
+      <button type="button" class="btn-green" id="btn-approve-all">Approve all remaining</button>
+      <button type="button" class="btn-red" id="btn-reject">Reject session</button>
+      <button type="button" class="btn-primary" id="btn-submit" disabled>Submit approved stories</button>
+    </div>
+  </div>
+</div>
+
+<div id="reject-modal" class="card" style="display:none;">
+  <label>What needs to change?</label>
+  <textarea id="reject-feedback" rows="4"></textarea>
+  <button type="button" class="btn-red" id="btn-confirm-reject">Confirm rejection</button>
+  <button type="button" class="btn" id="btn-cancel-reject">Cancel</button>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if ready %}
+<script src="/static/app.js"></script>
+<script>
+  initReviewPage("{{ session.session_id }}");
+</script>
+{% endif %}
+{% endblock %}

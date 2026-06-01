@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Running pipeline — {{ session.session_name }}</h1>
+
+<div id="error-box" class="banner banner-red" style="display:none;">
+  <span id="error-message"></span>
+  <div style="margin-top:8px;">
+    <a class="btn" href="/sessions/new">Try again</a>
+  </div>
+</div>
+
+<div class="card">
+  <ol id="progress-steps" style="list-style:none; padding:0; margin:0;">
+    {% for node, label in steps %}
+    <li data-node="{{ node }}" style="padding:8px 0; display:flex; gap:10px; align-items:center;">
+      <span class="step-icon" style="color:var(--gray);">○</span>
+      <span class="step-label">{{ label }}</span>
+    </li>
+    {% endfor %}
+  </ol>
+</div>
+
+<p class="muted">This page updates automatically. You'll be taken to the review
+screen when the stories are ready.</p>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/app.js"></script>
+<script>
+  pollSessionStatus("{{ session.session_id }}", 3000);
+</script>
+{% endblock %}

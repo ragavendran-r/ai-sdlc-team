@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Running UX pipeline</h1>
+<p class="muted">{{ session.session_name }}</p>
+
+<div id="error-box" class="banner red" style="display:none;"></div>
+
+<ul class="steps" data-progress-session="{{ session.session_id }}">
+  {% for node, label in steps %}
+  <li data-node="{{ node }}">{{ label }}</li>
+  {% endfor %}
+</ul>
+
+<p class="muted">This page updates automatically. You'll be taken to the review
+screen when the specs are ready.</p>
+
+{% endblock %}

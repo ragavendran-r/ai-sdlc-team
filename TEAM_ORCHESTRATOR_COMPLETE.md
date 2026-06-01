@@ -60,7 +60,7 @@ team-orchestrator/
 Persistent shared storage for team artifacts.
 
 **Storage**:
-- File system: JSON files in `team-contracts/context-store/artifacts/`
+- File system: JSON files in `team_contracts/context-store/artifacts/`
 - In-memory cache: Fast access to frequently-read artifacts
 - Metadata index: Track artifact types, workflows, timestamps
 

@@ -9,7 +9,7 @@ from pathlib import Path
 class ContextStore:
     """Persistent context store for team artifacts."""
 
-    def __init__(self, base_path: str = "team-contracts/context-store"):
+    def __init__(self, base_path: str = "team_contracts/context-store"):
         """
         Initialize context store.
 
