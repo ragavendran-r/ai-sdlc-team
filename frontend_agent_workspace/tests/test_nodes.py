@@ -1,21 +1,38 @@
 """Unit tests for Frontend Agent workflow nodes."""
 
 import pytest
-from frontend_agent_workspace.agents.state import FrontendWorkflowState
+
 from frontend_agent_workspace.agents.nodes import (
-    ux_handoff_intake,
-    component_breakdown,
-    design_token_mapping,
-    api_integration_planning,
-    component_scaffolding,
-    state_management,
     accessibility_implementation,
-    unit_test_generation,
-    human_checkpoint,
-    pr_description,
+    api_integration_planning,
     code_review,
+    component_breakdown,
+    component_scaffolding,
+    design_token_mapping,
+    pr_description,
+    state_management,
+    unit_test_generation,
+    ux_handoff_intake,
 )
-from team_contracts.schemas import UXHandoff, APIContract, APIEndpoint, HTTPMethod, JSONSchema
+from frontend_agent_workspace.agents.state import FrontendWorkflowState
+from team_contracts.schemas import (
+    APIContract,
+    APIEndpoint,
+    ComponentSpec,
+    ComponentType,
+    HTTPMethod,
+    JSONSchema,
+    UXHandoff,
+)
+
+# A minimal valid component; UXHandoff requires at least one.
+_SAMPLE_COMPONENT = ComponentSpec(
+    id="C-001",
+    name="LoginForm",
+    component_type=ComponentType.FORM,
+    description="Login form component for authentication",
+    design_notes="Centered card layout with email and password fields",
+)
 
 
 class TestUXHandoffIntake:
@@ -30,7 +47,7 @@ class TestUXHandoffIntake:
             id="UX-001",
             user_story_id="US-001",
             feature_name="Test Feature",
-            components=[],
+            components=[_SAMPLE_COMPONENT],
             created_by="ux-agent",
         )
 
@@ -46,7 +63,7 @@ class TestUXHandoffIntake:
             id="UX-001",
             user_story_id="US-001",
             feature_name="Test Feature",
-            components=[],
+            components=[_SAMPLE_COMPONENT],
             created_by="ux-agent",
         )
 
@@ -65,7 +82,7 @@ class TestComponentBreakdown:
             id="UX-001",
             user_story_id="US-001",
             feature_name="Test Feature",
-            components=[],
+            components=[_SAMPLE_COMPONENT],
             created_by="ux-agent",
         )
         state.validated_handoff = state.ux_handoff
@@ -134,7 +151,7 @@ class TestAPIIntegrationPlanning:
                     method=HTTPMethod.GET,
                     path="/users",
                     summary="Get users",
-                    description="Get all users",
+                    description="Get all users endpoint",
                     response_schema=JSONSchema(type="array"),
                 )
             ],
@@ -226,13 +243,17 @@ class TestAccessibilityImplementation:
         """Test that a11y features are added."""
         state = FrontendWorkflowState()
         state.scaffolded_components = [
-            {"id": "C-001", "name": "Button", "tsx_code": "export const Button = () => <button/>"},
+            {
+                "id": "C-001",
+                "name": "Button",
+                "tsx_code": "export const Button = () => <button/>",
+            },
         ]
         state.validated_handoff = UXHandoff(
             id="UX-001",
             user_story_id="US-001",
             feature_name="Test",
-            components=[],
+            components=[_SAMPLE_COMPONENT],
             accessibility_requirements=["WCAG 2.1 AA"],
             created_by="ux-agent",
         )
@@ -252,7 +273,7 @@ class TestAccessibilityImplementation:
             id="UX-001",
             user_story_id="US-001",
             feature_name="Test",
-            components=[],
+            components=[_SAMPLE_COMPONENT],
             created_by="ux-agent",
         )
 
@@ -309,7 +330,9 @@ class TestPRDescription:
 
         assert result.pr_creation_complete
         assert len(result.pr_description) > 0
-        assert "Summary" in result.pr_description or "Components" in result.pr_description
+        assert (
+            "Summary" in result.pr_description or "Components" in result.pr_description
+        )
 
     def test_pr_includes_components(self):
         """Test that PR description includes component list."""

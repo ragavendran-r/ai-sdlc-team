@@ -1,17 +1,18 @@
 """Unit tests for UX Agent workflow nodes."""
 
 import pytest
-from team_contracts.schemas import UserStory, Priority, Complexity
-from ux_agent_workspace.agents.state import UXWorkflowState
+
+from team_contracts.schemas import Complexity, Priority, UserStory
 from ux_agent_workspace.agents.nodes import (
-    story_intake,
-    persona_agent,
-    user_flow_mapping,
-    information_architecture,
-    wireframe_brief,
-    design_system_compliance,
     accessibility_review,
+    design_system_compliance,
+    information_architecture,
+    persona_agent,
+    story_intake,
+    user_flow_mapping,
+    wireframe_brief,
 )
+from ux_agent_workspace.agents.state import UXWorkflowState
 
 
 class TestStoryIntake:
@@ -24,7 +25,7 @@ class TestStoryIntake:
             UserStory(
                 id="US-001",
                 title="User login",
-                description="Login flow",
+                description="Login flow for the user",
                 user_role="Customer",
                 user_goal="log in",
                 business_value="auth",
@@ -69,7 +70,7 @@ class TestPersonaAgent:
             UserStory(
                 id="US-001",
                 title="User login",
-                description="Login",
+                description="Login feature for users",
                 user_role="Customer",
                 user_goal="log in",
                 business_value="auth",
@@ -92,7 +93,7 @@ class TestPersonaAgent:
             UserStory(
                 id="US-001",
                 title="User login",
-                description="Login",
+                description="Login feature for users",
                 user_role="Admin",
                 user_goal="manage",
                 business_value="control",
@@ -122,7 +123,7 @@ class TestUserFlowMapping:
             UserStory(
                 id="US-001",
                 title="Login",
-                description="Login flow",
+                description="Login flow for the user",
                 user_role="Customer",
                 user_goal="log in",
                 business_value="auth",
@@ -146,7 +147,7 @@ class TestUserFlowMapping:
             UserStory(
                 id="US-001",
                 title="Login",
-                description="Login",
+                description="Login feature for users",
                 user_role="Customer",
                 user_goal="log in",
                 business_value="auth",
@@ -190,7 +191,7 @@ class TestWireframeBrief:
             UserStory(
                 id="US-001",
                 title="Login",
-                description="Login",
+                description="Login feature for users",
                 user_role="Customer",
                 user_goal="log in",
                 business_value="auth",
@@ -215,7 +216,7 @@ class TestWireframeBrief:
             UserStory(
                 id="US-001",
                 title="Login",
-                description="Login",
+                description="Login feature for users",
                 user_role="Customer",
                 user_goal="log in",
                 business_value="auth",
@@ -244,7 +245,7 @@ class TestDesignSystemCompliance:
             UserStory(
                 id="US-001",
                 title="Login",
-                description="Login",
+                description="Login feature for users",
                 user_role="Customer",
                 user_goal="log in",
                 business_value="auth",
@@ -274,7 +275,7 @@ class TestAccessibilityReview:
             UserStory(
                 id="US-001",
                 title="Login",
-                description="Login",
+                description="Login feature for users",
                 user_role="Customer",
                 user_goal="log in",
                 business_value="auth",

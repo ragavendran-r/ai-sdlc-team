@@ -1,32 +1,25 @@
 """Unit tests for EM Agent workflow nodes."""
 
 import pytest
-from datetime import datetime, timedelta
-from team_contracts.schemas import (
-    UserStory,
-    Priority,
-    Complexity,
-    CapacityReport,
-    RiskFlag,
-    RiskType,
-    RiskSeverity,
-    DefinitionOfDone,
-    DoDItem,
-    DoDCategory,
-    SprintStatus,
-    SprintPhase,
-    Blocker,
-    BlockerType,
-)
-from em_agent_workspace.agents.state import EMWorkflowState
+
 from em_agent_workspace.agents.nodes import (
     backlog_intake,
-    dependency_mapping,
+    blocker_detection,
     capacity_analysis,
+    definition_of_done,
+    dependency_mapping,
     risk_assessment,
     sprint_composition,
-    definition_of_done,
-    blocker_detection,
+)
+from em_agent_workspace.agents.state import EMWorkflowState
+from team_contracts.schemas import (
+    CapacityReport,
+    Complexity,
+    Priority,
+    RiskType,
+    SprintPhase,
+    SprintStatus,
+    UserStory,
 )
 
 
@@ -80,7 +73,7 @@ class TestDependencyMapping:
             UserStory(
                 id="US-001",
                 title="Login",
-                description="User login",
+                description="User login functionality",
                 user_role="Customer",
                 user_goal="log in",
                 business_value="authentication",
@@ -92,7 +85,7 @@ class TestDependencyMapping:
             UserStory(
                 id="US-002",
                 title="OAuth",
-                description="Social login",
+                description="Social login via OAuth",
                 user_role="Customer",
                 user_goal="log in with OAuth",
                 business_value="faster signup",
@@ -120,7 +113,7 @@ class TestDependencyMapping:
             UserStory(
                 id="US-001",
                 title="Feature A",
-                description="Feature A",
+                description="Feature A implementation",
                 user_role="User",
                 user_goal="goal",
                 business_value="value",
@@ -133,7 +126,7 @@ class TestDependencyMapping:
             UserStory(
                 id="US-002",
                 title="Feature B",
-                description="Feature B",
+                description="Feature B implementation",
                 user_role="User",
                 user_goal="goal",
                 business_value="value",
@@ -188,7 +181,7 @@ class TestRiskAssessment:
             UserStory(
                 id="US-001",
                 title="Complex Feature",
-                description="A complex feature",
+                description="A complex feature — ",
                 user_role="User",
                 user_goal="accomplish something complex",
                 business_value="high value",
@@ -213,7 +206,7 @@ class TestRiskAssessment:
             UserStory(
                 id="US-001",
                 title="Feature",
-                description="Feature",
+                description="Feature implementation work",
                 user_role="User",
                 user_goal="goal",
                 business_value="value",
@@ -270,7 +263,7 @@ class TestSprintComposition:
             UserStory(
                 id="US-001",
                 title="Login",
-                description="User login",
+                description="User login functionality",
                 user_role="Customer",
                 user_goal="log in",
                 business_value="auth",
@@ -308,7 +301,7 @@ class TestSprintComposition:
             UserStory(
                 id=f"US-{i:03d}",
                 title=f"Story {i}",
-                description=f"Story {i}",
+                description=f"Story {i} — detailed description for testing",
                 user_role="User",
                 user_goal="goal",
                 business_value="value",
@@ -346,34 +339,36 @@ class TestDefinitionOfDone:
         """Test that definition_of_done creates a checklist."""
         state = EMWorkflowState()
 
-        state.draft_sprint = sprint_composition(EMWorkflowState(
-            validated_stories=[
-                UserStory(
-                    id="US-001",
-                    title="Feature",
-                    description="Feature",
-                    user_role="User",
-                    user_goal="goal",
-                    business_value="value",
-                    acceptance_criteria=["Done"],
-                    priority=Priority.HIGH,
-                    estimated_complexity=Complexity.M,
-                    created_by="po-agent",
+        state.draft_sprint = sprint_composition(
+            EMWorkflowState(
+                validated_stories=[
+                    UserStory(
+                        id="US-001",
+                        title="Feature",
+                        description="Feature implementation work",
+                        user_role="User",
+                        user_goal="goal",
+                        business_value="value",
+                        acceptance_criteria=["Done"],
+                        priority=Priority.HIGH,
+                        estimated_complexity=Complexity.M,
+                        created_by="po-agent",
+                    ),
+                ],
+                dependency_graph={"US-001": []},
+                capacity_report=CapacityReport(
+                    id="CAP-001",
+                    team_size=5,
+                    available_hours_per_day=6,
+                    team_velocity=35,
+                    total_available_hours=420,
+                    usable_capacity_hours=380,
+                    estimated_story_points_capacity=35,
+                    created_by="em-agent",
                 ),
-            ],
-            dependency_graph={"US-001": []},
-            capacity_report=CapacityReport(
-                id="CAP-001",
-                team_size=5,
-                available_hours_per_day=6,
-                team_velocity=35,
-                total_available_hours=420,
-                usable_capacity_hours=380,
-                estimated_story_points_capacity=35,
-                created_by="em-agent",
-            ),
-            risk_flags=[],
-        )).draft_sprint
+                risk_flags=[],
+            )
+        ).draft_sprint
 
         result = definition_of_done(state)
 
@@ -384,34 +379,36 @@ class TestDefinitionOfDone:
         """Test that DoD items have required fields."""
         state = EMWorkflowState()
 
-        state.draft_sprint = sprint_composition(EMWorkflowState(
-            validated_stories=[
-                UserStory(
-                    id="US-001",
-                    title="Feature",
-                    description="Feature",
-                    user_role="User",
-                    user_goal="goal",
-                    business_value="value",
-                    acceptance_criteria=["Done"],
-                    priority=Priority.HIGH,
-                    estimated_complexity=Complexity.M,
-                    created_by="po-agent",
+        state.draft_sprint = sprint_composition(
+            EMWorkflowState(
+                validated_stories=[
+                    UserStory(
+                        id="US-001",
+                        title="Feature",
+                        description="Feature implementation work",
+                        user_role="User",
+                        user_goal="goal",
+                        business_value="value",
+                        acceptance_criteria=["Done"],
+                        priority=Priority.HIGH,
+                        estimated_complexity=Complexity.M,
+                        created_by="po-agent",
+                    ),
+                ],
+                dependency_graph={"US-001": []},
+                capacity_report=CapacityReport(
+                    id="CAP-001",
+                    team_size=5,
+                    available_hours_per_day=6,
+                    team_velocity=35,
+                    total_available_hours=420,
+                    usable_capacity_hours=380,
+                    estimated_story_points_capacity=35,
+                    created_by="em-agent",
                 ),
-            ],
-            dependency_graph={"US-001": []},
-            capacity_report=CapacityReport(
-                id="CAP-001",
-                team_size=5,
-                available_hours_per_day=6,
-                team_velocity=35,
-                total_available_hours=420,
-                usable_capacity_hours=380,
-                estimated_story_points_capacity=35,
-                created_by="em-agent",
-            ),
-            risk_flags=[],
-        )).draft_sprint
+                risk_flags=[],
+            )
+        ).draft_sprint
 
         result = definition_of_done(state)
 

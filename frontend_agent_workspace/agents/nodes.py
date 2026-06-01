@@ -1,16 +1,11 @@
 """Frontend Agent workflow nodes."""
 
 import json
-from typing import List, Dict, Any, Optional
 from anthropic import Anthropic
 from .state import FrontendWorkflowState
 from .tools import (
-    ContextStoreTool,
     DesignSystemTool,
     CodeGenerationTool,
-    GitHubTool,
-    ValidationTool,
-    ToolResult,
 )
 
 
@@ -195,6 +190,7 @@ def api_integration_planning(state: FrontendWorkflowState) -> FrontendWorkflowSt
 
     if not state.api_contract:
         state.api_integration_map = {}
+        state.api_planning_complete = True
         state.messages.append({
             "agent": "api_integration_planning",
             "message": "No API contract available, skipping API planning",
@@ -582,7 +578,10 @@ def code_review(state: FrontendWorkflowState) -> FrontendWorkflowState:
                 "severity": "major",
                 "category": "design_token",
                 "title": "No design tokens used",
-                "message": f"{component.get('name')} doesn't use any design tokens. Use design tokens for colors, spacing, typography.",
+                "message": (
+                    f"{component.get('name')} doesn't use any design tokens. "
+                    "Use design tokens for colors, spacing, typography."
+                ),
                 "component_id": component.get("id"),
             })
 

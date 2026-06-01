@@ -3,9 +3,6 @@
 from langchain_anthropic import ChatAnthropic
 from .state import UXWorkflowState
 from .tools import (
-    ContextStoreTool,
-    ResearchTool,
-    DesignSystemTool,
     FigmaIntegrationTool,
     ContextStoreWriteTool,
 )
@@ -55,7 +52,7 @@ def story_intake(state: UXWorkflowState) -> UXWorkflowState:
             UserStory(
                 id="US-002",
                 title="Database optimization",
-                description="Optimize database",
+                description="Optimize database queries for performance",
                 user_role="Engineer",
                 user_goal="optimize",
                 business_value="perf",
