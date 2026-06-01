@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>UX handoff</h1>
+<p class="muted">{{ session.session_name }}</p>
+
+{% if published %}
+<div class="banner green">Handoff published to the shared context store for the Frontend workspace.</div>
+{% else %}
+<div class="banner amber">This session has not published a handoff yet.</div>
+{% endif %}
+
+<div class="row" style="margin-bottom: 1.5rem;">
+  <a class="btn secondary" href="/sessions/{{ session.session_id }}/export/markdown">Download Markdown</a>
+  <a class="btn secondary" href="/sessions/{{ session.session_id }}/export/csv">Download briefs CSV</a>
+</div>
+
+<div class="card">
+  <strong>Personas:</strong> {{ session.personas|length }}<br>
+  <strong>User flows:</strong> {{ session.user_flows|length }}<br>
+  <strong>Wireframe briefs:</strong> {{ session.wireframe_briefs|length }}
+</div>
+
+{% endblock %}

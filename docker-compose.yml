@@ -176,6 +176,69 @@ services:
     command: python -m frontend_agent_workspace.agents.workflow
     restart: unless-stopped
 
+  # ---------------------------------------------------------------------------
+  # Human-facing web interfaces (PO / EM / UX). Each is its own process with its
+  # own in-memory EventBus, so cross-workspace handoff happens via the shared
+  # on-disk context store: PO writes `backlog` -> EM reads it and writes
+  # `sprint-plan` -> UX reads it and writes `ux-handoff`. The whole repo is bind
+  # mounted at /app (matching the agent services above), so all interfaces and
+  # agents read/write the same team_contracts/context-store directory.
+  # ---------------------------------------------------------------------------
+
+  # PO web interface -> http://localhost:8001
+  po_interface:
+    build:
+      context: .
+      dockerfile: po_agent_workspace/Dockerfile
+    container_name: ai_sdlc_po_interface
+    environment:
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      CONTEXT_STORE_PATH: /app/team_contracts/context-store
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    ports:
+      - "8001:8000"
+    volumes:
+      - .:/app
+    networks:
+      - ai_sdlc_network
+    restart: unless-stopped
+
+  # EM web interface -> http://localhost:8002
+  em_interface:
+    build:
+      context: .
+      dockerfile: em_agent_workspace/Dockerfile
+    container_name: ai_sdlc_em_interface
+    environment:
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      CONTEXT_STORE_PATH: /app/team_contracts/context-store
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    ports:
+      - "8002:8000"
+    volumes:
+      - .:/app
+    networks:
+      - ai_sdlc_network
+    restart: unless-stopped
+
+  # UX web interface -> http://localhost:8003
+  ux_interface:
+    build:
+      context: .
+      dockerfile: ux_agent_workspace/Dockerfile
+    container_name: ai_sdlc_ux_interface
+    environment:
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      CONTEXT_STORE_PATH: /app/team_contracts/context-store
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    ports:
+      - "8003:8000"
+    volumes:
+      - .:/app
+    networks:
+      - ai_sdlc_network
+    restart: unless-stopped
+
   # PgAdmin for database management (optional)
   pgadmin:
     image: dpage/pgadmin4:latest

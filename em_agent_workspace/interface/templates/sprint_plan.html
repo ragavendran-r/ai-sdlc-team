@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Plan a sprint</h1>
+<p class="muted">The pipeline reads the published backlog, maps dependencies,
+estimates capacity, flags risks, and drafts a sprint for your review.</p>
+
+{% if not backlog_ready %}
+<div class="banner amber">
+  No backlog is available. Ask the PO workspace to publish one first.
+</div>
+{% else %}
+<div class="banner green">{{ backlog_count }} backlog stories will feed this sprint.</div>
+
+<form method="post" action="/sprint/run">
+  <div class="field">
+    <label for="session_name">Sprint name</label>
+    <input type="text" id="session_name" name="session_name" placeholder="e.g. Sprint 12 — Checkout" required>
+  </div>
+  <div class="field">
+    <label for="sprint_goal">Sprint goal (optional)</label>
+    <textarea id="sprint_goal" name="sprint_goal" rows="3" placeholder="What should this sprint deliver?"></textarea>
+  </div>
+  <button type="submit" class="btn">Run planning pipeline</button>
+</form>
+{% endif %}
+
+{% endblock %}

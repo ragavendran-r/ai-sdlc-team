@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>UX &amp; Design workspace</h1>
+<p class="muted">Turn the sprint plan into personas, flows, and wireframe briefs.</p>
+
+{% if sprint_ready %}
+<div class="banner green">Sprint plan ready — you can start a design session.</div>
+<div class="row" style="margin: 1rem 0;">
+  <a class="btn" href="/sessions/new">+ New design session</a>
+</div>
+{% else %}
+<div class="banner amber">
+  No sprint plan published yet. The EM workspace must publish a sprint plan
+  before you can start designing.
+</div>
+{% endif %}
+
+{% if awaiting %}
+<div class="banner amber"><strong>{{ awaiting|length }} session(s) awaiting your review.</strong></div>
+{% endif %}
+
+{% if handoff_published %}
+<div class="banner green">A UX handoff has been published for the Frontend workspace.</div>
+{% endif %}
+
+<h2>Sessions</h2>
+{% if sessions %}
+{% for s in sessions %}
+<div class="card">
+  <div class="row" style="justify-content: space-between;">
+    <div>
+      <strong>{{ s.session_name }}</strong><br>
+      <span class="muted">{{ s.session_id[:8] }}</span>
+    </div>
+    <div class="row">
+      {% if s.status == "awaiting_review" %}
+      <span class="badge amber">needs review</span>
+      <a class="btn secondary" href="/sessions/{{ s.session_id }}/review">Review</a>
+      {% elif s.status == "running" %}
+      <span class="badge blue">running</span>
+      <a class="btn ghost" href="/sessions/{{ s.session_id }}/progress">View</a>
+      {% elif s.status == "approved" %}
+      <span class="badge green">approved</span>
+      <a class="btn ghost" href="/sessions/{{ s.session_id }}/summary">Summary</a>
+      {% elif s.status == "error" %}
+      <span class="badge red">error</span>
+      <a class="btn ghost" href="/sessions/{{ s.session_id }}/progress">Details</a>
+      {% else %}
+      <span class="badge gray">{{ s.status }}</span>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endfor %}
+{% else %}
+<p class="muted">No sessions yet.</p>
+{% endif %}
+
+{% endblock %}

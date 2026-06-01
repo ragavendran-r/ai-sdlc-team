@@ -20,7 +20,7 @@ Complete guide for the Team Orchestrator that coordinates all AI SDLC Team workf
 The Team Orchestrator is a central coordination system that:
 
 - **Manages events** from each role workflow (PO, EM, UX, Backend, Frontend)
-- **Routes data** between workflows using team-contracts schemas
+- **Routes data** between workflows using team_contracts schemas
 - **Stores artifacts** in a shared context store
 - **Tracks pipeline** state and execution
 - **Provides CLI** for running the complete team pipeline
@@ -183,7 +183,7 @@ latest = store.get_latest_by_type(
 **Storage Structure**:
 
 ```
-team-contracts/context-store/
+team_contracts/context-store/
 ├── artifacts/
 │   ├── po_stories_1234567890.json
 │   ├── em_sprint_1234567891.json

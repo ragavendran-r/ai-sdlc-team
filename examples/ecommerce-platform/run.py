@@ -633,7 +633,7 @@ def run_ecommerce_example():
    - Monitor security events
 """)
 
-    print("\nArtifacts are stored in: team-contracts/context-store/")
+    print("\nArtifacts are stored in: team_contracts/context-store/")
     print("View them with: python ../../run_team_pipeline.py context --timeline")
     print("\n" + "="*80 + "\n")
 

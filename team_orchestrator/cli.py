@@ -398,7 +398,7 @@ Examples:
         print("\n" + "=" * 80)
         print(" TEAM ORCHESTRATOR CONFIGURATION")
         print("=" * 80)
-        print("\nContext Store: team-contracts/context-store")
+        print("\nContext Store: team_contracts/context-store")
         print(f"Workflows: {', '.join(self.orchestrator.workflow_states.keys())}")
         print(f"Routes: {len(self.orchestrator.router.routes)}")
         print("\nDefault Routes:")

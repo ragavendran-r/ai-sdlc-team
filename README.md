@@ -50,6 +50,59 @@ export ANTHROPIC_API_KEY=sk-your-key-here
 python run_team_pipeline.py run --demo
 ```
 
+## 🖥️ Accessing each workspace
+
+The three human-in-the-loop roles (PO, EM, UX) ship a minimal web interface
+(FastAPI + Jinja2, no build step). The two developer roles stay CLI. Handoff
+flows through the shared on-disk context store (`team_contracts/context-store`):
+each interface writes an artifact (`backlog`, `sprint-plan`, `ux-handoff`) that
+the next workspace reads — file-based handoff, since each app is its own process.
+
+| Workspace | Interface | URL (docker-compose) | Role |
+|-----------|-----------|----------------------|------|
+| PO Agent | Web | http://localhost:8001 | Paste requirements → review/approve stories → publish backlog |
+| EM Agent | Web | http://localhost:8002 | Read backlog → plan sprint → review/approve → publish sprint plan |
+| UX Agent | Web | http://localhost:8003 | Read sprint plan → review personas/flows/wireframes → publish handoff |
+| Backend Agent | CLI | — | Consumes contracts |
+| Frontend Agent | CLI | — | Consumes UX handoff |
+
+> Each web interface is a **starting point** — replace it with your team's
+> preferred tool. The LangGraph workflow underneath does not change.
+
+### Run the web workspaces together
+
+```bash
+# Bring up all three web interfaces (they share the context-store volume)
+export ANTHROPIC_API_KEY=sk-your-key-here
+docker compose up po_interface em_interface ux_interface
+# Then open PO (8001) → publish a backlog → EM (8002) → plan a sprint → UX (8003)
+```
+
+### Run a single web workspace
+
+```bash
+# One service via Docker (PO on 8001 / EM on 8002 / UX on 8003)
+docker compose up po_interface
+
+# Or locally without Docker (always serves http://localhost:8000)
+cd po_agent_workspace          # or em_agent_workspace / ux_agent_workspace
+PYTHONPATH="$PWD/..:$PWD" python interface/run.py
+```
+
+### Run the developer (CLI) workspaces
+
+Backend and Frontend have no web UI — they consume artifacts from the context
+store and run as workflows:
+
+```bash
+# Via Docker (defined as services in docker-compose.yml)
+docker compose up backend_agent     # or frontend_agent
+
+# Or locally (run from the repo root)
+PYTHONPATH="$PWD" python -m backend_agent_workspace.agents.workflow
+PYTHONPATH="$PWD" python -m frontend_agent_workspace.agents.workflow
+```
+
 ## 📖 Documentation
 
 | Document | Purpose |
@@ -136,9 +189,15 @@ docker-compose down
 pytest . -v
 
 # By component
-pytest team-orchestrator/tests/ -v
-pytest backend-agent-workspace/tests/ -v
-pytest frontend-agent-workspace/tests/ -v
+pytest team_orchestrator/tests/ -v
+pytest backend_agent_workspace/tests/ -v
+pytest frontend_agent_workspace/tests/ -v
+
+# Web interface tests (the workspace dir must be on PYTHONPATH so
+# `from interface...` resolves)
+PYTHONPATH="$PWD:$PWD/po_agent_workspace" pytest po_agent_workspace/interface/tests/ -v
+PYTHONPATH="$PWD:$PWD/em_agent_workspace" pytest em_agent_workspace/interface/tests/ -v
+PYTHONPATH="$PWD:$PWD/ux_agent_workspace" pytest ux_agent_workspace/interface/tests/ -v
 
 # With coverage
 pytest --cov --cov-report=html

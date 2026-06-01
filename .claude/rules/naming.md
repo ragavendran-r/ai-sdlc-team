@@ -18,7 +18,7 @@
 
 ### Incorrect Examples
 ❌ `team-orchestrator/` (WILL BREAK)
-❌ `po-agent-workspace/` (WILL BREAK)
+❌ `po_agent_workspace/` (WILL BREAK)
 ❌ `test-nodes.py` (WILL BREAK)
 ❌ `user-story.py` (WILL BREAK)
 

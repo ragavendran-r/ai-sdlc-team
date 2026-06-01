@@ -150,7 +150,7 @@ EM AGENT ─→ Sprint Plan (6 tasks, 26 points)
 
 ## Generated Artifacts
 
-All artifacts are stored in `team-contracts/context-store/`:
+All artifacts are stored in `team_contracts/context-store/`:
 
 1. **User Stories** (from PO)
    - Requirements and acceptance criteria
@@ -248,7 +248,7 @@ orchestrator.publish_event(security_event)
 Replace stub tools with real implementations:
 
 ```python
-# In backend-agent-workspace/agents/tools.py
+# In backend_agent_workspace/agents/tools.py
 class GitHubTool:
     @staticmethod
     def create_pull_request(title, body):

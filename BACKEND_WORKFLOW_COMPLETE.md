@@ -7,7 +7,7 @@ A fully functional Backend Agent LangGraph workflow with **2,620+ lines** of pro
 ### Files Created
 
 ```
-backend-agent-workspace/agents/
+backend_agent_workspace/agents/
 ├── state.py (150 lines)          ✅ BackendWorkflowState with 20+ fields
 ├── tools.py (200 lines)          ✅ 7 tool suites (15 tools total)
 ├── nodes.py (950 lines)          ✅ 12 agent node implementations
@@ -16,11 +16,11 @@ backend-agent-workspace/agents/
 ├── __init__.py                   ✅ Module exports
 └── requirements.txt              ✅ Dependencies
 
-backend-agent-workspace/tests/
+backend_agent_workspace/tests/
 ├── test_nodes.py (500+ lines)    ✅ 12 test classes
 └── __init__.py                   ✅ Test module
 
-team-contracts/schemas/
+team_contracts/schemas/
 ├── backend_requirement.py        ✅ NEW BackendRequirement schema
 ├── domain_model.py               ✅ NEW DomainModel + Entity + Relationship
 ├── database_schema.py            ✅ NEW DatabaseSchema schema
@@ -29,7 +29,7 @@ team-contracts/schemas/
 ├── security_flag.py              ✅ NEW SecurityFlag schema
 └── __init__.py                   ✅ UPDATED with new schemas
 
-backend-agent-workspace/
+backend_agent_workspace/
 └── README.md                     ✅ Complete documentation
 ```
 
@@ -253,12 +253,12 @@ Each with multiple test methods validating:
 
 1. **Run the workflow**
    ```bash
-   python backend-agent-workspace/agents/workflow.py
+   python backend_agent_workspace/agents/workflow.py
    ```
 
 2. **Run tests**
    ```bash
-   pytest backend-agent-workspace/tests/ -v
+   pytest backend_agent_workspace/tests/ -v
    ```
 
 3. **Integrate inputs**

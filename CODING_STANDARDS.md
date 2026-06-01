@@ -114,7 +114,7 @@ This document outlines the coding standards and lessons learned from building th
 ### Workflow Updates
 - When files move or rename, update `.github/workflows/tests.yml`
 - Pattern examples:
-  - `pytest po-agent-workspace/tests/` → `pytest po_agent_workspace/tests/`
+  - `pytest po_agent_workspace/tests/` → `pytest po_agent_workspace/tests/`
   - `pip install -r team-orchestrator/requirements.txt` → `pip install -r team_orchestrator/requirements.txt`
 
 ### Linting & Code Quality

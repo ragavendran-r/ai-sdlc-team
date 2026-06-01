@@ -6,8 +6,8 @@ The central coordination system for the AI SDLC Team. Orchestrates workflows (PO
 
 The Team Orchestrator:
 - **Listens** for events from each role workflow
-- **Routes** outputs to downstream workflows via team-contracts schemas
-- **Maintains** a shared context store in `team-contracts/context-store`
+- **Routes** outputs to downstream workflows via team_contracts schemas
+- **Maintains** a shared context store in `team_contracts/context-store`
 - **Provides** a single CLI entry point for full pipeline execution
 - **Tracks** pipeline state and artifacts
 - **Enables** cross-workflow communication and data flow
@@ -106,7 +106,7 @@ Persistent shared storage for team artifacts:
 
 **Storage Structure**:
 ```
-team-contracts/context-store/
+team_contracts/context-store/
 ├── artifacts/        # Artifact JSON files
 ├── metadata/         # Metadata directory
 └── workflows/        # Workflow-specific data
@@ -258,7 +258,7 @@ orchestrator.router.add_route(
 ## 📊 Context Store Layout
 
 ```
-team-contracts/context-store/
+team_contracts/context-store/
 ├── artifacts/
 │   ├── po_stories_1715000000.0.json
 │   ├── em_sprint_1715000100.0.json

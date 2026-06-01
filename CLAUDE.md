@@ -63,13 +63,13 @@ ai-sdlc-team/
 │       ├── naming.md        # Python naming conventions
 │       ├── testing.md       # Testing standards
 │       └── ci_cd.md         # CI/CD pipeline rules
-├── po-agent-workspace/
-├── em-agent-workspace/
-├── ux-agent-workspace/
-├── backend-agent-workspace/
-├── frontend-agent-workspace/
+├── po_agent_workspace/
+├── em_agent_workspace/
+├── ux_agent_workspace/
+├── backend_agent_workspace/
+├── frontend_agent_workspace/
 ├── team_orchestrator/       # IMPORTANT: underscore, not hyphen
-└── team-contracts/
+└── team_contracts/
 ```
 
 ## Common Pitfalls to Avoid

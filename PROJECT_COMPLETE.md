@@ -53,7 +53,7 @@ Repositories:           5 agent workspaces + 1 orchestrator
 ## 📦 Agent Implementations
 
 ### 1. Product Owner (PO) Agent
-**Location:** `po-agent-workspace/`
+**Location:** `po_agent_workspace/`
 **Status:** ✅ Complete (1,200+ lines)
 
 **Responsibilities:**
@@ -65,7 +65,7 @@ Repositories:           5 agent workspaces + 1 orchestrator
 - Define acceptance criteria
 
 **Outputs:**
-- UserStory objects (team-contracts schema)
+- UserStory objects (team_contracts schema)
 - Complexity estimates
 - Dependency graphs
 - Priority rankings
@@ -77,7 +77,7 @@ Repositories:           5 agent workspaces + 1 orchestrator
 - `tests/test_nodes.py` - 7 test classes
 
 ### 2. Engineering Manager (EM) Agent
-**Location:** `em-agent-workspace/`
+**Location:** `em_agent_workspace/`
 **Status:** ✅ Complete (1,800+ lines)
 
 **Responsibilities:**
@@ -102,7 +102,7 @@ Repositories:           5 agent workspaces + 1 orchestrator
 - `tests/test_nodes.py` - 11 test classes
 
 ### 3. UX Agent
-**Location:** `ux-agent-workspace/`
+**Location:** `ux_agent_workspace/`
 **Status:** ✅ Complete (1,600+ lines)
 
 **Responsibilities:**
@@ -128,7 +128,7 @@ Repositories:           5 agent workspaces + 1 orchestrator
 - `tests/test_nodes.py` - 8 test classes
 
 ### 4. Backend Agent
-**Location:** `backend-agent-workspace/`
+**Location:** `backend_agent_workspace/`
 **Status:** ✅ Complete (2,620+ lines)
 
 **Responsibilities:**
@@ -165,7 +165,7 @@ Repositories:           5 agent workspaces + 1 orchestrator
 - SecurityFlag (OWASP Top 10)
 
 ### 5. Frontend Agent
-**Location:** `frontend-agent-workspace/`
+**Location:** `frontend_agent_workspace/`
 **Status:** ✅ Complete (2,115+ lines)
 
 **Responsibilities:**
@@ -238,7 +238,7 @@ Repositories:           5 agent workspaces + 1 orchestrator
 
 ## 📚 Shared Team Contracts
 
-**Location:** `team-contracts/schemas/`
+**Location:** `team_contracts/schemas/`
 
 **Workflow Contracts:**
 - UserStory (PO → EM, UX)
@@ -271,11 +271,11 @@ Repositories:           5 agent workspaces + 1 orchestrator
 python run_team_pipeline.py run --demo
 
 # Or step by step
-cd po-agent-workspace && python agents/workflow.py
-cd ../em-agent-workspace && python agents/workflow.py
-cd ../ux-agent-workspace && python agents/workflow.py
-cd ../backend-agent-workspace && python agents/workflow.py
-cd ../frontend-agent-workspace && python agents/workflow.py
+cd po_agent_workspace && python agents/workflow.py
+cd ../em_agent_workspace && python agents/workflow.py
+cd ../ux_agent_workspace && python agents/workflow.py
+cd ../backend_agent_workspace && python agents/workflow.py
+cd ../frontend_agent_workspace && python agents/workflow.py
 ```
 
 ### Check Status
@@ -364,7 +364,7 @@ TOTAL               26,935 lines
 **Feature Request: "User Login"**
 
 ```
-1. PO Agent (po-agent-workspace)
+1. PO Agent (po_agent_workspace)
    │
    ├─→ Analyzes market need
    ├─→ Creates UserStory: "Users can login securely"
@@ -374,7 +374,7 @@ TOTAL               26,935 lines
       ├─→ Routes to EM (sprint planning)
       └─→ Routes to UX (design)
 
-2. EM Agent (em-agent-workspace)
+2. EM Agent (em_agent_workspace)
    │
    ├─→ Intakes user stories
    ├─→ Maps dependencies
@@ -385,7 +385,7 @@ TOTAL               26,935 lines
       ├─→ Routes to Backend (API dev)
       └─→ Routes to Frontend (UI dev)
 
-3. UX Agent (ux-agent-workspace)
+3. UX Agent (ux_agent_workspace)
    │
    ├─→ Creates user flows
    ├─→ Designs login form wireframe
@@ -395,7 +395,7 @@ TOTAL               26,935 lines
       │
       └─→ Routes to Frontend (design implementation)
 
-4. Backend Agent (backend-agent-workspace)
+4. Backend Agent (backend_agent_workspace)
    │
    ├─→ Extracts requirements
    ├─→ Models domain (User, Session)
@@ -407,7 +407,7 @@ TOTAL               26,935 lines
       │
       └─→ Routes to Frontend (integration input)
 
-5. Frontend Agent (frontend-agent-workspace)
+5. Frontend Agent (frontend_agent_workspace)
    │
    ├─→ Intakes UX handoff + API contract
    ├─→ Breaks down into atomic components

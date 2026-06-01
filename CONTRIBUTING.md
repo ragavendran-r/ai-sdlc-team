@@ -54,11 +54,11 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 
 # Install agent-specific requirements
-pip install -r po-agent-workspace/agents/requirements.txt
-pip install -r em-agent-workspace/agents/requirements.txt
-pip install -r ux-agent-workspace/agents/requirements.txt
-pip install -r backend-agent-workspace/agents/requirements.txt
-pip install -r frontend-agent-workspace/agents/requirements.txt
+pip install -r po_agent_workspace/agents/requirements.txt
+pip install -r em_agent_workspace/agents/requirements.txt
+pip install -r ux_agent_workspace/agents/requirements.txt
+pip install -r backend_agent_workspace/agents/requirements.txt
+pip install -r frontend_agent_workspace/agents/requirements.txt
 pip install -r team-orchestrator/requirements.txt
 
 # Install development tools
@@ -92,7 +92,7 @@ pytest team-orchestrator/tests/ -v
 
 ```
 ai-sdlc-team/
-├── po-agent-workspace/              # Product Owner agent
+├── po_agent_workspace/              # Product Owner agent
 │   ├── agents/
 │   │   ├── nodes.py                 # Agent implementations
 │   │   ├── workflow.py              # LangGraph workflow
@@ -100,10 +100,10 @@ ai-sdlc-team/
 │   │   └── requirements.txt
 │   └── tests/
 │
-├── em-agent-workspace/              # Engineering Manager agent
-├── ux-agent-workspace/              # UX Designer agent
-├── backend-agent-workspace/         # Backend Engineer agent
-├── frontend-agent-workspace/        # Frontend Engineer agent
+├── em_agent_workspace/              # Engineering Manager agent
+├── ux_agent_workspace/              # UX Designer agent
+├── backend_agent_workspace/         # Backend Engineer agent
+├── frontend_agent_workspace/        # Frontend Engineer agent
 │
 ├── team-orchestrator/               # Central orchestrator
 │   ├── events.py                    # Event system
@@ -113,7 +113,7 @@ ai-sdlc-team/
 │   ├── cli.py                       # CLI interface
 │   └── tests/
 │
-├── team-contracts/                  # Shared schemas
+├── team_contracts/                  # Shared schemas
 │   └── schemas/
 │       ├── user_story.py            # Core schemas
 │       └── ...
@@ -192,7 +192,7 @@ You want to add a new specialized agent (e.g., Security Auditor).
 
 1. **Copy template workspace**
    ```bash
-   cp -r po-agent-workspace security-auditor-workspace
+   cp -r po_agent_workspace security-auditor-workspace
    cd security-auditor-workspace
    ```
 
@@ -253,7 +253,7 @@ You want to modify the Backend Agent to use your company's API standards.
 
 1. **Modify nodes**
    ```python
-   # backend-agent-workspace/agents/nodes.py
+   # backend_agent_workspace/agents/nodes.py
    
    # Customize the api_contract node
    def api_contract(state: BackendWorkflowState) -> BackendWorkflowState:
@@ -264,7 +264,7 @@ You want to modify the Backend Agent to use your company's API standards.
 
 2. **Update schemas if needed**
    ```python
-   # team-contracts/schemas/api_contract.py
+   # team_contracts/schemas/api_contract.py
    # Add your custom fields
    
    class APIContract(BaseModel):
@@ -275,7 +275,7 @@ You want to modify the Backend Agent to use your company's API standards.
 
 3. **Update tests**
    ```python
-   # backend-agent-workspace/tests/test_nodes.py
+   # backend_agent_workspace/tests/test_nodes.py
    
    def test_applies_company_policies(self):
        # Test your customization
@@ -299,10 +299,10 @@ CLAUDE_MODEL=claude-opus-4-8
 **Option B: Per-workflow change**
 
 ```python
-# po-agent-workspace/agents/nodes.py
+# po_agent_workspace/agents/nodes.py
 MODEL = "claude-opus-4-8"  # Use Opus for PO analysis
 
-# backend-agent-workspace/agents/nodes.py
+# backend_agent_workspace/agents/nodes.py
 MODEL = "claude-sonnet-4-20250514"  # Keep Sonnet for speed
 ```
 
@@ -314,7 +314,7 @@ Connect to GitHub for PR creation.
 
 1. **Update tools**
    ```python
-   # backend-agent-workspace/agents/tools.py
+   # backend_agent_workspace/agents/tools.py
    
    class GitHubTool:
        @staticmethod
@@ -373,7 +373,7 @@ def _setup_default_routes(self) -> None:
 ### Add New Schema
 
 ```python
-# team-contracts/schemas/your_schema.py
+# team_contracts/schemas/your_schema.py
 
 from pydantic import BaseModel, Field
 
@@ -391,7 +391,7 @@ class YourSchema(BaseModel):
         pass
 ```
 
-Then add to `team-contracts/schemas/__init__.py`:
+Then add to `team_contracts/schemas/__init__.py`:
 
 ```python
 from .your_schema import YourSchema
@@ -411,11 +411,11 @@ __all__ = [
 pytest team-orchestrator/tests/ -v
 
 # Individual agent tests
-pytest po-agent-workspace/tests/ -v
-pytest em-agent-workspace/tests/ -v
-pytest ux-agent-workspace/tests/ -v
-pytest backend-agent-workspace/tests/ -v
-pytest frontend-agent-workspace/tests/ -v
+pytest po_agent_workspace/tests/ -v
+pytest em_agent_workspace/tests/ -v
+pytest ux_agent_workspace/tests/ -v
+pytest backend_agent_workspace/tests/ -v
+pytest frontend_agent_workspace/tests/ -v
 
 # With coverage
 pytest --cov=team_orchestrator --cov-report=html

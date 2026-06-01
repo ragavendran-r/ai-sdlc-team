@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Engineering Manager workspace</h1>
+<p class="muted">Turn the approved backlog into a reviewed sprint plan.</p>
+
+{% if backlog_ready %}
+<div class="banner green">
+  Backlog ready — {{ backlog_count }} stories published by the PO workspace.
+</div>
+<div class="row" style="margin: 1rem 0;">
+  <a class="btn" href="/sprint/plan">+ Plan a sprint</a>
+</div>
+{% else %}
+<div class="banner amber">
+  No backlog published yet. The PO workspace must publish a backlog before you
+  can plan a sprint.
+</div>
+{% endif %}
+
+{% if awaiting %}
+<div class="banner amber">
+  <strong>{{ awaiting|length }} session(s) awaiting your review.</strong>
+</div>
+{% endif %}
+
+<div class="stat-grid" style="margin-bottom: 1.5rem;">
+  <div class="stat"><div class="num">{{ sessions|length }}</div><div class="lbl">Sessions</div></div>
+  <div class="stat"><div class="num">{{ backlog_count }}</div><div class="lbl">Backlog stories</div></div>
+  <div class="stat"><div class="num">{% if sprint_plan %}{{ sprint_task_count }}{% else %}—{% endif %}</div><div class="lbl">Sprint tasks</div></div>
+</div>
+
+<h2>Sessions</h2>
+{% if sessions %}
+{% for s in sessions %}
+<div class="card">
+  <div class="row" style="justify-content: space-between;">
+    <div>
+      <strong>{{ s.session_name }}</strong><br>
+      <span class="muted">{{ s.session_id[:8] }}</span>
+    </div>
+    <div class="row">
+      {% if s.status == "awaiting_review" %}
+      <span class="badge amber">needs review</span>
+      <a class="btn secondary" href="/sprint/{{ s.session_id }}/review">Review</a>
+      {% elif s.status == "running" %}
+      <span class="badge blue">running</span>
+      <a class="btn ghost" href="/sprint/{{ s.session_id }}/progress">View</a>
+      {% elif s.status == "approved" %}
+      <span class="badge green">approved</span>
+      <a class="btn ghost" href="/sprint/dashboard">Dashboard</a>
+      {% elif s.status == "error" %}
+      <span class="badge red">error</span>
+      <a class="btn ghost" href="/sprint/{{ s.session_id }}/progress">Details</a>
+      {% else %}
+      <span class="badge gray">{{ s.status }}</span>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endfor %}
+{% else %}
+<p class="muted">No sessions yet. Plan a sprint above.</p>
+{% endif %}
+
+{% endblock %}

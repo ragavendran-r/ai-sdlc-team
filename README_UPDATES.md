@@ -154,7 +154,7 @@ For each workflow's checkpoint(s):
 - How routing works (approve/reject/modify paths)
 
 #### Schema References
-Links to team-contracts with descriptions of all schemas (old and new)
+Links to team_contracts with descriptions of all schemas (old and new)
 
 #### Integration Roadmap
 Phase 1 (Current - Stubbed): ✅ Complete
@@ -187,15 +187,15 @@ ASCII diagrams showing how workflows chain together from PO → EM/UX → Implem
 
 ## Files Updated
 
-1. `/Users/ragaven/work/ai-sdlc-team/po-agent-workspace/README.md`
+1. `/Users/ragaven/work/ai-sdlc-team/po_agent_workspace/README.md`
    - Added from ~61 lines to ~350+ lines
    - Includes 9 agent descriptions, mermaid graph, tools, execution steps
 
-2. `/Users/ragaven/work/ai-sdlc-team/em-agent-workspace/README.md`
+2. `/Users/ragaven/work/ai-sdlc-team/em_agent_workspace/README.md`
    - Added from ~510 lines to ~700+ lines  
    - Includes 11 agent descriptions, mermaid graph, tools, execution steps
 
-3. `/Users/ragaven/work/ai-sdlc-team/ux-agent-workspace/README.md`
+3. `/Users/ragaven/work/ai-sdlc-team/ux_agent_workspace/README.md`
    - Added from ~95 lines to ~400+ lines
    - Includes 10 agent descriptions, mermaid graph, tools, execution steps
 

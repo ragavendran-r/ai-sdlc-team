@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>New requirements session</h1>
+
+<form method="post" action="/sessions/run">
+  <div class="card">
+    <label for="session_name">Session name</label>
+    <input type="text" id="session_name" name="session_name"
+           placeholder="e.g. Q3 onboarding feature" maxlength="80" required>
+
+    <label for="source_type">What type of input is this?</label>
+    <select id="source_type" name="source_type">
+      <option value="meeting_notes">Meeting notes</option>
+      <option value="email_thread">Email thread</option>
+      <option value="user_research">User research</option>
+      <option value="feature_request">Feature request</option>
+      <option value="bug_report">Bug report</option>
+      <option value="other">Other</option>
+    </select>
+
+    <label for="raw_input">Paste your raw input here</label>
+    <textarea id="raw_input" name="raw_input" rows="20" required
+      placeholder="Paste stakeholder notes, meeting transcripts, emails, or any raw requirements text..."></textarea>
+  </div>
+
+  <button type="submit" class="btn-primary">Run requirements pipeline</button>
+  <a class="btn" href="/">Back</a>
+</form>
+{% endblock %}

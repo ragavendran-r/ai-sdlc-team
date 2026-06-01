@@ -66,9 +66,9 @@ docker-compose.override.yml
 
 # Project specific
 ai_sdlc_work/
-team-contracts/context-store/artifacts/*
-team-contracts/context-store/metadata/*
-team-contracts/context-store/workflows/*
+team_contracts/context-store/artifacts/*
+team_contracts/context-store/metadata/*
+team_contracts/context-store/workflows/*
 *.db
 *.sqlite
 *.sqlite3

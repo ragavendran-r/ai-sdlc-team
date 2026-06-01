@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Review UX specifications</h1>
+<p class="muted">{{ session.session_name }}</p>
+
+{% if not ready %}
+<div class="banner amber">This session is not ready for review yet.</div>
+{% else %}
+
+{% if session.a11y_flags %}
+<div class="banner amber">
+  <strong>Accessibility flags</strong>
+  <ul>{% for f in session.a11y_flags %}<li>{{ f }}</li>{% endfor %}</ul>
+</div>
+{% endif %}
+
+<div class="tabs" data-review-session="{{ session.session_id }}">
+  <button type="button" class="tab-btn active" data-tab="personas">Personas ({{ session.personas|length }})</button>
+  <button type="button" class="tab-btn" data-tab="flows">User flows ({{ session.user_flows|length }})</button>
+  <button type="button" class="tab-btn" data-tab="wireframes">Wireframe briefs ({{ session.wireframe_briefs|length }})</button>
+</div>
+
+<div class="tab-panel active" data-panel="personas">
+  {% for p in session.personas %}
+  <div class="card">
+    <strong>{{ p.get('name', '') }}</strong>
+    <span class="badge blue">{{ p.get('role', '') }}</span>
+    {% if p.get('goals') %}
+    <p class="muted">Goals:</p>
+    <ul>{% for g in p.get('goals') %}<li>{{ g }}</li>{% endfor %}</ul>
+    {% endif %}
+    {% if p.get('pain_points') %}
+    <p class="muted">Pain points:</p>
+    <ul>{% for pp in p.get('pain_points') %}<li>{{ pp }}</li>{% endfor %}</ul>
+    {% endif %}
+  </div>
+  {% else %}
+  <p class="muted">No personas generated.</p>
+  {% endfor %}
+</div>
+
+<div class="tab-panel" data-panel="flows">
+  {% for f in session.user_flows %}
+  <div class="card">
+    <strong>{{ f.get('title') or f.get('name', '') }}</strong>
+    <p>{{ f.get('description', '') }}</p>
+    {% if f.get('steps') %}
+    <ol>
+      {% for step in f.get('steps') %}
+      <li>
+        {% if step is mapping %}
+          {{ step.get('action', '') }}
+          {% if step.get('system_response') %}<span class="muted">→ {{ step.get('system_response') }}</span>{% endif %}
+        {% else %}{{ step }}{% endif %}
+      </li>
+      {% endfor %}
+    </ol>
+    {% endif %}
+  </div>
+  {% else %}
+  <p class="muted">No user flows generated.</p>
+  {% endfor %}
+</div>
+
+<div class="tab-panel" data-panel="wireframes">
+  {% for w in session.wireframe_briefs %}
+  <div class="card">
+    <strong>{{ w.get('screen_name') or w.get('name', '') }}</strong>
+    {% set layout = w.get('layout_type') or w.get('screen_type') %}
+    {% if layout %}<span class="badge gray">{{ layout }}</span>{% endif %}
+    {% if w.get('purpose') %}<p class="muted">{{ w.get('purpose') }}</p>{% endif %}
+    <p>{{ w.get('description') or w.get('layout_description', '') }}</p>
+    {% if w.get('components') %}
+    <p class="muted">Components:</p>
+    <ul>
+      {% for c in w.get('components') %}
+      <li>
+        {% if c is mapping %}
+          <strong>{{ c.get('component_name', '') }}</strong>{% if c.get('purpose') %} — {{ c.get('purpose') }}{% endif %}
+        {% else %}{{ c }}{% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+  {% else %}
+  <p class="muted">No wireframe briefs generated.</p>
+  {% endfor %}
+</div>
+
+<div class="row" style="margin-top: 1.5rem;">
+  <button type="button" id="approve-btn" class="btn">Approve &amp; publish handoff</button>
+  <button type="button" id="reject-btn" class="btn danger">Reject &amp; revise</button>
+</div>
+
+<div id="reject-box" style="display:none; margin-top:1rem;">
+  <div class="field">
+    <label for="feedback">What should change?</label>
+    <textarea id="feedback" rows="3"></textarea>
+  </div>
+  <button type="button" id="submit-reject" class="btn danger">Submit feedback</button>
+</div>
+
+{% endif %}
+{% endblock %}

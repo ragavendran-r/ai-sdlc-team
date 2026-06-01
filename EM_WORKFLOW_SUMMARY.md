@@ -7,7 +7,7 @@ A fully functional EM Agent LangGraph workflow with **2,100+ lines** of producti
 ### Files Created
 
 ```
-em-agent-workspace/
+em_agent_workspace/
 ├── agents/
 │   ├── state.py (100 lines)         ✅ EMWorkflowState dataclass
 │   ├── tools.py (300 lines)         ✅ Stubbed Jira, context, notification tools
@@ -21,7 +21,7 @@ em-agent-workspace/
 │   └── __init__.py                  ✅ Test module
 └── README.md                         ✅ Complete documentation
 
-NEW SCHEMAS (5 created in team-contracts/schemas/):
+NEW SCHEMAS (5 created in team_contracts/schemas/):
 ├── capacity_report.py               ✅ CapacityReport schema
 ├── risk_flag.py                     ✅ RiskFlag + RiskType/RiskSeverity
 ├── dod_item.py                      ✅ DoDItem + DefinitionOfDone
@@ -202,12 +202,12 @@ Each test:
 
 Run tests:
 ```bash
-pytest em-agent-workspace/tests/test_nodes.py -v
+pytest em_agent_workspace/tests/test_nodes.py -v
 ```
 
 ## ✅ Patterns Matching PO Agent
 
-Following exact patterns from `po-agent-workspace/`:
+Following exact patterns from `po_agent_workspace/`:
 
 ✅ LangGraph StateGraph structure
 ✅ Same node function pattern
@@ -261,12 +261,12 @@ Following exact patterns from `po-agent-workspace/`:
 
 1. **Run the Workflow**
    ```bash
-   python em-agent-workspace/agents/workflow.py
+   python em_agent_workspace/agents/workflow.py
    ```
 
 2. **Run Tests**
    ```bash
-   pytest em-agent-workspace/tests/ -v
+   pytest em_agent_workspace/tests/ -v
    ```
 
 3. **Integrate with PO Agent**

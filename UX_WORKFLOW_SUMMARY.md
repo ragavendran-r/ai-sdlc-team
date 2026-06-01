@@ -7,7 +7,7 @@ A fully functional UX Agent LangGraph workflow with **1,620+ lines** of producti
 ### Files Created
 
 ```
-ux-agent-workspace/agents/
+ux_agent_workspace/agents/
 ├── state.py (100 lines)          ✅ UXWorkflowState with 10+ fields
 ├── tools.py (200 lines)          ✅ 5 tool suites (15 tools total)
 ├── nodes.py (650 lines)          ✅ 10 agent implementations
@@ -16,11 +16,11 @@ ux-agent-workspace/agents/
 ├── __init__.py                   ✅ Module exports
 └── requirements.txt              ✅ Dependencies
 
-ux-agent-workspace/tests/
+ux_agent_workspace/tests/
 ├── test_nodes.py (350+ lines)    ✅ 7 test classes
 └── __init__.py                   ✅ Test module
 
-team-contracts/schemas/
+team_contracts/schemas/
 ├── user_persona.py               ✅ NEW UserPersona
 ├── user_flow.py                  ✅ NEW UserFlow
 ├── ia_structure.py               ✅ NEW IAStructure
@@ -29,7 +29,7 @@ team-contracts/schemas/
 ├── accessibility_flag.py         ✅ NEW AccessibilityFlag
 └── __init__.py                   ✅ UPDATED with new schemas
 
-ux-agent-workspace/
+ux_agent_workspace/
 └── README.md                     ✅ Complete documentation
 ```
 
@@ -196,12 +196,12 @@ Each with multiple test methods validating:
 
 1. **Run the workflow**
    ```bash
-   python ux-agent-workspace/agents/workflow.py
+   python ux_agent_workspace/agents/workflow.py
    ```
 
 2. **Run tests**
    ```bash
-   pytest ux-agent-workspace/tests/ -v
+   pytest ux_agent_workspace/tests/ -v
    ```
 
 3. **Integrate real tools**

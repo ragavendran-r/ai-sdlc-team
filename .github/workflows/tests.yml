@@ -63,11 +63,11 @@ jobs:
 
           # Install all requirements
           pip install -r requirements.txt
-          pip install -r po-agent-workspace/agents/requirements.txt
-          pip install -r em-agent-workspace/agents/requirements.txt
-          pip install -r ux-agent-workspace/agents/requirements.txt
-          pip install -r backend-agent-workspace/agents/requirements.txt
-          pip install -r frontend-agent-workspace/agents/requirements.txt
+          pip install -r po_agent_workspace/agents/requirements.txt
+          pip install -r em_agent_workspace/agents/requirements.txt
+          pip install -r ux_agent_workspace/agents/requirements.txt
+          pip install -r backend_agent_workspace/agents/requirements.txt
+          pip install -r frontend_agent_workspace/agents/requirements.txt
           pip install -r team_orchestrator/requirements.txt
 
       # Code quality checks
@@ -100,35 +100,56 @@ jobs:
         env:
           PYTHONPATH: ${{ github.workspace }}
         run: |
-          pytest po-agent-workspace/tests/ -v --cov=po_agent_workspace --cov-report=xml --tb=short
+          pytest po_agent_workspace/tests/ -v --cov=po_agent_workspace --cov-report=xml --tb=short
         continue-on-error: true
 
       - name: Run EM Agent Tests
         env:
           PYTHONPATH: ${{ github.workspace }}
         run: |
-          pytest em-agent-workspace/tests/ -v --cov=em_agent_workspace --cov-report=xml --tb=short
+          pytest em_agent_workspace/tests/ -v --cov=em_agent_workspace --cov-report=xml --tb=short
         continue-on-error: true
 
       - name: Run UX Agent Tests
         env:
           PYTHONPATH: ${{ github.workspace }}
         run: |
-          pytest ux-agent-workspace/tests/ -v --cov=ux_agent_workspace --cov-report=xml --tb=short
+          pytest ux_agent_workspace/tests/ -v --cov=ux_agent_workspace --cov-report=xml --tb=short
         continue-on-error: true
 
       - name: Run Backend Agent Tests
         env:
           PYTHONPATH: ${{ github.workspace }}
         run: |
-          pytest backend-agent-workspace/tests/ -v --cov=backend_agent_workspace --cov-report=xml --tb=short
+          pytest backend_agent_workspace/tests/ -v --cov=backend_agent_workspace --cov-report=xml --tb=short
         continue-on-error: true
 
       - name: Run Frontend Agent Tests
         env:
           PYTHONPATH: ${{ github.workspace }}
         run: |
-          pytest frontend-agent-workspace/tests/ -v --cov=frontend_agent_workspace --cov-report=xml --tb=short
+          pytest frontend_agent_workspace/tests/ -v --cov=frontend_agent_workspace --cov-report=xml --tb=short
+        continue-on-error: true
+
+      - name: Run PO Interface Tests
+        env:
+          PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/po_agent_workspace
+        run: |
+          pytest po_agent_workspace/interface/tests/ -v --tb=short
+        continue-on-error: true
+
+      - name: Run EM Interface Tests
+        env:
+          PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/em_agent_workspace
+        run: |
+          pytest em_agent_workspace/interface/tests/ -v --tb=short
+        continue-on-error: true
+
+      - name: Run UX Interface Tests
+        env:
+          PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/ux_agent_workspace
+        run: |
+          pytest ux_agent_workspace/interface/tests/ -v --tb=short
         continue-on-error: true
 
       # Upload coverage reports

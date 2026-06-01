@@ -85,13 +85,13 @@ Documentation (18 files):
   examples/ - Example projects
 
 Source Code (131 files):
-  po-agent-workspace/ - Product Owner agent
-  em-agent-workspace/ - Engineering Manager agent
-  ux-agent-workspace/ - UX Designer agent
-  backend-agent-workspace/ - Backend Engineer agent
-  frontend-agent-workspace/ - Frontend Engineer agent
+  po_agent_workspace/ - Product Owner agent
+  em_agent_workspace/ - Engineering Manager agent
+  ux_agent_workspace/ - UX Designer agent
+  backend_agent_workspace/ - Backend Engineer agent
+  frontend_agent_workspace/ - Frontend Engineer agent
   team-orchestrator/ - Central orchestrator
-  team-contracts/ - Shared schemas
+  team_contracts/ - Shared schemas
 
 License:
   LICENSE - MIT License

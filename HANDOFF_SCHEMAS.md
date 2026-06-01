@@ -319,7 +319,7 @@ story = UserStory(
 ## File Structure
 
 ```
-team-contracts/schemas/
+team_contracts/schemas/
 ├── user_story.py              # 275 lines
 ├── sprint_plan.py             # 425 lines
 ├── ux_handoff.py              # 400 lines
@@ -436,14 +436,14 @@ python-dateutil>=2.8.0   # Date utilities
 
 Install:
 ```bash
-pip install -r team-contracts/schemas/requirements.txt
+pip install -r team_contracts/schemas/requirements.txt
 ```
 
 ---
 
 ## Next Steps
 
-1. **Create Events** - Define corresponding event types in `team-contracts/events/`
+1. **Create Events** - Define corresponding event types in `team_contracts/events/`
 2. **Build Context Store** - Implement shared context storage using these schemas
 3. **Implement Agents** - Use schemas in agent code with validated handoffs
 4. **Create Tests** - Write integration tests for agent workflows
@@ -453,10 +453,10 @@ pip install -r team-contracts/schemas/requirements.txt
 
 ## Quick Links
 
-- [README.md](./team-contracts/schemas/README.md) - Detailed usage guide
-- [SCHEMAS_OVERVIEW.md](./team-contracts/schemas/SCHEMAS_OVERVIEW.md) - Implementation details
-- [user_story.py](./team-contracts/schemas/user_story.py) - UserStory source
-- [sprint_plan.py](./team-contracts/schemas/sprint_plan.py) - SprintPlan source
-- [ux_handoff.py](./team-contracts/schemas/ux_handoff.py) - UXHandoff source
-- [api_contract.py](./team-contracts/schemas/api_contract.py) - APIContract source
-- [design_decision.py](./team-contracts/schemas/design_decision.py) - DesignDecision source
+- [README.md](./team_contracts/schemas/README.md) - Detailed usage guide
+- [SCHEMAS_OVERVIEW.md](./team_contracts/schemas/SCHEMAS_OVERVIEW.md) - Implementation details
+- [user_story.py](./team_contracts/schemas/user_story.py) - UserStory source
+- [sprint_plan.py](./team_contracts/schemas/sprint_plan.py) - SprintPlan source
+- [ux_handoff.py](./team_contracts/schemas/ux_handoff.py) - UXHandoff source
+- [api_contract.py](./team_contracts/schemas/api_contract.py) - APIContract source
+- [design_decision.py](./team_contracts/schemas/design_decision.py) - DesignDecision source
