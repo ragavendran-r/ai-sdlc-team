@@ -1,6 +1,6 @@
 """Tests for UX interface session state transitions."""
 
-from interface.session import UXSessionState
+from ux_agent_workspace.interface.session import UXSessionState
 
 
 def test_initial_status_running():

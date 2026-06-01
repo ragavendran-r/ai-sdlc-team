@@ -59,7 +59,7 @@ def client(tmp_path, monkeypatch, sample_backlog):
     monkeypatch.setenv("CONTEXT_STORE_PATH", str(tmp_path / "context-store"))
 
     # Import the app module fresh so it picks up the env var.
-    from interface import app as app_module
+    from em_agent_workspace.interface import app as app_module
 
     importlib.reload(app_module)
 
@@ -112,13 +112,13 @@ def client(tmp_path, monkeypatch, sample_backlog):
         )
         return "# Sprint Report\n\nRegenerated."
 
-    monkeypatch.setattr("interface.workflow_runner.start_session", fake_start_session)
-    monkeypatch.setattr("interface.workflow_runner.approve", fake_approve)
-    monkeypatch.setattr("interface.workflow_runner.reject", fake_reject)
+    monkeypatch.setattr("em_agent_workspace.interface.workflow_runner.start_session", fake_start_session)
+    monkeypatch.setattr("em_agent_workspace.interface.workflow_runner.approve", fake_approve)
+    monkeypatch.setattr("em_agent_workspace.interface.workflow_runner.reject", fake_reject)
     monkeypatch.setattr(
-        "interface.workflow_runner.regenerate_report", fake_regenerate_report
+        "em_agent_workspace.interface.workflow_runner.regenerate_report", fake_regenerate_report
     )
 
-    from interface.app import app
+    from em_agent_workspace.interface.app import app
 
     return TestClient(app)

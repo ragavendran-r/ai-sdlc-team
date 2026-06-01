@@ -94,7 +94,7 @@ def client(tmp_path, monkeypatch, sample_sprint_plan):
     """TestClient with workflow_runner faked and context store in tmp_path."""
     monkeypatch.setenv("CONTEXT_STORE_PATH", str(tmp_path / "context-store"))
 
-    from interface import app as app_module
+    from ux_agent_workspace.interface import app as app_module
 
     importlib.reload(app_module)
     app_module.sessions.clear()
@@ -134,12 +134,12 @@ def client(tmp_path, monkeypatch, sample_sprint_plan):
         session.status = "running"
 
     monkeypatch.setattr(
-        "interface.workflow_runner.sprint_plan_stories", real_sprint_plan_stories
+        "ux_agent_workspace.interface.workflow_runner.sprint_plan_stories", real_sprint_plan_stories
     )
-    monkeypatch.setattr("interface.workflow_runner.start_session", fake_start_session)
-    monkeypatch.setattr("interface.workflow_runner.approve", fake_approve)
-    monkeypatch.setattr("interface.workflow_runner.reject", fake_reject)
+    monkeypatch.setattr("ux_agent_workspace.interface.workflow_runner.start_session", fake_start_session)
+    monkeypatch.setattr("ux_agent_workspace.interface.workflow_runner.approve", fake_approve)
+    monkeypatch.setattr("ux_agent_workspace.interface.workflow_runner.reject", fake_reject)
 
-    from interface.app import app
+    from ux_agent_workspace.interface.app import app
 
     return TestClient(app)

@@ -9,9 +9,9 @@ build step) so a designer can read the EM sprint plan, run the UX pipeline, revi
 personas / user flows / wireframe briefs across three tabs, and approve to publish
 a `ux-handoff` artifact for the downstream Frontend workspace.
 
-Run it: `PYTHONPATH="$PWD/..:$PWD" python interface/run.py` then open
-http://localhost:8000 (or via docker-compose on port 8003).
-Tests: `PYTHONPATH="$PWD/..:$PWD" pytest interface/tests -v`.
+Run it from the repo root: `python -m ux_agent_workspace.interface.run` then
+open http://localhost:8000 (or via docker-compose on port 8003).
+Tests: `pytest ux_agent_workspace/interface/tests -v`.
 
 > **This interface is a starting point. Replace it with your team's preferred
 > tool — the workflow underneath does not change.**

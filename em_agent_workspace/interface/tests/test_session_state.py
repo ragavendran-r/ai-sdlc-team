@@ -1,6 +1,6 @@
 """Tests for EM interface session state transitions."""
 
-from interface.session import EMSessionState
+from em_agent_workspace.interface.session import EMSessionState
 
 
 def test_initial_status_running():

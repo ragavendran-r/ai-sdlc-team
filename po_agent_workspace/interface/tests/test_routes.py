@@ -39,7 +39,7 @@ def test_status_after_run(client):
         data={"session_name": "S", "source_type": "other", "raw_input": "x"},
         follow_redirects=False,
     )
-    from interface.session import sessions
+    from po_agent_workspace.interface.session import sessions
 
     session_id = next(iter(sessions))
     status = client.get(f"/sessions/{session_id}/status").json()
@@ -57,7 +57,7 @@ def test_review_page_ready(client):
         data={"session_name": "S", "source_type": "other", "raw_input": "x"},
         follow_redirects=False,
     )
-    from interface.session import sessions
+    from po_agent_workspace.interface.session import sessions
 
     session_id = next(iter(sessions))
     response = client.get(f"/sessions/{session_id}/review")
@@ -66,7 +66,7 @@ def test_review_page_ready(client):
 
 
 def test_review_not_ready_message(client):
-    from interface.session import SessionState, sessions
+    from po_agent_workspace.interface.session import SessionState, sessions
 
     s = SessionState(
         session_id="abc", session_name="N", source_type="other", raw_input="x"
@@ -83,7 +83,7 @@ def test_approve_publishes_backlog(client):
         data={"session_name": "S", "source_type": "other", "raw_input": "x"},
         follow_redirects=False,
     )
-    from interface.session import sessions
+    from po_agent_workspace.interface.session import sessions
 
     session_id = next(iter(sessions))
     response = client.post(
@@ -106,7 +106,7 @@ def test_approve_requires_stories(client):
         data={"session_name": "S", "source_type": "other", "raw_input": "x"},
         follow_redirects=False,
     )
-    from interface.session import sessions
+    from po_agent_workspace.interface.session import sessions
 
     session_id = next(iter(sessions))
     response = client.post(
@@ -122,7 +122,7 @@ def test_reject_sets_running(client):
         data={"session_name": "S", "source_type": "other", "raw_input": "x"},
         follow_redirects=False,
     )
-    from interface.session import sessions
+    from po_agent_workspace.interface.session import sessions
 
     session_id = next(iter(sessions))
     response = client.post(f"/sessions/{session_id}/reject", json={"feedback": "redo"})
@@ -151,7 +151,7 @@ def _publish_backlog(client):
         data={"session_name": "S", "source_type": "other", "raw_input": "x"},
         follow_redirects=False,
     )
-    from interface.session import sessions
+    from po_agent_workspace.interface.session import sessions
 
     session_id = next(iter(sessions))
     client.post(

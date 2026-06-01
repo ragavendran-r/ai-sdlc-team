@@ -15,7 +15,7 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from typing import Any, Dict, List
 
-from agents import UXWorkflowState, compile_ux_workflow_web
+from ux_agent_workspace.agents import UXWorkflowState, compile_ux_workflow_web
 
 from team_contracts.schemas import UserStory
 from team_orchestrator import ContextStore, Event, EventBus, EventSeverity, EventType

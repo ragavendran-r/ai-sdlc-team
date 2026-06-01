@@ -14,7 +14,7 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from typing import Any, Dict, List
 
-from agents import PoWorkflowState, compile_po_workflow_web
+from po_agent_workspace.agents import PoWorkflowState, compile_po_workflow_web
 
 from team_orchestrator import ContextStore, Event, EventBus, EventSeverity, EventType
 

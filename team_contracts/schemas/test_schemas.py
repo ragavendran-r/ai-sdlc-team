@@ -5,17 +5,15 @@ from datetime import datetime, timedelta
 from pydantic import ValidationError
 import pytest
 
-from user_story import UserStory, Priority, Complexity
-from sprint_plan import SprintPlan, Sprint, SprintTask, TaskType, TaskStatus
-from ux_handoff import (
+from team_contracts.schemas.user_story import UserStory, Priority, Complexity
+from team_contracts.schemas.sprint_plan import SprintPlan, Sprint, SprintTask, TaskType
+from team_contracts.schemas.ux_handoff import (
     UXHandoff,
     ComponentSpec,
     ComponentType,
-    DesignToken,
-    InteractionSpec,
 )
-from api_contract import APIContract, APIEndpoint, HTTPMethod, HTTPStatus, JSONSchema
-from design_decision import (
+from team_contracts.schemas.api_contract import APIContract, APIEndpoint, HTTPMethod, JSONSchema
+from team_contracts.schemas.design_decision import (
     DesignDecision,
     DecisionCategory,
     DecisionImpact,
@@ -146,7 +144,7 @@ class TestSprintPlan:
         task = SprintTask(
             id="T-001",
             user_story_id="US-001",
-            title="Task",
+            title="Task item",
             description="Task description",
             assigned_to="agent",
             task_type=TaskType.FRONTEND,
@@ -214,7 +212,7 @@ class TestSprintPlan:
         task = SprintTask(
             id="T-001",
             user_story_id="US-001",
-            title="Task",
+            title="Task item",
             description="Description",
             assigned_to="agent",
             task_type=TaskType.FRONTEND,
@@ -333,8 +331,8 @@ class TestAPIContract:
                 id="EP-001",
                 method=HTTPMethod.GET,
                 path="no-leading-slash",  # Invalid
-                summary="Test",
-                description="Test",
+                summary="Test summary",
+                description="Test description",
                 response_schema=JSONSchema(type="object"),
             )
 
@@ -394,8 +392,8 @@ class TestDesignDecision:
             category=DecisionCategory.API_DESIGN,
             impact=DecisionImpact.SYSTEM,
             context="Choose auth method",
-            decision="Use JWT",
-            rationale="Scalable",
+            decision="Use JWT for auth",
+            rationale="Scalable approach",
             alternatives=[alt],
             created_by="backend-agent",
         )
@@ -415,8 +413,8 @@ class TestDesignDecision:
             category=DecisionCategory.API_DESIGN,
             impact=DecisionImpact.SYSTEM,
             context="Choose auth",
-            decision="Use JWT",
-            rationale="Scalable",
+            decision="Use JWT for auth",
+            rationale="Scalable approach",
             consequences=[consequence],
             created_by="backend-agent",
         )
@@ -467,13 +465,13 @@ def test_all_schemas_are_serializable():
         id="EP-001",
         method=HTTPMethod.GET,
         path="/test",
-        summary="Test",
-        description="Test",
+        summary="Test summary",
+        description="Test description",
         response_schema=JSONSchema(type="object"),
     )
     contract = APIContract(
         id="API-001",
-        feature_name="Test",
+        feature_name="Test feature",
         user_story_id="US-001",
         base_url="https://api.test.com",
         endpoints=[endpoint],
@@ -489,9 +487,9 @@ def test_all_schemas_are_serializable():
         title="Test decision",
         category=DecisionCategory.ARCHITECTURE,
         impact=DecisionImpact.LOCAL,
-        context="Test",
-        decision="Test",
-        rationale="Test",
+        context="Test context here",
+        decision="Test decision x",
+        rationale="Test rationale x",
         created_by="backend-agent",
     )
     decision_dict = decision.to_dict()
