@@ -84,9 +84,8 @@ docker compose up po_interface em_interface ux_interface
 # One service via Docker (PO on 8001 / EM on 8002 / UX on 8003)
 docker compose up po_interface
 
-# Or locally without Docker (always serves http://localhost:8000)
-cd po_agent_workspace          # or em_agent_workspace / ux_agent_workspace
-PYTHONPATH="$PWD/..:$PWD" python interface/run.py
+# Or locally without Docker, from the repo root (serves http://localhost:8000)
+python -m po_agent_workspace.interface.run    # or em_ / ux_agent_workspace
 ```
 
 ### Run the developer (CLI) workspaces
@@ -188,16 +187,15 @@ docker-compose down
 # All tests
 pytest . -v
 
-# By component
+# By component (each workspace is an importable package, so no PYTHONPATH juggling)
 pytest team_orchestrator/tests/ -v
 pytest backend_agent_workspace/tests/ -v
 pytest frontend_agent_workspace/tests/ -v
 
-# Web interface tests (the workspace dir must be on PYTHONPATH so
-# `from interface...` resolves)
-PYTHONPATH="$PWD:$PWD/po_agent_workspace" pytest po_agent_workspace/interface/tests/ -v
-PYTHONPATH="$PWD:$PWD/em_agent_workspace" pytest em_agent_workspace/interface/tests/ -v
-PYTHONPATH="$PWD:$PWD/ux_agent_workspace" pytest ux_agent_workspace/interface/tests/ -v
+# Web interface tests
+pytest po_agent_workspace/interface/tests/ -v
+pytest em_agent_workspace/interface/tests/ -v
+pytest ux_agent_workspace/interface/tests/ -v
 
 # With coverage
 pytest --cov --cov-report=html

@@ -1,6 +1,6 @@
 """Route tests for the UX web interface."""
 
-from interface.session import UXSessionState, sessions
+from ux_agent_workspace.interface.session import UXSessionState, sessions
 
 
 def _seed_awaiting():

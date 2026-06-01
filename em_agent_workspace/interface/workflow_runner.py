@@ -15,7 +15,7 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from typing import Any, Dict, List
 
-from agents import EMWorkflowState, compile_em_workflow_web
+from em_agent_workspace.agents import EMWorkflowState, compile_em_workflow_web
 
 from team_contracts.schemas import UserStory
 from team_orchestrator import ContextStore, Event, EventBus, EventSeverity, EventType

@@ -9,9 +9,9 @@ build step) so a Product Owner can paste requirements, run the story-generation
 pipeline, review/edit the generated stories, and approve to publish a `backlog`
 artifact for the downstream workspaces.
 
-Run it: `PYTHONPATH="$PWD/..:$PWD" python interface/run.py` then open
-http://localhost:8000 (or via docker-compose on port 8001).
-Tests: `PYTHONPATH="$PWD/..:$PWD" pytest interface/tests -v`.
+Run it from the repo root: `python -m po_agent_workspace.interface.run` then
+open http://localhost:8000 (or via docker-compose on port 8001).
+Tests: `pytest po_agent_workspace/interface/tests -v`.
 
 > **This interface is a starting point. Replace it with your team's preferred
 > tool — the workflow underneath does not change.**

@@ -48,11 +48,11 @@ def client(monkeypatch, tmp_path, sample_user_stories):
     # Import after env is set so the module-level ContextStore uses tmp_path.
     import importlib
 
-    from interface import app as app_module
+    from po_agent_workspace.interface import app as app_module
 
     importlib.reload(app_module)
 
-    from interface import session as session_module
+    from po_agent_workspace.interface import session as session_module
 
     session_module.sessions.clear()
 

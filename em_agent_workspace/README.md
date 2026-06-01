@@ -9,9 +9,9 @@ build step) so an Engineering Manager can read the PO backlog, run the
 sprint-planning pipeline, review the draft sprint (tasks, capacity, risks), and
 approve to publish a `sprint-plan` artifact for the downstream workspaces.
 
-Run it: `PYTHONPATH="$PWD/..:$PWD" python interface/run.py` then open
-http://localhost:8000 (or via docker-compose on port 8002).
-Tests: `PYTHONPATH="$PWD/..:$PWD" pytest interface/tests -v`.
+Run it from the repo root: `python -m em_agent_workspace.interface.run` then
+open http://localhost:8000 (or via docker-compose on port 8002).
+Tests: `pytest em_agent_workspace/interface/tests -v`.
 
 > **This interface is a starting point. Replace it with your team's preferred
 > tool — the workflow underneath does not change.**

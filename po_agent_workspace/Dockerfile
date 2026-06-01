@@ -19,15 +19,15 @@ RUN pip install --upgrade pip setuptools wheel && \
     pip install -r root-requirements.txt && \
     pip install -r po-requirements.txt
 
-# Copy the whole repo so team_orchestrator and team_contracts are importable.
+# Copy the whole repo so the workspace package and team_* are importable.
 COPY . .
 
-# Run from the PO workspace so `interface.app:app` and `agents.*` resolve.
-WORKDIR /app/po_agent_workspace
+# Run from the repo root; the workspace is a package now.
+WORKDIR /app
 
 EXPOSE 8000
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
-CMD ["python", "-m", "uvicorn", "interface.app:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["python", "-m", "uvicorn", "po_agent_workspace.interface.app:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -1,6 +1,6 @@
 """Tests for SessionState transitions and serialization."""
 
-from interface.session import SessionState
+from po_agent_workspace.interface.session import SessionState
 
 
 def _make() -> SessionState:

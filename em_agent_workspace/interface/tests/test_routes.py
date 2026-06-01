@@ -1,6 +1,6 @@
 """Route tests for the EM web interface."""
 
-from interface.session import EMSessionState, sessions
+from em_agent_workspace.interface.session import EMSessionState, sessions
 
 
 def _seed_awaiting():

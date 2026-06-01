@@ -133,21 +133,21 @@ jobs:
 
       - name: Run PO Interface Tests
         env:
-          PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/po_agent_workspace
+          PYTHONPATH: ${{ github.workspace }}
         run: |
           pytest po_agent_workspace/interface/tests/ -v --tb=short
         continue-on-error: true
 
       - name: Run EM Interface Tests
         env:
-          PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/em_agent_workspace
+          PYTHONPATH: ${{ github.workspace }}
         run: |
           pytest em_agent_workspace/interface/tests/ -v --tb=short
         continue-on-error: true
 
       - name: Run UX Interface Tests
         env:
-          PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/ux_agent_workspace
+          PYTHONPATH: ${{ github.workspace }}
         run: |
           pytest ux_agent_workspace/interface/tests/ -v --tb=short
         continue-on-error: true
