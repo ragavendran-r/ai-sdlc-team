@@ -54,27 +54,45 @@ function initReviewPage(sessionId) {
 }
 
 function submitApprovedSprint(sessionId) {
+  const btn = document.getElementById("approve-btn");
+  if (btn) { btn.disabled = true; btn.textContent = "Publishing…"; }
   fetch(`/sprint/${sessionId}/approve`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({}),
   })
-    .then((r) => r.json())
+    .then((r) => {
+      if (!r.ok) return r.text().then((t) => { throw new Error(t); });
+      return r.json();
+    })
     .then((data) => {
       if (data.redirect) window.location.href = data.redirect;
+    })
+    .catch((err) => {
+      if (btn) { btn.disabled = false; btn.textContent = "Approve & publish sprint"; }
+      alert("Approval failed: " + err.message);
     });
 }
 
 function submitRejection(sessionId) {
   const feedback = document.getElementById("feedback").value;
+  const btn = document.getElementById("submit-reject");
+  if (btn) { btn.disabled = true; btn.textContent = "Submitting…"; }
   fetch(`/sprint/${sessionId}/reject`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ feedback: feedback }),
   })
-    .then((r) => r.json())
+    .then((r) => {
+      if (!r.ok) return r.text().then((t) => { throw new Error(t); });
+      return r.json();
+    })
     .then((data) => {
       if (data.redirect) window.location.href = data.redirect;
+    })
+    .catch((err) => {
+      if (btn) { btn.disabled = false; btn.textContent = "Submit feedback"; }
+      alert("Rejection failed: " + err.message);
     });
 }
 

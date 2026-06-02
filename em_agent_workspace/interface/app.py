@@ -16,6 +16,7 @@ from fastapi import FastAPI, Form, Request
 from fastapi.responses import HTMLResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from starlette.concurrency import run_in_threadpool
 
 from team_orchestrator import ContextStore, EventBus
 
@@ -222,7 +223,7 @@ async def sprint_approve(session_id: str, request: Request) -> JSONResponse:
         return JSONResponse({"error": "Sprint is not awaiting review"}, status_code=400)
 
     try:
-        workflow_runner.approve(session, context_store, event_bus)
+        await run_in_threadpool(workflow_runner.approve, session, context_store, event_bus)
     except Exception as exc:
         session.status = "error"
         session.error = str(exc)
