@@ -138,11 +138,29 @@ def _a11y_strings(state_values: Dict[str, Any]) -> List[str]:
     return out
 
 
+def _to_dict(obj: Any) -> Any:
+    """Serialize a dataclass/Pydantic object to a plain dict, or return as-is."""
+    if obj is None:
+        return None
+    if hasattr(obj, "to_dict"):
+        return obj.to_dict()
+    if hasattr(obj, "model_dump"):
+        return obj.model_dump()
+    return obj
+
+
+def _to_dict_list(lst: Any) -> List[Any]:
+    """Serialize each item in a list via _to_dict."""
+    if not lst:
+        return []
+    return [_to_dict(item) for item in lst]
+
+
 def _capture_review(session: UXSessionState, values: Dict[str, Any]) -> None:
-    session.personas = values.get("personas", []) or []
-    session.user_flows = values.get("user_flows", []) or []
+    session.personas = _to_dict_list(values.get("personas") or [])
+    session.user_flows = _to_dict_list(values.get("user_flows") or [])
     briefs = values.get("updated_wireframe_briefs") or values.get("wireframe_briefs")
-    session.wireframe_briefs = briefs or []
+    session.wireframe_briefs = _to_dict_list(briefs or [])
     session.a11y_flags = _a11y_strings(values)
     session.status = "awaiting_review"
 
@@ -185,17 +203,23 @@ def approve(
 
     compiled.update_state(config, {"briefs_approved": True})
     final = compiled.invoke(None, config)
-    values = final.to_dict() if hasattr(final, "to_dict") else dict(final)
+    if hasattr(final, "to_dict"):
+        values = final.to_dict()
+    elif isinstance(final, dict):
+        values = {k: _to_dict(v) if hasattr(v, "to_dict") or hasattr(v, "model_dump") else v
+                  for k, v in final.items()}
+    else:
+        values = dict(final)
 
     handoff = {
-        "personas": values.get("personas", []) or session.personas,
-        "user_flows": values.get("user_flows", []) or session.user_flows,
-        "wireframe_briefs": (
+        "personas": _to_dict_list(values.get("personas") or []) or session.personas,
+        "user_flows": _to_dict_list(values.get("user_flows") or []) or session.user_flows,
+        "wireframe_briefs": _to_dict_list(
             values.get("updated_wireframe_briefs")
             or values.get("wireframe_briefs")
             or session.wireframe_briefs
         ),
-        "ux_handoff": values.get("ux_handoff"),
+        "ux_handoff": _to_dict(values.get("ux_handoff")),
         "session_name": session.session_name,
         "published_at": datetime.utcnow().isoformat(),
     }

@@ -18,6 +18,7 @@ from fastapi import FastAPI, Form, Request
 from fastapi.responses import HTMLResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from starlette.concurrency import run_in_threadpool
 
 from team_orchestrator import ContextStore, EventBus
 
@@ -200,12 +201,12 @@ async def session_approve(session_id: str, request: Request) -> JSONResponse:
     session = sessions.get(session_id)
     if session is None:
         return JSONResponse({"error": "not found"}, status_code=404)
-    if session.status != "awaiting_review":
-        return JSONResponse(
-            {"error": "Session is not awaiting review"}, status_code=400
-        )
-
-    workflow_runner.approve(session, context_store, event_bus)
+    try:
+        await run_in_threadpool(workflow_runner.approve, session, context_store, event_bus)
+    except Exception as exc:
+        session.status = "error"
+        session.error = str(exc)
+        return JSONResponse({"error": str(exc)}, status_code=500)
     return JSONResponse(
         {"status": "approved", "redirect": f"/sessions/{session_id}/summary"}
     )
