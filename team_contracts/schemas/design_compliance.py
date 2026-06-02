@@ -85,7 +85,15 @@ class DesignComplianceReport(BaseModel):
             "compliant_briefs": self.compliant_briefs,
             "partial_briefs": self.partial_briefs,
             "non_compliant_briefs": self.non_compliant_briefs,
-            "component_gaps": [{"component_name": g.component_name, "requested_in_briefs": g.requested_in_briefs, "closest_alternative": g.closest_alternative, "recommendation": g.recommendation} for g in self.component_gaps],
+            "component_gaps": [
+                {
+                    "component_name": g.component_name,
+                    "requested_in_briefs": g.requested_in_briefs,
+                    "closest_alternative": g.closest_alternative,
+                    "recommendation": g.recommendation,
+                }
+                for g in self.component_gaps
+            ],
             "compliance_percentage": self.compliance_percentage,
             "summary": self.summary,
             "recommendations": self.recommendations,

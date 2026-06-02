@@ -3,7 +3,7 @@
 import pytest
 
 # Import from team_orchestrator package
-from team_orchestrator import TeamOrchestrator, Event, EventType, EventSeverity
+from team_orchestrator import TeamOrchestrator, Event, EventType
 
 
 class TestEventBus:

@@ -1,11 +1,10 @@
 """Agent nodes for EM Agent workflow."""
 
 import os
-from typing import Optional, Dict, List
 from datetime import datetime, timedelta
 from langchain_anthropic import ChatAnthropic
 from .state import EMWorkflowState
-from .tools import ContextStoreTool, JiraIntegrationTool, NotificationTool
+from .tools import ContextStoreTool, JiraIntegrationTool
 from team_contracts.schemas import (
     UserStory,
     SprintPlan,
@@ -25,7 +24,7 @@ from team_contracts.schemas import (
 )
 
 llm = ChatAnthropic(
-    model=os.getenv("CLAUDE_MODEL", "claude-sonnet-4-5"),
+    model=os.getenv("CLAUDE_MODEL", "claude-sonnet-4-6"),
     temperature=float(os.getenv("CLAUDE_TEMPERATURE", "0.7")),
     max_tokens=int(os.getenv("CLAUDE_MAX_TOKENS", "2048")),
 )
@@ -34,6 +33,7 @@ llm = ChatAnthropic(
 # ============================================================================
 # NODE 1: BACKLOG INTAKE
 # ============================================================================
+
 
 def backlog_intake(state: EMWorkflowState) -> EMWorkflowState:
     """
@@ -59,7 +59,7 @@ def backlog_intake(state: EMWorkflowState) -> EMWorkflowState:
 
 Flag any stories that are incomplete or unclear."""
 
-    response = llm.invoke(validation_prompt)
+    llm.invoke(validation_prompt)
 
     # Simulate validated stories
     if state.input_stories:
@@ -101,6 +101,7 @@ Flag any stories that are incomplete or unclear."""
 # ============================================================================
 # NODE 2: DEPENDENCY MAPPING
 # ============================================================================
+
 
 def dependency_mapping(state: EMWorkflowState) -> EMWorkflowState:
     """
@@ -145,7 +146,7 @@ def dependency_mapping(state: EMWorkflowState) -> EMWorkflowState:
 
 Are there any missing dependencies or logical issues?"""
 
-    response = llm.invoke(review_prompt)
+    llm.invoke(review_prompt)
 
     state.add_message("dependency_mapping", f"Built dependency graph with {len(graph)} stories")
     return state
@@ -154,6 +155,7 @@ Are there any missing dependencies or logical issues?"""
 # ============================================================================
 # NODE 3: CAPACITY ANALYSIS
 # ============================================================================
+
 
 def capacity_analysis(state: EMWorkflowState) -> EMWorkflowState:
     """
@@ -182,7 +184,9 @@ def capacity_analysis(state: EMWorkflowState) -> EMWorkflowState:
     sprint_duration_days = 14
     available_hours_per_day = 6  # Account for meetings, overhead
     total_available_hours = team_size * available_hours_per_day * sprint_duration_days
-    usable_capacity_hours = total_available_hours - planned_leave_hours - (team_size * sprint_duration_days * 1)  # 1h overhead
+    usable_capacity_hours = (
+        total_available_hours - planned_leave_hours - (team_size * sprint_duration_days * 1)
+    )  # 1h overhead
 
     # Estimate story points capacity
     velocity_per_day = team_velocity / 14
@@ -216,6 +220,7 @@ def capacity_analysis(state: EMWorkflowState) -> EMWorkflowState:
 # NODE 4: RISK ASSESSMENT
 # ============================================================================
 
+
 def risk_assessment(state: EMWorkflowState) -> EMWorkflowState:
     """
     Identify and flag stories with risks.
@@ -236,7 +241,7 @@ Consider:
 - Unknown dependencies
 - Potential integration issues"""
 
-    response = llm.invoke(assessment_prompt)
+    llm.invoke(assessment_prompt)
 
     # Create risk flags
     for story in state.validated_stories:
@@ -247,7 +252,9 @@ Consider:
                 id=f"RISK-{story.id}-COMPLEXITY",
                 story_id=story.id,
                 risk_type=risk_type,
-                severity=RiskSeverity.HIGH if story.estimated_complexity == "xl" else RiskSeverity.MEDIUM,
+                severity=(
+                    RiskSeverity.HIGH if story.estimated_complexity == "xl" else RiskSeverity.MEDIUM
+                ),
                 title=f"High complexity: {story.title}",
                 description=f"Story estimated as {story.estimated_complexity.upper()} complexity",
                 impact="May require additional testing and review",
@@ -285,6 +292,7 @@ Consider:
 # NODE 5: SPRINT COMPOSITION
 # ============================================================================
 
+
 def sprint_composition(state: EMWorkflowState) -> EMWorkflowState:
     """
     Compose sprint respecting dependencies, capacity, and risks.
@@ -304,7 +312,7 @@ Constraints:
 
 Assign each story to frontend or backend track."""
 
-    response = llm.invoke(composition_prompt)
+    llm.invoke(composition_prompt)
 
     # Create sprint tasks
     tasks = []
@@ -353,6 +361,7 @@ Assign each story to frontend or backend track."""
 # NODE 6: DEFINITION OF DONE
 # ============================================================================
 
+
 def definition_of_done(state: EMWorkflowState) -> EMWorkflowState:
     """
     Generate DoD checklist tailored to sprint stories.
@@ -365,7 +374,7 @@ def definition_of_done(state: EMWorkflowState) -> EMWorkflowState:
     dod_prompt = """Given these sprint stories, what Definition of Done items are needed?
 Consider: features, code quality, testing, documentation, integration."""
 
-    response = llm.invoke(dod_prompt)
+    llm.invoke(dod_prompt)
 
     # Create DoD items
     items = [
@@ -433,6 +442,7 @@ Consider: features, code quality, testing, documentation, integration."""
 # NODE 7: HUMAN CHECKPOINT
 # ============================================================================
 
+
 def human_checkpoint(state: EMWorkflowState) -> EMWorkflowState:
     """
     Human approval checkpoint for sprint plan.
@@ -448,17 +458,17 @@ def human_checkpoint(state: EMWorkflowState) -> EMWorkflowState:
         return state
 
     # Display sprint for approval
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print(" HUMAN CHECKPOINT: REVIEW SPRINT PLAN")
-    print("="*80)
+    print("=" * 80)
 
     if state.draft_sprint:
         print(state.draft_sprint.to_markdown())
 
     if state.risk_flags:
-        print("\n" + "-"*80)
+        print("\n" + "-" * 80)
         print("RISK FLAGS:")
-        print("-"*80)
+        print("-" * 80)
         for flag in state.risk_flags[:5]:
             print(flag.to_markdown())
 
@@ -483,6 +493,7 @@ def human_checkpoint(state: EMWorkflowState) -> EMWorkflowState:
 # ============================================================================
 # NODE 8: SPRINT CREATION
 # ============================================================================
+
 
 def sprint_creation(state: EMWorkflowState) -> EMWorkflowState:
     """
@@ -531,6 +542,7 @@ def sprint_creation(state: EMWorkflowState) -> EMWorkflowState:
 # ============================================================================
 # NODE 9: STATUS MONITORING
 # ============================================================================
+
 
 def status_monitoring(state: EMWorkflowState) -> EMWorkflowState:
     """
@@ -591,6 +603,7 @@ def status_monitoring(state: EMWorkflowState) -> EMWorkflowState:
 # NODE 10: BLOCKER DETECTION
 # ============================================================================
 
+
 def blocker_detection(state: EMWorkflowState) -> EMWorkflowState:
     """
     Identify blocked stories and escalate.
@@ -613,7 +626,7 @@ On track: {state.current_sprint_status.on_track}
 
 What stories are at risk of not completing?"""
 
-    response = llm.invoke(analysis_prompt)
+    llm.invoke(analysis_prompt)
 
     # Create blocker records for blocked stories
     if state.current_sprint_status.stories_blocked > 0:
@@ -642,6 +655,7 @@ What stories are at risk of not completing?"""
 # NODE 11: STAKEHOLDER REPORTING
 # ============================================================================
 
+
 def stakeholder_reporting(state: EMWorkflowState) -> EMWorkflowState:
     """
     Generate sprint status report for stakeholders.
@@ -666,26 +680,32 @@ def stakeholder_reporting(state: EMWorkflowState) -> EMWorkflowState:
         report_lines.append(state.current_sprint_status.to_markdown())
 
     if state.blockers:
-        report_lines.extend([
-            "",
-            "## Blockers",
-        ])
+        report_lines.extend(
+            [
+                "",
+                "## Blockers",
+            ]
+        )
         for blocker in state.blockers:
             report_lines.append(blocker.to_markdown())
 
     if state.risk_flags:
-        report_lines.extend([
-            "",
-            "## Risks",
-        ])
+        report_lines.extend(
+            [
+                "",
+                "## Risks",
+            ]
+        )
         for flag in state.risk_flags[:3]:
             report_lines.append(flag.to_markdown())
 
-    report_lines.extend([
-        "",
-        f"**Report Generated:** {datetime.utcnow().isoformat()}",
-        f"**Generated By:** em-agent",
-    ])
+    report_lines.extend(
+        [
+            "",
+            f"**Report Generated:** {datetime.utcnow().isoformat()}",
+            "**Generated By:** em-agent",
+        ]
+    )
 
     state.sprint_report = "\n".join(report_lines)
     state.report_generated = True

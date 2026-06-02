@@ -1,7 +1,7 @@
 """Blocker schema: stories blocked during sprint execution."""
 
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional
 from enum import Enum
 from pydantic import BaseModel, Field
 
@@ -150,7 +150,9 @@ class Blocker(BaseModel):
             "status": self.status.value,
             "resolution_plan": self.resolution_plan,
             "blocker_owner": self.blocker_owner,
-            "estimated_resolution_date": self.estimated_resolution_date.isoformat() if self.estimated_resolution_date else None,
+            "estimated_resolution_date": (
+                self.estimated_resolution_date.isoformat() if self.estimated_resolution_date else None
+            ),
             "escalated": self.escalated,
             "escalated_to": self.escalated_to,
             "escalation_date": self.escalation_date.isoformat() if self.escalation_date else None,

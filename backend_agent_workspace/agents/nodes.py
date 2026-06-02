@@ -12,18 +12,16 @@ from .tools import (
 )
 
 # LLM Configuration
-MODEL = os.getenv("CLAUDE_MODEL", "claude-sonnet-4-5")
+MODEL = os.getenv("CLAUDE_MODEL", "claude-sonnet-4-6")
 client = Anthropic()
 
 
 def _log_message(state: BackendWorkflowState, agent: str, message: str) -> None:
     """Log a message to state."""
     state.current_agent = agent
-    state.messages.append({
-        "agent": agent,
-        "message": message,
-        "timestamp": datetime.utcnow().isoformat()
-    })
+    state.messages.append(
+        {"agent": agent, "message": message, "timestamp": datetime.utcnow().isoformat()}
+    )
 
 
 def _handle_error(state: BackendWorkflowState, agent: str, error: str) -> None:
@@ -59,9 +57,7 @@ Return JSON array with: id, user_story_id, title, description, requirement_type,
 data_needs, business_rules, external_integrations, constraints."""
 
         message = client.messages.create(
-            model=MODEL,
-            max_tokens=2048,
-            messages=[{"role": "user", "content": prompt}]
+            model=MODEL, max_tokens=2048, messages=[{"role": "user", "content": prompt}]
         )
 
         response_text = message.content[0].text
@@ -70,16 +66,19 @@ data_needs, business_rules, external_integrations, constraints."""
             reqs = json.loads(response_text)
         except json.JSONDecodeError:
             # Fallback: create minimal requirements
-            reqs = [{
-                "id": f"REQ-{i+1}",
-                "user_story_id": story.get("id", f"US-{i+1}"),
-                "title": story.get("title", "Backend Requirement"),
-                "description": story.get("description", ""),
-                "requirement_type": "api_endpoint",
-                "business_rules": [],
-                "data_needs": None,
-                "external_integrations": [],
-            } for i, story in enumerate(state.user_stories)]
+            reqs = [
+                {
+                    "id": f"REQ-{i+1}",
+                    "user_story_id": story.get("id", f"US-{i+1}"),
+                    "title": story.get("title", "Backend Requirement"),
+                    "description": story.get("description", ""),
+                    "requirement_type": "api_endpoint",
+                    "business_rules": [],
+                    "data_needs": None,
+                    "external_integrations": [],
+                }
+                for i, story in enumerate(state.user_stories)
+            ]
 
         state.backend_requirements = reqs
         state.requirements_intake_complete = True
@@ -121,9 +120,7 @@ Return JSON with: id, feature_name, description, entities, relationships,
 ubiquitous_language, invariants."""
 
         message = client.messages.create(
-            model=MODEL,
-            max_tokens=2048,
-            messages=[{"role": "user", "content": prompt}]
+            model=MODEL, max_tokens=2048, messages=[{"role": "user", "content": prompt}]
         )
 
         response_text = message.content[0].text
@@ -178,9 +175,7 @@ Return JSON with: id, feature_name, ddl_sql, sqlalchemy_models,
 migration_notes."""
 
         message = client.messages.create(
-            model=MODEL,
-            max_tokens=2048,
-            messages=[{"role": "user", "content": prompt}]
+            model=MODEL, max_tokens=2048, messages=[{"role": "user", "content": prompt}]
         )
 
         response_text = message.content[0].text
@@ -235,9 +230,7 @@ Return JSON with: id, feature_name, user_story_id, base_url, endpoints,
 global_auth_requirements, global_headers, security_notes."""
 
         message = client.messages.create(
-            model=MODEL,
-            max_tokens=2048,
-            messages=[{"role": "user", "content": prompt}]
+            model=MODEL, max_tokens=2048, messages=[{"role": "user", "content": prompt}]
         )
 
         response_text = message.content[0].text
@@ -300,9 +293,7 @@ Return JSON array with: id, entity_name, class_name, python_code,
 methods, dependencies."""
 
         message = client.messages.create(
-            model=MODEL,
-            max_tokens=2048,
-            messages=[{"role": "user", "content": prompt}]
+            model=MODEL, max_tokens=2048, messages=[{"role": "user", "content": prompt}]
         )
 
         response_text = message.content[0].text
@@ -313,7 +304,11 @@ methods, dependencies."""
 
         state.service_scaffolds = scaffolds if isinstance(scaffolds, list) else []
         state.scaffolding_complete = True
-        _log_message(state, "business_logic_scaffolding", f"Generated {len(state.service_scaffolds)} services")
+        _log_message(
+            state,
+            "business_logic_scaffolding",
+            f"Generated {len(state.service_scaffolds)} services",
+        )
 
     except Exception as e:
         _handle_error(state, "business_logic_scaffolding", str(e))
@@ -354,9 +349,7 @@ Return JSON array with: id, request_name, endpoint_id, python_code,
 rules, test_cases."""
 
         message = client.messages.create(
-            model=MODEL,
-            max_tokens=2048,
-            messages=[{"role": "user", "content": prompt}]
+            model=MODEL, max_tokens=2048, messages=[{"role": "user", "content": prompt}]
         )
 
         response_text = message.content[0].text
@@ -367,7 +360,9 @@ rules, test_cases."""
 
         state.validation_modules = validators if isinstance(validators, list) else []
         state.validation_rules_complete = True
-        _log_message(state, "validation_rules", f"Generated {len(state.validation_modules)} validators")
+        _log_message(
+            state, "validation_rules", f"Generated {len(state.validation_modules)} validators"
+        )
 
     except Exception as e:
         _handle_error(state, "validation_rules", str(e))
@@ -407,9 +402,7 @@ Return JSON array with: id, endpoint_id, title, description, severity,
 category, vulnerable_code, remediation, reference_url."""
 
         message = client.messages.create(
-            model=MODEL,
-            max_tokens=2048,
-            messages=[{"role": "user", "content": prompt}]
+            model=MODEL, max_tokens=2048, messages=[{"role": "user", "content": prompt}]
         )
 
         response_text = message.content[0].text
@@ -426,9 +419,17 @@ category, vulnerable_code, remediation, reference_url."""
         if critical_flags:
             state.has_critical_security_flags = True
             state.checkpoint_triggered_early_for_security = True
-            _log_message(state, "security_review", f"⚠️ CRITICAL: Found {len(critical_flags)} critical security flags!")
+            _log_message(
+                state,
+                "security_review",
+                f"⚠️ CRITICAL: Found {len(critical_flags)} critical security flags!",
+            )
         else:
-            _log_message(state, "security_review", f"Security review complete. Found {len(state.security_flags)} issues")
+            _log_message(
+                state,
+                "security_review",
+                f"Security review complete. Found {len(state.security_flags)} issues",
+            )
 
     except Exception as e:
         _handle_error(state, "security_review", str(e))
@@ -469,9 +470,7 @@ Return JSON array with: id, service_name, file_path, test_code,
 test_methods, mocks_required."""
 
         message = client.messages.create(
-            model=MODEL,
-            max_tokens=2048,
-            messages=[{"role": "user", "content": prompt}]
+            model=MODEL, max_tokens=2048, messages=[{"role": "user", "content": prompt}]
         )
 
         response_text = message.content[0].text
@@ -547,7 +546,9 @@ def human_checkpoint(state: BackendWorkflowState) -> BackendWorkflowState:
         elif user_input == "n":
             feedback = input("📝 Feedback for revision: ").strip()
             state.approval_feedback = feedback
-            _log_message(state, "human_checkpoint", f"❌ Implementation rejected. Feedback: {feedback}")
+            _log_message(
+                state, "human_checkpoint", f"❌ Implementation rejected. Feedback: {feedback}"
+            )
         else:
             feedback = input("📝 Modification request: ").strip()
             state.approval_feedback = feedback
@@ -598,9 +599,7 @@ Security Issues:
 Write in markdown format suitable for GitHub PR."""
 
         message = client.messages.create(
-            model=MODEL,
-            max_tokens=2048,
-            messages=[{"role": "user", "content": prompt}]
+            model=MODEL, max_tokens=2048, messages=[{"role": "user", "content": prompt}]
         )
 
         state.pr_description = message.content[0].text
@@ -644,9 +643,7 @@ Return JSON array with: id, severity, category, title, message,
 suggested_fix."""
 
         message = client.messages.create(
-            model=MODEL,
-            max_tokens=2048,
-            messages=[{"role": "user", "content": prompt}]
+            model=MODEL, max_tokens=2048, messages=[{"role": "user", "content": prompt}]
         )
 
         response_text = message.content[0].text
@@ -657,7 +654,9 @@ suggested_fix."""
 
         state.review_comments = comments if isinstance(comments, list) else []
         state.code_review_complete = True
-        _log_message(state, "code_review", f"Code review complete. Found {len(state.review_comments)} items")
+        _log_message(
+            state, "code_review", f"Code review complete. Found {len(state.review_comments)} items"
+        )
 
     except Exception as e:
         _handle_error(state, "code_review", str(e))
@@ -680,13 +679,16 @@ def api_publishing(state: BackendWorkflowState) -> BackendWorkflowState:
 
             # Fire event for frontend workflow
             EventTool.fire_event(
-                "api_contract_published",
-                {"contract_id": state.api_contract.get("id")}
+                "api_contract_published", {"contract_id": state.api_contract.get("id")}
             )
 
             state.api_published = True
             state.api_publishing_complete = True
-            _log_message(state, "api_publishing", "✅ API contract published to context store and event fired")
+            _log_message(
+                state,
+                "api_publishing",
+                "✅ API contract published to context store and event fired",
+            )
         else:
             _handle_error(state, "api_publishing", "No API contract to publish")
 

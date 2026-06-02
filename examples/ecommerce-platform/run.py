@@ -17,7 +17,7 @@ import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
-from team_orchestrator import TeamOrchestrator, Event, EventType
+from team_orchestrator import TeamOrchestrator, Event, EventType  # noqa: E402
 
 
 def run_ecommerce_example():

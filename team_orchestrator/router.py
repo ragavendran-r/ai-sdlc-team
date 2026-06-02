@@ -2,9 +2,8 @@
 
 from typing import Dict, List, Optional, Any, Callable
 from datetime import datetime
-import json
 
-from .events import Event, EventType, EventBus, EventSeverity
+from .events import Event, EventType, EventBus
 from .context_store import ContextStore
 
 

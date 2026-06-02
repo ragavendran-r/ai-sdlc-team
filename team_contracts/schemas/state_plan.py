@@ -1,7 +1,7 @@
 """StatePlan schema for state management planning in frontend workflow."""
 
 from datetime import datetime
-from typing import List, Optional, Dict, Any
+from typing import List, Optional
 from enum import Enum
 from pydantic import BaseModel, Field
 

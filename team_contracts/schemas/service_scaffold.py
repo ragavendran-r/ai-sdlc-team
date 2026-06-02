@@ -1,7 +1,7 @@
 """ServiceScaffold schema for backend agent."""
 
 from datetime import datetime
-from typing import List, Optional
+from typing import List
 from pydantic import BaseModel, Field
 
 

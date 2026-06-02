@@ -1,7 +1,7 @@
 """CapacityReport schema: capacity planning for sprints."""
 
 from datetime import datetime
-from typing import List, Dict, Optional
+from typing import Optional
 from pydantic import BaseModel, Field
 
 
@@ -85,7 +85,7 @@ class CapacityReport(BaseModel):
     def to_markdown(self) -> str:
         """Convert to human-readable Markdown."""
         lines = [
-            f"# Capacity Report",
+            "# Capacity Report",
             f"**ID:** {self.id}",
             f"**Team Velocity:** {self.team_velocity} points/sprint",
             "",

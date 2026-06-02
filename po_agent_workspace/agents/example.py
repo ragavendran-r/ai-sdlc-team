@@ -43,7 +43,7 @@ def example_access_results(state):
     print(" EXAMPLE 3: Accessing Workflow Results")
     print("="*80)
 
-    print(f"\n📊 WORKFLOW RESULTS:\n")
+    print("\n📊 WORKFLOW RESULTS:\n")
 
     print(f"Generated Stories: {len(state.generated_stories)}")
     if state.generated_stories:
@@ -57,14 +57,14 @@ def example_access_results(state):
     print(f"\nEnriched Stories: {len(state.enriched_stories)}")
     if state.enriched_stories:
         story = state.enriched_stories[0]
-        print(f"\n  First enriched story BDD criteria:")
+        print("\n  First enriched story BDD criteria:")
         if story.get("bdd_criteria"):
             for scenario in story["bdd_criteria"][:2]:
                 print(f"    - {scenario.get('scenario')}")
 
     print(f"\nPrioritized Stories: {len(state.prioritized_stories)}")
     if state.prioritized_stories:
-        print(f"\n  Top 3 by priority:")
+        print("\n  Top 3 by priority:")
         for i, story in enumerate(sorted(
             state.prioritized_stories,
             key=lambda s: s.get('priority_rank', 999)
@@ -79,21 +79,21 @@ def example_access_results(state):
     if state.jira_tickets_created:
         print(f"  Tickets: {', '.join(state.jira_tickets_created[:5])}")
 
-    print(f"\nQuality Issues:")
+    print("\nQuality Issues:")
     print(f"  Ambiguities: {len(state.ambiguity_flags)}")
     print(f"  Conflicts: {len(state.conflict_flags)}")
 
-    print(f"\nApprovals:")
+    print("\nApprovals:")
     print(f"  Stories Approved: {'✅ Yes' if state.stories_approved else '❌ No'}")
     print(f"  Backlog Approved: {'✅ Yes' if state.backlog_approved else '❌ No'}")
     print(f"  Jira Sync Complete: {'✅ Yes' if state.jira_sync_complete else '❌ No'}")
 
-    print(f"\nWorkflow Artifacts:")
+    print("\nWorkflow Artifacts:")
     print(f"  Total Messages: {len(state.messages)}")
     print(f"  Total Errors: {len(state.errors)}")
 
     if state.messages:
-        print(f"\n  Recent Messages:")
+        print("\n  Recent Messages:")
         for msg in state.messages[-3:]:
             print(f"    [{msg['agent']}] {msg['message']}")
 
@@ -106,7 +106,7 @@ def example_state_serialization(state):
 
     state_dict = state.to_dict()
 
-    print(f"\nState Dictionary Keys:")
+    print("\nState Dictionary Keys:")
     for key in sorted(state_dict.keys()):
         value = state_dict[key]
         if isinstance(value, list):

@@ -1,7 +1,7 @@
 """ScaffoldedComponent schema for component scaffolding in frontend workflow."""
 
 from datetime import datetime
-from typing import List, Optional, Dict, Any
+from typing import List, Optional
 from pydantic import BaseModel, Field
 
 

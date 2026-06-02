@@ -1,7 +1,7 @@
 """SprintStatus schema: real-time sprint execution monitoring."""
 
 from datetime import datetime
-from typing import List, Optional, Dict, Any
+from typing import Optional, Dict
 from enum import Enum
 from pydantic import BaseModel, Field
 
@@ -177,7 +177,9 @@ class SprintStatus(BaseModel):
             "points_blocked": self.points_blocked,
             "completion_percentage": self.get_completion_percentage(),
             "story_completion_percentage": self.get_story_completion_percentage(),
-            "estimated_completion_date": self.estimated_completion_date.isoformat() if self.estimated_completion_date else None,
+            "estimated_completion_date": (
+                self.estimated_completion_date.isoformat() if self.estimated_completion_date else None
+            ),
             "days_remaining": self.days_remaining,
             "velocity": self.velocity,
             "on_track": self.on_track,

@@ -1,7 +1,7 @@
 """ComponentSpec schema for component breakdown in frontend workflow."""
 
 from datetime import datetime
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict
 from pydantic import BaseModel, Field
 
 
@@ -74,7 +74,8 @@ class ComponentSpec(BaseModel):
         lines = [
             f"### {self.name}",
             f"**ID:** `{self.id}` | **Parent:** {self.parent_screen}",
-            f"**Type:** {self.component_type} | **Status:** {'New Build' if self.is_new_build else f'Reuse (#{self.library_component_id})'}",
+            f"**Type:** {self.component_type} | **Status:** "
+            f"{'New Build' if self.is_new_build else f'Reuse (#{self.library_component_id})'}",
             "",
             self.description,
             "",

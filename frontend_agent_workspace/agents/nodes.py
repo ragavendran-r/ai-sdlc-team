@@ -9,9 +9,8 @@ from .tools import (
     CodeGenerationTool,
 )
 
-
 LLM = Anthropic()
-MODEL = os.getenv("CLAUDE_MODEL", "claude-sonnet-4-5")
+MODEL = os.getenv("CLAUDE_MODEL", "claude-sonnet-4-6")
 
 
 def ux_handoff_intake(state: FrontendWorkflowState) -> FrontendWorkflowState:
@@ -52,10 +51,12 @@ Return a JSON object with:
         state.validated_handoff = state.ux_handoff
         state.intake_gaps = result.get("gaps", [])
         state.handoff_validation_complete = True
-        state.messages.append({
-            "agent": "ux_handoff_intake",
-            "message": f"Validated UX handoff. Gaps found: {len(state.intake_gaps)}",
-        })
+        state.messages.append(
+            {
+                "agent": "ux_handoff_intake",
+                "message": f"Validated UX handoff. Gaps found: {len(state.intake_gaps)}",
+            }
+        )
     except json.JSONDecodeError:
         state.errors.append(f"Failed to parse LLM response: {content}")
 
@@ -117,10 +118,12 @@ Return a JSON array of component breakdowns with fields:
         components = json.loads(content)
         state.component_plan = components
         state.component_breakdown_complete = True
-        state.messages.append({
-            "agent": "component_breakdown",
-            "message": f"Broke down into {len(state.component_plan)} atomic components",
-        })
+        state.messages.append(
+            {
+                "agent": "component_breakdown",
+                "message": f"Broke down into {len(state.component_plan)} atomic components",
+            }
+        )
     except json.JSONDecodeError:
         state.errors.append(f"Failed to parse component breakdown: {content}")
 
@@ -171,10 +174,12 @@ Return a JSON object with:
         state.token_mappings = result.get("mappings", {})
         state.token_gaps = result.get("gaps", [])
         state.token_mapping_complete = True
-        state.messages.append({
-            "agent": "design_token_mapping",
-            "message": f"Mapped tokens. Gaps: {len(state.token_gaps)}",
-        })
+        state.messages.append(
+            {
+                "agent": "design_token_mapping",
+                "message": f"Mapped tokens. Gaps: {len(state.token_gaps)}",
+            }
+        )
     except json.JSONDecodeError:
         state.errors.append(f"Failed to parse token mapping: {content}")
 
@@ -192,10 +197,12 @@ def api_integration_planning(state: FrontendWorkflowState) -> FrontendWorkflowSt
     if not state.api_contract:
         state.api_integration_map = {}
         state.api_planning_complete = True
-        state.messages.append({
-            "agent": "api_integration_planning",
-            "message": "No API contract available, skipping API planning",
-        })
+        state.messages.append(
+            {
+                "agent": "api_integration_planning",
+                "message": "No API contract available, skipping API planning",
+            }
+        )
         return state
 
     prompt = f"""
@@ -229,10 +236,12 @@ Return a JSON object with:
         state.api_integration_map = result.get("mappings", {})
         state.missing_endpoints = result.get("missing_endpoints", [])
         state.api_planning_complete = True
-        state.messages.append({
-            "agent": "api_integration_planning",
-            "message": f"Planned API integration. Missing endpoints: {len(state.missing_endpoints)}",
-        })
+        state.messages.append(
+            {
+                "agent": "api_integration_planning",
+                "message": f"Planned API integration. Missing endpoints: {len(state.missing_endpoints)}",
+            }
+        )
     except json.JSONDecodeError:
         state.errors.append(f"Failed to parse API planning: {content}")
 
@@ -254,28 +263,30 @@ def component_scaffolding(state: FrontendWorkflowState) -> FrontendWorkflowState
         props = component.get("props", {})
 
         # Generate boilerplate
-        boilerplate_result = CodeGenerationTool.generate_tsx_boilerplate(
-            component_name, props
-        )
+        boilerplate_result = CodeGenerationTool.generate_tsx_boilerplate(component_name, props)
 
         if boilerplate_result.success:
-            scaffolded.append({
-                "id": component.get("id"),
-                "name": component_name,
-                "file_path": f"src/components/{component_name}.tsx",
-                "tsx_code": boilerplate_result.data,
-                "props_interface": f"export interface {component_name}Props {{\n  // Props\n}}",
-                "hook_stubs": ["// TODO: Implement custom hooks"],
-                "tokens_used": state.token_mappings.get(component.get("id"), []),
-                "api_calls": state.api_integration_map.get(component.get("id"), []),
-            })
+            scaffolded.append(
+                {
+                    "id": component.get("id"),
+                    "name": component_name,
+                    "file_path": f"src/components/{component_name}.tsx",
+                    "tsx_code": boilerplate_result.data,
+                    "props_interface": f"export interface {component_name}Props {{\n  // Props\n}}",
+                    "hook_stubs": ["// TODO: Implement custom hooks"],
+                    "tokens_used": state.token_mappings.get(component.get("id"), []),
+                    "api_calls": state.api_integration_map.get(component.get("id"), []),
+                }
+            )
 
     state.scaffolded_components = scaffolded
     state.scaffolding_complete = True
-    state.messages.append({
-        "agent": "component_scaffolding",
-        "message": f"Generated scaffolding for {len(state.scaffolded_components)} components",
-    })
+    state.messages.append(
+        {
+            "agent": "component_scaffolding",
+            "message": f"Generated scaffolding for {len(state.scaffolded_components)} components",
+        }
+    )
 
     return state
 
@@ -322,10 +333,12 @@ Return a JSON object with:
         result = json.loads(content)
         state.state_plan = result
         state.state_management_complete = True
-        state.messages.append({
-            "agent": "state_management",
-            "message": "Completed state management planning",
-        })
+        state.messages.append(
+            {
+                "agent": "state_management",
+                "message": "Completed state management planning",
+            }
+        )
     except json.JSONDecodeError:
         state.errors.append(f"Failed to parse state plan: {content}")
 
@@ -377,21 +390,19 @@ Return enhanced TSX code.
 
         a11y_component = component.copy()
         a11y_component["tsx_code"] = enhanced_code
-        a11y_component["aria_attributes"] = [
-            "role", "aria-label", "aria-describedby", "tabindex"
-        ]
-        a11y_component["keyboard_handlers"] = [
-            "onKeyDown", "onKeyUp", "onFocus", "onBlur"
-        ]
+        a11y_component["aria_attributes"] = ["role", "aria-label", "aria-describedby", "tabindex"]
+        a11y_component["keyboard_handlers"] = ["onKeyDown", "onKeyUp", "onFocus", "onBlur"]
 
         a11y_components.append(a11y_component)
 
     state.a11y_enriched_components = a11y_components
     state.a11y_implementation_complete = True
-    state.messages.append({
-        "agent": "accessibility_implementation",
-        "message": f"Added a11y features to {len(state.a11y_enriched_components)} components",
-    })
+    state.messages.append(
+        {
+            "agent": "accessibility_implementation",
+            "message": f"Added a11y features to {len(state.a11y_enriched_components)} components",
+        }
+    )
 
     return state
 
@@ -410,43 +421,45 @@ def unit_test_generation(state: FrontendWorkflowState) -> FrontendWorkflowState:
         component_name = component.get("name", "Component")
 
         # Generate render test
-        render_test_result = CodeGenerationTool.generate_test_stub(
-            component_name, "render"
-        )
+        render_test_result = CodeGenerationTool.generate_test_stub(component_name, "render")
 
         if render_test_result.success:
-            test_files.append({
-                "id": f"test-{component.get('id')}",
-                "component_id": component.get("id"),
-                "component_name": component_name,
-                "file_path": f"src/components/__tests__/{component_name}.test.tsx",
-                "imports": "import { render, screen } from '@testing-library/react';",
-                "setup_code": f"describe('{component_name}', () => {{",
-                "test_cases": [
-                    {
-                        "name": "should render",
-                        "type": "render",
-                        "description": f"Verify {component_name} renders",
-                        "code_snippet": f"render(<{component_name} />);",
-                        "mocks_required": [],
-                    },
-                    {
-                        "name": "should handle interactions",
-                        "type": "interaction",
-                        "description": "Verify user interactions work",
-                        "code_snippet": "// TODO: Add interaction tests",
-                        "mocks_required": [],
-                    },
-                ],
-                "complete_test_code": render_test_result.data,
-            })
+            test_files.append(
+                {
+                    "id": f"test-{component.get('id')}",
+                    "component_id": component.get("id"),
+                    "component_name": component_name,
+                    "file_path": f"src/components/__tests__/{component_name}.test.tsx",
+                    "imports": "import { render, screen } from '@testing-library/react';",
+                    "setup_code": f"describe('{component_name}', () => {{",
+                    "test_cases": [
+                        {
+                            "name": "should render",
+                            "type": "render",
+                            "description": f"Verify {component_name} renders",
+                            "code_snippet": f"render(<{component_name} />);",
+                            "mocks_required": [],
+                        },
+                        {
+                            "name": "should handle interactions",
+                            "type": "interaction",
+                            "description": "Verify user interactions work",
+                            "code_snippet": "// TODO: Add interaction tests",
+                            "mocks_required": [],
+                        },
+                    ],
+                    "complete_test_code": render_test_result.data,
+                }
+            )
 
     state.test_files = test_files
     state.test_generation_complete = True
-    state.messages.append({
-        "agent": "unit_test_generation",
-        "message": f"Generated test stubs for {len(state.test_files)} components",
-    })
+    state.messages.append(
+        {
+            "agent": "unit_test_generation",
+            "message": f"Generated test stubs for {len(state.test_files)} components",
+        }
+    )
 
     return state
 
@@ -460,9 +473,9 @@ def human_checkpoint(state: FrontendWorkflowState) -> FrontendWorkflowState:
     state.current_agent = "human_checkpoint"
 
     # Print summary for human review
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print(" FRONTEND WORKFLOW CHECKPOINT: COMPONENT REVIEW")
-    print("="*80)
+    print("=" * 80)
 
     print("\n## COMPONENT PLAN")
     for comp in state.component_plan[:3]:
@@ -482,21 +495,25 @@ def human_checkpoint(state: FrontendWorkflowState) -> FrontendWorkflowState:
     else:
         print("No token gaps identified ✓")
 
-    print("\n" + "-"*80)
+    print("\n" + "-" * 80)
     response = input("\nApprove component plan? (yes/no/modify): ").strip().lower()
 
     if response == "yes":
         state.components_approved = True
-        state.messages.append({
-            "agent": "human_checkpoint",
-            "message": "Components approved by human",
-        })
+        state.messages.append(
+            {
+                "agent": "human_checkpoint",
+                "message": "Components approved by human",
+            }
+        )
     else:
         state.approval_feedback = input("Feedback for revision: ")
-        state.messages.append({
-            "agent": "human_checkpoint",
-            "message": f"Components rejected. Feedback: {state.approval_feedback}",
-        })
+        state.messages.append(
+            {
+                "agent": "human_checkpoint",
+                "message": f"Components rejected. Feedback: {state.approval_feedback}",
+            }
+        )
 
     return state
 
@@ -509,10 +526,12 @@ def pr_description(state: FrontendWorkflowState) -> FrontendWorkflowState:
     """
     state.current_agent = "pr_description"
 
-    component_list = "\n".join([
-        f"- {c.get('name')} ({c.get('component_type')})"
-        for c in state.a11y_enriched_components[:3]
-    ])
+    component_list = "\n".join(
+        [
+            f"- {c.get('name')} ({c.get('component_type')})"
+            for c in state.a11y_enriched_components[:3]
+        ]
+    )
 
     pr_body = f"""
 ## Summary
@@ -553,10 +572,12 @@ Frontend implementation for component scaffolding workflow.
 
     state.pr_description = pr_body
     state.pr_creation_complete = True
-    state.messages.append({
-        "agent": "pr_description",
-        "message": "Generated PR description",
-    })
+    state.messages.append(
+        {
+            "agent": "pr_description",
+            "message": "Generated PR description",
+        }
+    )
 
     return state
 
@@ -575,45 +596,53 @@ def code_review(state: FrontendWorkflowState) -> FrontendWorkflowState:
     for component in state.a11y_enriched_components[:2]:
         tokens_used = len(component.get("tokens_used", []))
         if tokens_used == 0:
-            review_comments.append({
-                "severity": "major",
-                "category": "design_token",
-                "title": "No design tokens used",
-                "message": (
-                    f"{component.get('name')} doesn't use any design tokens. "
-                    "Use design tokens for colors, spacing, typography."
-                ),
-                "component_id": component.get("id"),
-            })
+            review_comments.append(
+                {
+                    "severity": "major",
+                    "category": "design_token",
+                    "title": "No design tokens used",
+                    "message": (
+                        f"{component.get('name')} doesn't use any design tokens. "
+                        "Use design tokens for colors, spacing, typography."
+                    ),
+                    "component_id": component.get("id"),
+                }
+            )
 
     # Check for accessibility
     for component in state.a11y_enriched_components[:2]:
         a11y_attrs = len(component.get("aria_attributes", []))
         if a11y_attrs == 0:
-            review_comments.append({
-                "severity": "major",
-                "category": "accessibility",
-                "title": "Missing ARIA attributes",
-                "message": f"{component.get('name')} is missing ARIA labels and roles.",
-                "component_id": component.get("id"),
-            })
+            review_comments.append(
+                {
+                    "severity": "major",
+                    "category": "accessibility",
+                    "title": "Missing ARIA attributes",
+                    "message": f"{component.get('name')} is missing ARIA labels and roles.",
+                    "component_id": component.get("id"),
+                }
+            )
 
     # Check for API error handling
     for component in state.a11y_enriched_components[:2]:
         if component.get("api_calls"):
-            review_comments.append({
-                "severity": "major",
-                "category": "error_handling",
-                "title": "Missing API error handling",
-                "message": f"{component.get('name')} calls APIs but has no error handling.",
-                "component_id": component.get("id"),
-            })
+            review_comments.append(
+                {
+                    "severity": "major",
+                    "category": "error_handling",
+                    "title": "Missing API error handling",
+                    "message": f"{component.get('name')} calls APIs but has no error handling.",
+                    "component_id": component.get("id"),
+                }
+            )
 
     state.review_comments = review_comments
     state.code_review_complete = True
-    state.messages.append({
-        "agent": "code_review",
-        "message": f"Code review complete. {len(state.review_comments)} comments",
-    })
+    state.messages.append(
+        {
+            "agent": "code_review",
+            "message": f"Code review complete. {len(state.review_comments)} comments",
+        }
+    )
 
     return state

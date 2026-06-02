@@ -25,7 +25,7 @@ from team_contracts.schemas import (
 )
 
 llm = ChatAnthropic(
-    model=os.getenv("CLAUDE_MODEL", "claude-sonnet-4-5"),
+    model=os.getenv("CLAUDE_MODEL", "claude-sonnet-4-6"),
     temperature=float(os.getenv("CLAUDE_TEMPERATURE", "0.7")),
     max_tokens=int(os.getenv("CLAUDE_MAX_TOKENS", "2048")),
 )
@@ -66,15 +66,15 @@ def story_intake(state: UXWorkflowState) -> UXWorkflowState:
 
     # Filter UX-relevant stories (exclude pure backend/infra)
     state.ux_relevant_stories = [
-        s for s in state.input_stories
-        if s.user_role in ["Customer", "Admin", "User"]
+        s for s in state.input_stories if s.user_role in ["Customer", "Admin", "User"]
     ]
     state.excluded_stories = [
-        s.id for s in state.input_stories
-        if s.id not in [us.id for us in state.ux_relevant_stories]
+        s.id for s in state.input_stories if s.id not in [us.id for us in state.ux_relevant_stories]
     ]
 
-    state.add_message("story_intake", f"Filtered {len(state.ux_relevant_stories)} UX-relevant stories")
+    state.add_message(
+        "story_intake", f"Filtered {len(state.ux_relevant_stories)} UX-relevant stories"
+    )
     return state
 
 
@@ -308,9 +308,9 @@ def human_checkpoint(state: UXWorkflowState) -> UXWorkflowState:
     if state.web_mode:
         return state
 
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print(" HUMAN CHECKPOINT: REVIEW UX SPECIFICATIONS")
-    print("="*80)
+    print("=" * 80)
 
     print("\n## Wireframe Briefs")
     for brief in state.wireframe_briefs[:2]:

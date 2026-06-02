@@ -1,6 +1,5 @@
 """LangGraph workflow for Frontend Agent."""
 
-from typing import Literal
 from langgraph.graph import StateGraph, END
 from .state import FrontendWorkflowState
 from .nodes import (
@@ -18,7 +17,6 @@ from .nodes import (
 )
 from .checkpoints import (
     should_proceed_to_pr_description,
-    should_revise_components,
 )
 
 
@@ -207,7 +205,6 @@ def run_frontend_workflow(
     Returns:
         Final workflow state with all generated artifacts
     """
-    import json
     from .tools import ContextStoreTool
 
     # Create and compile workflow

@@ -1,7 +1,7 @@
 """RiskFlag schema: risk identification in sprint planning."""
 
 from datetime import datetime
-from typing import List, Optional, Dict, Any
+from typing import Optional
 from enum import Enum
 from pydantic import BaseModel, Field
 

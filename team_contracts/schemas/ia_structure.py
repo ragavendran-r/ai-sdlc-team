@@ -1,7 +1,7 @@
 """IAStructure schema: information architecture for UX design."""
 
 from datetime import datetime
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict
 from pydantic import BaseModel, Field
 
 
@@ -83,7 +83,10 @@ class IAStructure(BaseModel):
         return {
             "id": self.id,
             "root_nodes": self.root_nodes,
-            "nodes": {k: {"id": v.id, "name": v.name, "description": v.description, "children": v.children} for k, v in self.nodes.items()},
+            "nodes": {
+                k: {"id": v.id, "name": v.name, "description": v.description, "children": v.children}
+                for k, v in self.nodes.items()
+            },
             "total_pages": self.total_pages,
             "page_categories": self.page_categories,
             "notes": self.notes,

@@ -1,6 +1,5 @@
 """Human checkpoint nodes for Frontend Agent workflow."""
 
-from typing import Literal
 from .state import FrontendWorkflowState
 
 

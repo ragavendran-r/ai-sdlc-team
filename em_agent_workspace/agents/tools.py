@@ -3,9 +3,8 @@
 These are placeholder interfaces for real integrations later.
 """
 
-from typing import Optional, List, Dict, Any
+from typing import Optional, Any, List
 from dataclasses import dataclass
-from datetime import datetime
 
 
 @dataclass
@@ -206,7 +205,7 @@ class JiraIntegrationTool:
         """
         # STUB: In real implementation, would call Jira API
 
-        from datetime import datetime, timedelta
+        from datetime import datetime
 
         return ToolResult(
             success=True,

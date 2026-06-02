@@ -83,7 +83,7 @@ class DoDItem(BaseModel):
             types_str = ", ".join(self.applies_to_story_types)
             lines.append(f"   **Applies to:** {types_str}")
         elif self.applies_to_all:
-            lines.append(f"   **Applies to:** All stories")
+            lines.append("   **Applies to:** All stories")
 
         if self.notes:
             lines.append(f"   **Notes:** {self.notes}")

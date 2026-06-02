@@ -196,7 +196,7 @@ class Sprint(BaseModel):
 
         lines.extend([
             "",
-            f"## Summary",
+            "## Summary",
             f"- **Total Tasks:** {len(self.tasks)}",
             f"- **Total Estimated Hours:** {self.total_estimated_hours()}h",
             f"- **Blocked Tasks:** {len(self.get_blocked_tasks())}",
@@ -304,8 +304,6 @@ class SprintPlan(BaseModel):
 
 if __name__ == "__main__":
     # Example usage
-    from datetime import datetime, timedelta
-
     start = datetime.utcnow()
     end = start + timedelta(days=14)
 

@@ -1,8 +1,7 @@
 """Team Orchestrator - coordinates all workflows."""
 
-from typing import Dict, List, Optional, Any
+from typing import Dict, Optional, Any
 from datetime import datetime
-from pathlib import Path
 import json
 
 from .events import Event, EventType, EventBus, EventSeverity

@@ -238,8 +238,6 @@ def run_backend_workflow(
     Returns:
         Final workflow state with API contract and artifacts
     """
-    import json
-
     # Create and compile workflow
     compiled_workflow = compile_backend_workflow()
 
@@ -270,7 +268,8 @@ def run_backend_workflow(
         print(f"User Stories: {len(final_state.user_stories)}")
         print(f"Backend Requirements: {len(final_state.backend_requirements)}")
         print(f"Domain Model Entities: {len(final_state.domain_model.get('entities', []) if final_state.domain_model else 0)}")
-        print(f"Database Tables: {len(final_state.db_schema.get('ddl_sql', '').split('CREATE TABLE') if final_state.db_schema else 0) - 1}")
+        db_tables = len(final_state.db_schema.get('ddl_sql', '').split('CREATE TABLE') if final_state.db_schema else 0) - 1
+        print(f"Database Tables: {db_tables}")
         print(f"API Endpoints: {len(final_state.api_contract.get('endpoints', []) if final_state.api_contract else 0)}")
         print(f"Service Classes: {len(final_state.service_scaffolds)}")
         print(f"Validators: {len(final_state.validation_modules)}")

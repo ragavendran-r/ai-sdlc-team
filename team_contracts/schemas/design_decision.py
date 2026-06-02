@@ -1,7 +1,7 @@
 """DesignDecision contract: Architecture Decision Records (ADR) format."""
 
 from datetime import datetime
-from typing import List, Optional, Dict, Any
+from typing import List, Optional
 from enum import Enum
 from pydantic import BaseModel, Field, field_validator
 
@@ -185,8 +185,6 @@ class DesignDecision(BaseModel):
     @classmethod
     def validate_consequences(cls, v: List[Consequence]) -> List[Consequence]:
         """Ensure we have both positive and negative consequences documented."""
-        has_positive = any(c.is_positive for c in v)
-        has_negative = any(not c.is_positive for c in v)
         # Note: we don't enforce this, just ensure they're there
         return v
 
@@ -392,9 +390,18 @@ if __name__ == "__main__":
         title="Use JWT tokens for API authentication",
         category=DecisionCategory.API_DESIGN,
         impact=DecisionImpact.SYSTEM,
-        context="Our application needs to authenticate API requests from the frontend. We need a stateless solution that scales across multiple servers.",
-        decision="We will use JWT (JSON Web Tokens) for API authentication. Tokens will be issued on login and included in the Authorization header of subsequent requests.",
-        rationale="JWT tokens are stateless, scalable, and widely supported. They eliminate the need for server-side session storage and work well with distributed systems.",
+        context=(
+            "Our application needs to authenticate API requests from the frontend. "
+            "We need a stateless solution that scales across multiple servers."
+        ),
+        decision=(
+            "We will use JWT (JSON Web Tokens) for API authentication. "
+            "Tokens will be issued on login and included in the Authorization header of subsequent requests."
+        ),
+        rationale=(
+            "JWT tokens are stateless, scalable, and widely supported. "
+            "They eliminate the need for server-side session storage and work well with distributed systems."
+        ),
         alternatives=[
             Alternative(
                 name="Session-based authentication",
@@ -445,9 +452,15 @@ if __name__ == "__main__":
                 mitigation="Use a token refresh endpoint and automatic refresh on 401 responses.",
             ),
         ],
-        trade_offs="We're trading immediate token revocation (on logout) for scalability and statelessness. Tokens will have a short expiration time (24 hours) to limit exposure.",
+        trade_offs=(
+            "We're trading immediate token revocation (on logout) for scalability and statelessness. "
+            "Tokens will have a short expiration time (24 hours) to limit exposure."
+        ),
         affects_areas=["api", "frontend", "authentication"],
-        implementation_notes="Use RS256 (RSA) asymmetric signing. Frontend stores tokens in memory or secure httpOnly cookies. Refresh tokens stored in httpOnly cookies.",
+        implementation_notes=(
+            "Use RS256 (RSA) asymmetric signing. Frontend stores tokens in memory or secure httpOnly cookies. "
+            "Refresh tokens stored in httpOnly cookies."
+        ),
         follow_up_actions=[
             "Implement token refresh endpoint",
             "Add CSRF protection",

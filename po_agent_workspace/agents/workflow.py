@@ -1,6 +1,5 @@
 """LangGraph workflow for PO Agent."""
 
-from typing import Literal
 from langgraph.graph import StateGraph, END
 from .state import PoWorkflowState
 from .nodes import (
@@ -19,8 +18,6 @@ from .checkpoints import (
     checkpoint_backlog_grooming,
     should_proceed_to_acceptance_criteria,
     should_proceed_to_jira,
-    should_revise_stories,
-    should_revise_backlog,
 )
 
 
@@ -253,8 +250,6 @@ def run_po_workflow(
     Returns:
         Final workflow state with all generated artifacts
     """
-    import json
-
     # Create and compile workflow
     compiled_workflow = compile_po_workflow()
 

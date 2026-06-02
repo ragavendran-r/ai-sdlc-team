@@ -2,7 +2,6 @@
 
 from typing import Any, Dict, List, Optional
 from dataclasses import dataclass
-from team_contracts.schemas import UXHandoff, APIContract
 
 
 @dataclass
@@ -229,7 +228,7 @@ class GitHubTool:
                 success=True,
                 data={
                     "pr_number": 123,
-                    "pr_url": f"https://github.com/user/repo/pull/123",
+                    "pr_url": "https://github.com/user/repo/pull/123",
                     "branch": branch_name,
                 },
                 message=f"Created PR #{123}: {title}",

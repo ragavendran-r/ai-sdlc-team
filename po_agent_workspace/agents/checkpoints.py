@@ -1,9 +1,6 @@
 """Human checkpoint nodes for approval gates in the workflow."""
 
-from typing import Optional
 from .state import PoWorkflowState
-from .tools import ToolResult
-import json
 
 
 class HumanCheckpoint:
@@ -27,15 +24,16 @@ class HumanCheckpoint:
             print(f"  User Goal: {story.get('user_goal', 'N/A')}")
             print(f"  Business Value: {story.get('business_value', 'N/A')}")
             print(f"  Priority: {story.get('priority', 'N/A').upper() if story.get('priority') else 'N/A'}")
-            print(f"  Complexity: {story.get('estimated_complexity', 'N/A').upper() if story.get('estimated_complexity') else 'N/A'}")
+            complexity = story.get('estimated_complexity', 'N/A').upper() if story.get('estimated_complexity') else 'N/A'
+            print(f"  Complexity: {complexity}")
 
             if story.get("acceptance_criteria"):
-                print(f"  Acceptance Criteria:")
+                print("  Acceptance Criteria:")
                 for criterion in story.get("acceptance_criteria", []):
                     print(f"    - {criterion}")
 
             if story.get("bdd_criteria"):
-                print(f"  BDD Scenarios:")
+                print("  BDD Scenarios:")
                 for scenario in story.get("bdd_criteria", []):
                     print(f"    - {scenario.get('scenario', 'N/A')}")
 
@@ -134,7 +132,7 @@ def checkpoint_story_generation(state: PoWorkflowState) -> PoWorkflowState:
 
     # Quality summary
     print("\n" + "-" * 80)
-    print(f"\nSummary:")
+    print("\nSummary:")
     print(f"  Total Stories: {len(state.generated_stories)}")
 
     if state.ambiguity_flags:
@@ -220,7 +218,7 @@ def checkpoint_backlog_grooming(state: PoWorkflowState) -> PoWorkflowState:
     total_effort = sum(theme.get("total_effort_hours", 0) for theme in state.groomed_backlog)
 
     print("\n" + "-" * 80)
-    print(f"\nStatistics:")
+    print("\nStatistics:")
     print(f"  Total Stories: {total_stories}")
     print(f"  Total Effort: {total_effort}h")
     print(f"  Themes: {len(state.themes)}")

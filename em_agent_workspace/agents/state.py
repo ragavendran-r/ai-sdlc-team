@@ -8,7 +8,6 @@ from team_contracts.schemas import (
     SprintPlan,
     CapacityReport,
     RiskFlag,
-    DoDItem,
     DefinitionOfDone,
     SprintStatus,
     Blocker,

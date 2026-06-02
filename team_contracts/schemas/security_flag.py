@@ -1,7 +1,7 @@
 """SecurityFlag schema for backend agent."""
 
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional
 from enum import Enum
 from pydantic import BaseModel, Field
 

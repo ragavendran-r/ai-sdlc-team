@@ -191,21 +191,24 @@ You want to add a new specialized agent (e.g., Security Auditor).
 **Steps:**
 
 1. **Copy template workspace**
+
    ```bash
    cp -r po_agent_workspace security-auditor-workspace
    cd security-auditor-workspace
    ```
 
 2. **Update configuration**
+
    ```bash
    # Edit README.md
    # Change: "Product Owner Agent" → "Security Auditor Agent"
-   
+
    # Edit agents/workflow.py
    # Update: node names, descriptions, entry point
    ```
 
 3. **Implement nodes**
+
    ```python
    # Edit agents/nodes.py
    def security_audit(state: SecurityAuditorState) -> SecurityAuditorState:
@@ -215,6 +218,7 @@ You want to add a new specialized agent (e.g., Security Auditor).
    ```
 
 4. **Create types**
+
    ```python
    # Edit agents/state.py
    @dataclass
@@ -225,9 +229,10 @@ You want to add a new specialized agent (e.g., Security Auditor).
    ```
 
 5. **Add to orchestrator**
+
    ```python
    # In team-orchestrator/orchestrator.py
-   
+
    # Add route from backend to security auditor
    orchestrator.router.add_route(
        source_workflow="backend",
@@ -252,9 +257,10 @@ You want to modify the Backend Agent to use your company's API standards.
 **Steps:**
 
 1. **Modify nodes**
+
    ```python
    # backend_agent_workspace/agents/nodes.py
-   
+
    # Customize the api_contract node
    def api_contract(state: BackendWorkflowState) -> BackendWorkflowState:
        # Add your custom logic
@@ -263,10 +269,11 @@ You want to modify the Backend Agent to use your company's API standards.
    ```
 
 2. **Update schemas if needed**
+
    ```python
    # team_contracts/schemas/api_contract.py
    # Add your custom fields
-   
+
    class APIContract(BaseModel):
        # ... existing fields
        company_policies: List[str]
@@ -274,9 +281,10 @@ You want to modify the Backend Agent to use your company's API standards.
    ```
 
 3. **Update tests**
+
    ```python
    # backend_agent_workspace/tests/test_nodes.py
-   
+
    def test_applies_company_policies(self):
        # Test your customization
        pass
@@ -290,7 +298,7 @@ Switch from Claude Sonnet to a different model.
 
 ```bash
 # Edit .env
-CLAUDE_MODEL=claude-opus-4-8
+CLAUDE_MODEL=claude-sonnet-4-6
 
 # OR edit each agent's nodes.py
 # MODEL = "claude-opus-4-8"
@@ -300,10 +308,10 @@ CLAUDE_MODEL=claude-opus-4-8
 
 ```python
 # po_agent_workspace/agents/nodes.py
-MODEL = "claude-opus-4-8"  # Use Opus for PO analysis
+MODEL = "claude-sonnet-4-6"  # Use Opus for PO analysis
 
 # backend_agent_workspace/agents/nodes.py
-MODEL = "claude-sonnet-4-20250514"  # Keep Sonnet for speed
+MODEL = "claude-sonnet-4-6"  # Keep Sonnet for speed
 ```
 
 ### Scenario 4: Add External Integration
@@ -313,9 +321,10 @@ Connect to GitHub for PR creation.
 **Steps:**
 
 1. **Update tools**
+
    ```python
    # backend_agent_workspace/agents/tools.py
-   
+
    class GitHubTool:
        @staticmethod
        def create_pull_request(title: str, body: str) -> ToolResult:
@@ -326,6 +335,7 @@ Connect to GitHub for PR creation.
    ```
 
 2. **Add configuration**
+
    ```bash
    # .env
    GITHUB_TOKEN=ghp_your-token
@@ -360,7 +370,7 @@ class EventType(str, Enum):
 
 def _setup_default_routes(self) -> None:
     # ... existing routes
-    
+
     self.router.add_route(
         source_workflow="your_source",
         source_event_type=EventType.YOUR_CUSTOM_EVENT,
@@ -381,11 +391,11 @@ class YourSchema(BaseModel):
     """Description."""
     field1: str = Field(..., description="...")
     field2: int = Field(..., description="...")
-    
+
     def to_markdown(self) -> str:
         # For human-readable output
         pass
-    
+
     def to_dict(self) -> dict:
         # For agent consumption
         pass
@@ -433,13 +443,13 @@ class TestYourFeature:
     def test_basic_functionality(self):
         """Test basic feature."""
         orchestrator = TeamOrchestrator()
-        
+
         # Setup
         event = Event(...)
-        
+
         # Execute
         orchestrator.publish_event(event)
-        
+
         # Assert
         assert len(orchestrator.event_bus.event_history) > 0
 
@@ -467,11 +477,13 @@ pytest tests/test_your_feature.py::TestYourFeature::test_basic_functionality -v
 ### Before Submitting
 
 1. **Run all tests**
+
    ```bash
    pytest . -v --cov
    ```
 
 2. **Check code formatting**
+
    ```bash
    black .
    isort .
@@ -491,6 +503,7 @@ pytest tests/test_your_feature.py::TestYourFeature::test_basic_functionality -v
 ### Create Pull Request
 
 1. **Push your branch**
+
    ```bash
    git push origin feature/my-feature
    ```
@@ -514,10 +527,10 @@ pytest tests/test_your_feature.py::TestYourFeature::test_basic_functionality -v
 # Use type hints
 def process_event(event: Event) -> dict[str, Any]:
     """Process an event.
-    
+
     Args:
         event: The event to process
-        
+
     Returns:
         Processed data
     """
@@ -527,7 +540,7 @@ def process_event(event: Event) -> dict[str, Any]:
 # Use docstrings for classes and public methods
 class EventBus:
     """Central event distribution system."""
-    
+
     def publish(self, event: Event) -> None:
         """Publish an event."""
         pass
@@ -567,6 +580,7 @@ Avoid:
 ### Q: How do I customize the LLM temperature?
 
 A: Edit `.env` or the agent's `nodes.py`:
+
 ```python
 # In agents/nodes.py
 client.messages.create(
@@ -580,6 +594,7 @@ client.messages.create(
 ### Q: How do I add a new event type?
 
 A: Add to `team-orchestrator/events.py`:
+
 ```python
 class EventType(str, Enum):
     MY_NEW_EVENT = "my_new_event"
@@ -588,11 +603,13 @@ class EventType(str, Enum):
 ### Q: How do I connect to a real database?
 
 A: Update the connection string in `.env`:
+
 ```bash
 DATABASE_URL=postgresql://user:pass@localhost/db
 ```
 
 Then update context store initialization:
+
 ```python
 # team-orchestrator/orchestrator.py
 self.context_store = ContextStore(
@@ -604,6 +621,7 @@ self.context_store = ContextStore(
 ### Q: Can I use a different LLM provider?
 
 A: Yes! Replace the Anthropic imports:
+
 ```python
 # agents/nodes.py
 from openai import OpenAI  # or other provider
@@ -614,6 +632,7 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 ### Q: How do I run tests in Docker?
 
 A: Use Docker Compose:
+
 ```bash
 docker-compose run app pytest . -v
 ```
@@ -621,6 +640,7 @@ docker-compose run app pytest . -v
 ### Q: How do I debug a failing test?
 
 A: Use pytest's debugging tools:
+
 ```bash
 # Drop into debugger on failure
 pytest --pdb tests/test_your_feature.py
@@ -635,6 +655,7 @@ pytest -s tests/test_your_feature.py
 ### Q: Can I extend the context store?
 
 A: Yes! The context store is pluggable:
+
 ```python
 # Create your own implementation
 class CustomContextStore(ContextStore):

@@ -1,7 +1,6 @@
 """Agent nodes for PO Agent workflow."""
 
 import os
-from typing import Optional
 from datetime import datetime
 from langchain_anthropic import ChatAnthropic
 from .state import (
@@ -12,7 +11,6 @@ from .state import (
     ConflictFlag,
 )
 from .tools import (
-    StakeholderInterviewTool,
     RequirementsStructuringTool,
     AmbiguityDetectionTool,
     ConflictDetectionTool,
@@ -24,7 +22,7 @@ from .tools import (
 )
 
 llm = ChatAnthropic(
-    model=os.getenv("CLAUDE_MODEL", "claude-sonnet-4-5"),
+    model=os.getenv("CLAUDE_MODEL", "claude-sonnet-4-6"),
     temperature=float(os.getenv("CLAUDE_TEMPERATURE", "0.7")),
     max_tokens=int(os.getenv("CLAUDE_MAX_TOKENS", "2048")),
 )
@@ -33,6 +31,7 @@ llm = ChatAnthropic(
 # ============================================================================
 # NODE 1: STAKEHOLDER INTERVIEW
 # ============================================================================
+
 
 def stakeholder_interview(state: PoWorkflowState) -> PoWorkflowState:
     """
@@ -97,6 +96,7 @@ Then provide a summary of key extracted requirements."""
 # NODE 2: REQUIREMENTS EXTRACTION
 # ============================================================================
 
+
 def requirements_extraction(state: PoWorkflowState) -> PoWorkflowState:
     """
     Structure raw requirements into requirement objects.
@@ -125,7 +125,7 @@ Structure them into formal requirements with:
 
 Output should be JSON array of requirements."""
 
-    response = llm.invoke(refinement_prompt)
+    llm.invoke(refinement_prompt)
 
     # Create structured requirements
     structured_reqs = [
@@ -164,6 +164,7 @@ Output should be JSON array of requirements."""
 # ============================================================================
 # NODE 3: AMBIGUITY DETECTION
 # ============================================================================
+
 
 def ambiguity_detection(state: PoWorkflowState) -> PoWorkflowState:
     """
@@ -211,6 +212,7 @@ def ambiguity_detection(state: PoWorkflowState) -> PoWorkflowState:
 # ============================================================================
 # NODE 4: CONFLICT DETECTION
 # ============================================================================
+
 
 def conflict_detection(state: PoWorkflowState) -> PoWorkflowState:
     """
@@ -264,6 +266,7 @@ def conflict_detection(state: PoWorkflowState) -> PoWorkflowState:
 # NODE 5: STORY GENERATION
 # ============================================================================
 
+
 def story_generation(state: PoWorkflowState) -> PoWorkflowState:
     """
     Produce UserStory schema objects from requirements.
@@ -290,7 +293,7 @@ Provide feedback on:
 3. Role/Goal/Value alignment
 4. Estimate reasonableness"""
 
-    response = llm.invoke(review_prompt)
+    llm.invoke(review_prompt)
 
     state.add_message(
         "story_generation",
@@ -303,6 +306,7 @@ Provide feedback on:
 # ============================================================================
 # NODE 6: ACCEPTANCE CRITERIA
 # ============================================================================
+
 
 def acceptance_criteria(state: PoWorkflowState) -> PoWorkflowState:
     """
@@ -327,7 +331,7 @@ Check that each scenario has:
 - Clear When (action/trigger)
 - Clear Then (expected outcome)"""
 
-    response = llm.invoke(validation_prompt)
+    llm.invoke(validation_prompt)
 
     state.add_message(
         "acceptance_criteria",
@@ -340,6 +344,7 @@ Check that each scenario has:
 # ============================================================================
 # NODE 7: PRIORITIZATION
 # ============================================================================
+
 
 def prioritization(state: PoWorkflowState) -> PoWorkflowState:
     """
@@ -361,7 +366,7 @@ def prioritization(state: PoWorkflowState) -> PoWorkflowState:
 
 Provide business justification for the priority order and flag any concerns about dependencies or sequencing."""
 
-    response = llm.invoke(reasoning_prompt)
+    llm.invoke(reasoning_prompt)
 
     state.add_message(
         "prioritization",
@@ -374,6 +379,7 @@ Provide business justification for the priority order and flag any concerns abou
 # ============================================================================
 # NODE 8: BACKLOG GROOMING
 # ============================================================================
+
 
 def backlog_grooming(state: PoWorkflowState) -> PoWorkflowState:
     """
@@ -400,7 +406,7 @@ Provide feedback on:
 3. Dependency ordering
 4. Risk areas that might need earlier attention"""
 
-    response = llm.invoke(review_prompt)
+    llm.invoke(review_prompt)
 
     state.add_message(
         "backlog_grooming",
@@ -413,6 +419,7 @@ Provide feedback on:
 # ============================================================================
 # NODE 9: JIRA POPULATION
 # ============================================================================
+
 
 def jira_population(state: PoWorkflowState) -> PoWorkflowState:
     """
