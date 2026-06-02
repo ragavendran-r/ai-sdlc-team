@@ -8,54 +8,189 @@
 <div class="banner amber">This session is not ready for review yet.</div>
 {% else %}
 
+<style>
+  /* ── Tab strip ─────────────────────────────────────────────────────── */
+  .tab-strip { display:flex; gap:0; border-bottom:2px solid #e5e7eb; margin-bottom:1.5rem; }
+  .tab-btn {
+    padding:0.6rem 1.25rem; border:none; background:none; cursor:pointer;
+    font-size:0.95rem; color:#6b7280; border-bottom:3px solid transparent;
+    margin-bottom:-2px; font-weight:500;
+  }
+  .tab-btn.active { color:#1d4ed8; border-bottom-color:#1d4ed8; }
+  .tab-panel { display:none; }
+  .tab-panel.active { display:block; }
+
+  /* ── Persona card ───────────────────────────────────────────────────── */
+  .persona-card {
+    background:#fff; border:1px solid #e5e7eb; border-radius:12px;
+    padding:1.5rem; margin-bottom:1rem; display:grid;
+    grid-template-columns:64px 1fr; gap:1.25rem; align-items:start;
+  }
+  .persona-avatar {
+    width:64px; height:64px; border-radius:50%; background:linear-gradient(135deg,#1d4ed8,#7c3aed);
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.6rem; color:#fff; font-weight:700; flex-shrink:0;
+  }
+  .persona-meta { display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.75rem; align-items:center; }
+  .persona-name { font-size:1.1rem; font-weight:700; margin:0; }
+  .detail-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:0.75rem; }
+  .detail-section h4 { font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em; color:#6b7280; margin:0 0 0.35rem; }
+  .detail-section ul { margin:0; padding-left:1.2rem; }
+  .detail-section li { font-size:0.9rem; margin-bottom:0.2rem; }
+  .chip {
+    display:inline-block; padding:0.2rem 0.65rem; border-radius:999px;
+    font-size:0.78rem; font-weight:600; background:#ede9fe; color:#5b21b6;
+  }
+  .chip.green { background:#dcfce7; color:#166534; }
+  .chip.blue  { background:#dbeafe; color:#1e40af; }
+  .chip.gray  { background:#f3f4f6; color:#374151; }
+
+  /* ── Flow card ──────────────────────────────────────────────────────── */
+  .flow-card { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:1.5rem; margin-bottom:1rem; }
+  .flow-header { display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:0.5rem; margin-bottom:1rem; }
+  .flow-steps { position:relative; padding-left:1.75rem; }
+  .flow-steps::before { content:''; position:absolute; left:0.55rem; top:0; bottom:0; width:2px; background:#e5e7eb; }
+  .flow-step { position:relative; margin-bottom:1rem; }
+  .flow-step::before {
+    content:attr(data-n); position:absolute; left:-1.75rem; top:0.1rem;
+    width:1.25rem; height:1.25rem; border-radius:50%; background:#1d4ed8;
+    color:#fff; font-size:0.7rem; font-weight:700;
+    display:flex; align-items:center; justify-content:center;
+    line-height:1.25rem; text-align:center;
+  }
+  .flow-step .action { font-weight:600; font-size:0.9rem; }
+  .flow-step .response { font-size:0.85rem; color:#6b7280; margin-top:0.2rem; }
+  .flow-step .screen-badge { font-size:0.75rem; background:#f3f4f6; color:#374151; padding:0.15rem 0.5rem; border-radius:6px; margin-top:0.25rem; display:inline-block; }
+
+  /* ── Wireframe card ─────────────────────────────────────────────────── */
+  .wireframe-card { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:1.5rem; margin-bottom:1rem; }
+  .wireframe-header { display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:0.5rem; margin-bottom:1rem; }
+  .wireframe-mockup {
+    background:#f8fafc; border:1.5px dashed #cbd5e1; border-radius:8px;
+    padding:1rem; margin:1rem 0; font-family:monospace; font-size:0.8rem;
+    color:#475569; white-space:pre-wrap; line-height:1.6;
+  }
+  .comp-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:0.75rem; margin-top:0.75rem; }
+  .comp-chip {
+    background:#f0f9ff; border:1px solid #bae6fd; border-radius:8px;
+    padding:0.6rem 0.85rem;
+  }
+  .comp-chip .comp-name { font-weight:600; font-size:0.88rem; color:#0369a1; }
+  .comp-chip .comp-purpose { font-size:0.78rem; color:#6b7280; margin-top:0.15rem; }
+  .interaction-row { display:flex; gap:0.5rem; align-items:flex-start; margin-bottom:0.5rem; font-size:0.88rem; }
+  .interaction-row .trigger { font-weight:600; min-width:140px; }
+  .interaction-row .arrow { color:#9ca3af; }
+  .section-label { font-size:0.75rem; text-transform:uppercase; letter-spacing:0.06em; color:#9ca3af; font-weight:600; margin:1rem 0 0.5rem; }
+
+  /* ── A11y banner ────────────────────────────────────────────────────── */
+  .a11y-list { list-style:none; padding:0; margin:0.5rem 0 0; }
+  .a11y-list li::before { content:"⚠ "; }
+  .a11y-list li { margin-bottom:0.25rem; font-size:0.9rem; }
+
+  /* ── Summary bar ────────────────────────────────────────────────────── */
+  .summary-bar { display:grid; grid-template-columns:repeat(auto-fit,minmax(110px,1fr)); gap:0.75rem; margin-bottom:1.5rem; }
+  .summary-stat { background:#fff; border:1px solid #e5e7eb; border-radius:10px; padding:0.85rem; text-align:center; }
+  .summary-stat .n { font-size:1.6rem; font-weight:700; color:#1d4ed8; }
+  .summary-stat .l { font-size:0.75rem; color:#6b7280; }
+
+  /* ── Action bar ─────────────────────────────────────────────────────── */
+  .action-bar { position:sticky; bottom:0; background:#fff; border-top:1px solid #e5e7eb; padding:1rem 0; margin-top:2rem; display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap; }
+</style>
+
+<!-- Summary stats -->
+<div class="summary-bar">
+  <div class="summary-stat"><div class="n">{{ session.personas|length }}</div><div class="l">Personas</div></div>
+  <div class="summary-stat"><div class="n">{{ session.user_flows|length }}</div><div class="l">User flows</div></div>
+  <div class="summary-stat"><div class="n">{{ session.wireframe_briefs|length }}</div><div class="l">Wireframes</div></div>
+  <div class="summary-stat"><div class="n">{{ session.a11y_flags|length }}</div><div class="l">A11y flags</div></div>
+</div>
+
 {% if session.a11y_flags %}
-<div class="banner amber">
-  <strong>Accessibility flags</strong>
-  <ul>{% for f in session.a11y_flags %}<li>{{ f }}</li>{% endfor %}</ul>
+<div class="banner amber" style="margin-bottom:1.5rem;">
+  <strong>Accessibility flags — review before publishing</strong>
+  <ul class="a11y-list">{% for f in session.a11y_flags %}<li>{{ f }}</li>{% endfor %}</ul>
 </div>
 {% endif %}
 
-<div class="tabs" data-review-session="{{ session.session_id }}">
-  <button type="button" class="tab-btn active" data-tab="personas">Personas ({{ session.personas|length }})</button>
-  <button type="button" class="tab-btn" data-tab="flows">User flows ({{ session.user_flows|length }})</button>
-  <button type="button" class="tab-btn" data-tab="wireframes">Wireframe briefs ({{ session.wireframe_briefs|length }})</button>
+<!-- Tab strip -->
+<div class="tab-strip">
+  <button class="tab-btn active" onclick="switchTab(this,'personas')">Personas ({{ session.personas|length }})</button>
+  <button class="tab-btn" onclick="switchTab(this,'flows')">User flows ({{ session.user_flows|length }})</button>
+  <button class="tab-btn" onclick="switchTab(this,'wireframes')">Wireframes ({{ session.wireframe_briefs|length }})</button>
 </div>
 
-<div class="tab-panel active" data-panel="personas">
+<!-- ── Personas ─────────────────────────────────────────────────────────── -->
+<div class="tab-panel active" id="tab-personas">
   {% for p in session.personas %}
-  <div class="card">
-    <strong>{{ p.get('name', '') }}</strong>
-    <span class="badge blue">{{ p.get('role', '') }}</span>
-    {% if p.get('goals') %}
-    <p class="muted">Goals:</p>
-    <ul>{% for g in p.get('goals') %}<li>{{ g }}</li>{% endfor %}</ul>
-    {% endif %}
-    {% if p.get('pain_points') %}
-    <p class="muted">Pain points:</p>
-    <ul>{% for pp in p.get('pain_points') %}<li>{{ pp }}</li>{% endfor %}</ul>
-    {% endif %}
+  {% set initials = (p.get('name','?')[:1])|upper %}
+  <div class="persona-card">
+    <div class="persona-avatar">{{ initials }}</div>
+    <div>
+      <div class="persona-meta">
+        <p class="persona-name">{{ p.get('name','') }}</p>
+        <span class="chip blue">{{ p.get('role','') }}</span>
+        {% if p.get('experience_level') %}<span class="chip gray">{{ p.get('experience_level') }}</span>{% endif %}
+      </div>
+      {% if p.get('demographic_summary') %}<p style="font-size:0.9rem;color:#374151;margin:0 0 0.75rem;">{{ p.get('demographic_summary') }}</p>{% endif %}
+      <div class="detail-grid">
+        {% if p.get('goals') %}
+        <div class="detail-section">
+          <h4>Goals</h4>
+          <ul>{% for g in p.get('goals') %}<li>{{ g }}</li>{% endfor %}</ul>
+        </div>
+        {% endif %}
+        {% if p.get('pain_points') %}
+        <div class="detail-section">
+          <h4>Pain points</h4>
+          <ul>{% for pp in p.get('pain_points') %}<li>{{ pp }}</li>{% endfor %}</ul>
+        </div>
+        {% endif %}
+      </div>
+      {% if p.get('primary_devices') %}
+      <div style="margin-top:0.75rem;">
+        {% for d in p.get('primary_devices') %}<span class="chip gray" style="margin-right:0.25rem;">{{ d }}</span>{% endfor %}
+      </div>
+      {% endif %}
+    </div>
   </div>
   {% else %}
   <p class="muted">No personas generated.</p>
   {% endfor %}
 </div>
 
-<div class="tab-panel" data-panel="flows">
+<!-- ── User flows ───────────────────────────────────────────────────────── -->
+<div class="tab-panel" id="tab-flows">
   {% for f in session.user_flows %}
-  <div class="card">
-    <strong>{{ f.get('title') or f.get('name', '') }}</strong>
-    <p>{{ f.get('description', '') }}</p>
+  <div class="flow-card">
+    <div class="flow-header">
+      <div>
+        <strong style="font-size:1.05rem;">{{ f.get('title') or f.get('name','') }}</strong>
+        {% if f.get('persona_id') %}<span class="chip" style="margin-left:0.5rem;">{{ f.get('persona_id') }}</span>{% endif %}
+      </div>
+      <div style="text-align:right;">
+        {% if f.get('entry_point') %}<span class="chip gray">Entry: {{ f.get('entry_point') }}</span>{% endif %}
+      </div>
+    </div>
+    {% if f.get('description') %}<p style="margin:0 0 1rem;color:#374151;font-size:0.9rem;">{{ f.get('description') }}</p>{% endif %}
     {% if f.get('steps') %}
-    <ol>
+    <div class="flow-steps">
       {% for step in f.get('steps') %}
-      <li>
+      <div class="flow-step" data-n="{{ loop.index }}">
         {% if step is mapping %}
-          {{ step.get('action', '') }}
-          {% if step.get('system_response') %}<span class="muted">→ {{ step.get('system_response') }}</span>{% endif %}
-        {% else %}{{ step }}{% endif %}
-      </li>
+          <div class="action">{{ step.get('action','') }}</div>
+          {% if step.get('system_response') %}<div class="response">System: {{ step.get('system_response') }}</div>{% endif %}
+          {% if step.get('screen_or_state') %}<span class="screen-badge">{{ step.get('screen_or_state') }}</span>{% endif %}
+        {% else %}
+          <div class="action">{{ step }}</div>
+        {% endif %}
+      </div>
       {% endfor %}
-    </ol>
+    </div>
+    {% endif %}
+    {% if f.get('exit_point') %}
+    <div style="margin-top:1rem;padding:0.6rem 0.85rem;background:#f0fdf4;border-radius:8px;font-size:0.88rem;color:#166534;">
+      ✓ Exit: {{ f.get('exit_point') }}
+    </div>
     {% endif %}
   </div>
   {% else %}
@@ -63,25 +198,61 @@
   {% endfor %}
 </div>
 
-<div class="tab-panel" data-panel="wireframes">
+<!-- ── Wireframes ───────────────────────────────────────────────────────── -->
+<div class="tab-panel" id="tab-wireframes">
   {% for w in session.wireframe_briefs %}
-  <div class="card">
-    <strong>{{ w.get('screen_name') or w.get('name', '') }}</strong>
-    {% set layout = w.get('layout_type') or w.get('screen_type') %}
-    {% if layout %}<span class="badge gray">{{ layout }}</span>{% endif %}
-    {% if w.get('purpose') %}<p class="muted">{{ w.get('purpose') }}</p>{% endif %}
-    <p>{{ w.get('description') or w.get('layout_description', '') }}</p>
+  <div class="wireframe-card">
+    <div class="wireframe-header">
+      <div>
+        <strong style="font-size:1.05rem;">{{ w.get('screen_name') or w.get('name','') }}</strong>
+        {% set layout = w.get('layout_type') or w.get('screen_type') %}
+        {% if layout %}<span class="chip gray" style="margin-left:0.5rem;">{{ layout }}</span>{% endif %}
+      </div>
+      {% if w.get('user_flow_id') %}<span class="chip blue">{{ w.get('user_flow_id') }}</span>{% endif %}
+    </div>
+
+    {% if w.get('purpose') %}<p style="margin:0 0 0.5rem;font-weight:600;font-size:0.9rem;">{{ w.get('purpose') }}</p>{% endif %}
+    {% if w.get('description') or w.get('layout_description') %}
+    <p style="margin:0 0 1rem;color:#374151;font-size:0.9rem;">{{ w.get('description') or w.get('layout_description') }}</p>
+    {% endif %}
+
+    <!-- ASCII-style layout mockup -->
     {% if w.get('components') %}
-    <p class="muted">Components:</p>
-    <ul>
+    <div class="wireframe-mockup">┌─────────────────────────────────┐
+│  {{ (w.get('screen_name') or 'Screen')|truncate(31,'…') }}
+├─────────────────────────────────┤
+{% for c in w.get('components') %}{% if c is mapping %}│  [ {{ (c.get('component_name','?'))[:28] }} ]
+{% endif %}{% endfor %}└─────────────────────────────────┘</div>
+    {% endif %}
+
+    <!-- Component chips -->
+    {% if w.get('components') %}
+    <p class="section-label">Components</p>
+    <div class="comp-grid">
       {% for c in w.get('components') %}
-      <li>
-        {% if c is mapping %}
-          <strong>{{ c.get('component_name', '') }}</strong>{% if c.get('purpose') %} — {{ c.get('purpose') }}{% endif %}
-        {% else %}{{ c }}{% endif %}
-      </li>
+      {% if c is mapping %}
+      <div class="comp-chip">
+        <div class="comp-name">{{ c.get('component_name','') }}</div>
+        {% if c.get('purpose') %}<div class="comp-purpose">{{ c.get('purpose') }}</div>{% endif %}
+        {% if c.get('content') %}<div class="comp-purpose" style="color:#0369a1;">{{ c.get('content') }}</div>{% endif %}
+      </div>
+      {% endif %}
       {% endfor %}
-    </ul>
+    </div>
+    {% endif %}
+
+    <!-- Interactions -->
+    {% if w.get('interactions') %}
+    <p class="section-label">Interactions</p>
+    {% for i in w.get('interactions') %}
+    {% if i is mapping %}
+    <div class="interaction-row">
+      <span class="trigger">{{ i.get('trigger','') }}</span>
+      <span class="arrow">→</span>
+      <span>{{ i.get('action','') }}{% if i.get('result') %} → <em>{{ i.get('result') }}</em>{% endif %}</span>
+    </div>
+    {% endif %}
+    {% endfor %}
     {% endif %}
   </div>
   {% else %}
@@ -89,36 +260,38 @@
   {% endfor %}
 </div>
 
+<!-- ── Action bar ──────────────────────────────────────────────────────── -->
 <div id="action-error" class="banner amber" style="display:none; margin-top:1rem;"></div>
 
-<div class="row" style="margin-top: 1.5rem;">
+<div class="action-bar">
   <button type="button" id="approve-btn" class="btn"
     onclick="(function(btn){
       btn.disabled=true; btn.textContent='Publishing…';
       fetch('/sessions/{{ session.session_id }}/approve',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'})
-        .then(function(r){return r.ok ? r.json() : r.text().then(function(t){throw new Error(t);});})
-        .then(function(d){if(d.redirect) window.location.href=d.redirect;})
+        .then(function(r){return r.ok?r.json():r.text().then(function(t){throw new Error(t);});})
+        .then(function(d){if(d.redirect)window.location.href=d.redirect;})
         .catch(function(e){
-          btn.disabled=false; btn.textContent='Approve &amp; publish handoff';
+          btn.disabled=false; btn.textContent='Approve & publish handoff';
           var el=document.getElementById('action-error');
           el.style.display='block'; el.textContent='Error: '+e.message;
         });
     })(this)">Approve &amp; publish handoff</button>
-  <button type="button" id="reject-btn" class="btn danger"
+  <button type="button" class="btn secondary"
     onclick="document.getElementById('reject-box').style.display='block'">Reject &amp; revise</button>
+  <span class="muted" style="font-size:0.85rem;">Publishing sends the UX handoff to the Frontend workspace.</span>
 </div>
 
-<div id="reject-box" style="display:none; margin-top:1rem;">
+<div id="reject-box" style="display:none; margin-top:1rem; background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:1.25rem;">
   <div class="field">
     <label for="feedback">What should change?</label>
-    <textarea id="feedback" rows="3"></textarea>
+    <textarea id="feedback" rows="4" placeholder="Describe what needs revision…"></textarea>
   </div>
-  <button type="button" id="submit-reject" class="btn danger"
+  <button type="button" class="btn danger"
     onclick="(function(btn){
       btn.disabled=true; btn.textContent='Submitting…';
       fetch('/sessions/{{ session.session_id }}/reject',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({feedback:document.getElementById('feedback').value})})
-        .then(function(r){return r.ok ? r.json() : r.text().then(function(t){throw new Error(t);});})
-        .then(function(d){if(d.redirect) window.location.href=d.redirect;})
+        .then(function(r){return r.ok?r.json():r.text().then(function(t){throw new Error(t);});})
+        .then(function(d){if(d.redirect)window.location.href=d.redirect;})
         .catch(function(e){
           btn.disabled=false; btn.textContent='Submit feedback';
           var el=document.getElementById('action-error');
@@ -126,6 +299,15 @@
         });
     })(this)">Submit feedback</button>
 </div>
+
+<script>
+function switchTab(btn, name) {
+  document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+}
+</script>
 
 {% endif %}
 {% endblock %}
