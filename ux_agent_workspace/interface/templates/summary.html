@@ -138,7 +138,9 @@
 <div class="row" style="margin-bottom:2rem;">
   <a class="btn secondary" href="/sessions/{{ session.session_id }}/export/markdown">Download Markdown</a>
   <a class="btn secondary" href="/sessions/{{ session.session_id }}/export/csv">Download briefs CSV</a>
+  <button class="btn secondary" id="dl-png-btn" onclick="downloadScreensPNG('{{ session.session_id }}', '{{ session.session_name }}')">Download screens PNG</button>
 </div>
+<div id="png-status" style="display:none;font-size:0.85rem;color:#6b7280;margin-top:-1rem;margin-bottom:1rem;"></div>
 
 {# ── Screens ─────────────────────────────────────────────────────────── #}
 {% if session.wireframe_briefs %}
@@ -347,5 +349,41 @@
   </div>
 </div>
 {% endif %}
+
+<script>
+function downloadScreensPNG(sessionId, sessionName) {
+  var btn = document.getElementById('dl-png-btn');
+  var status = document.getElementById('png-status');
+  btn.disabled = true;
+  btn.textContent = 'Generating…';
+  status.style.display = 'block';
+  status.textContent = 'Rendering screens, this may take a few seconds…';
+
+  fetch('/sessions/' + sessionId + '/export/screens-png', { method: 'POST' })
+    .then(function(r) {
+      if (!r.ok) return r.text().then(function(t) { throw new Error(t); });
+      return r.blob();
+    })
+    .then(function(blob) {
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = (sessionName || 'ux-screens').replace(/\s+/g, '-').toLowerCase() + '.png';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      btn.disabled = false;
+      btn.textContent = 'Download screens PNG';
+      status.textContent = 'Downloaded.';
+      setTimeout(function() { status.style.display = 'none'; }, 2000);
+    })
+    .catch(function(e) {
+      btn.disabled = false;
+      btn.textContent = 'Download screens PNG';
+      status.textContent = 'Error: ' + e.message;
+    });
+}
+</script>
 
 {% endblock %}

@@ -9,6 +9,10 @@ context store for the downstream Frontend workspace.
 import csv
 import io
 import os
+import shutil
+import subprocess
+import tempfile
+import textwrap
 import uuid
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -172,7 +176,6 @@ def session_status(session_id: str) -> JSONResponse:
 
 @app.get("/sessions/{session_id}/debug")
 def session_debug(session_id: str) -> JSONResponse:
-    import dataclasses
     session = sessions.get(session_id)
     if session is None:
         return JSONResponse({"error": "not found"}, status_code=404)
@@ -352,4 +355,99 @@ def export_csv(session_id: str) -> Response:
         content=buffer.getvalue(),
         media_type="text/csv",
         headers={"Content-Disposition": "attachment; filename=wireframe-briefs.csv"},
+    )
+
+
+# ---------------------------------------------------------------------------
+# Route 12: PNG export — screenshot of the rendered design preview screens
+# ---------------------------------------------------------------------------
+
+
+@app.post("/sessions/{session_id}/export/screens-png")
+async def export_screens_png(session_id: str, request: Request) -> Response:
+    session = sessions.get(session_id)
+    if session is None:
+        return Response(content="Not found", status_code=404)
+    if not session.wireframe_briefs:
+        return Response(content="No wireframe briefs", status_code=400)
+
+    node_bin = shutil.which("node")
+    if node_bin is None:
+        return Response(content="node not found on PATH", status_code=500)
+
+    # Build the URL of the summary page (same host that served this request)
+    base_url = str(request.base_url).rstrip("/")
+    summary_url = f"{base_url}/sessions/{session_id}/summary"
+
+    # Playwright script: loads the summary page, waits for content, stitches
+    # all .preview-canvas elements into one tall PNG.
+    script = textwrap.dedent(f"""
+        const {{ chromium }} = require('playwright');
+        (async () => {{
+          const browser = await chromium.launch({{ headless: true }});
+          const page = await browser.newPage();
+          await page.setViewportSize({{ width: 1200, height: 900 }});
+          await page.goto({repr(summary_url)});
+          await page.waitForLoadState('networkidle');
+
+          const canvases = await page.$$('.preview-canvas');
+          if (!canvases.length) {{ process.exit(1); }}
+
+          // screenshot each canvas block
+          const bufs = [];
+          for (const el of canvases) {{
+            const buf = await el.screenshot({{ type: 'png' }});
+            bufs.push(buf);
+          }}
+
+          // stitch vertically
+          const sharp = (() => {{ try {{ return require('sharp'); }} catch(e) {{ return null; }} }})();
+          if (sharp && bufs.length > 1) {{
+            const meta = await sharp(bufs[0]).metadata();
+            const w = meta.width;
+            const gap = 24;
+            const images = await Promise.all(bufs.map(b => sharp(b).metadata().then(m => ({{ buf: b, h: m.height }}))));
+            const totalH = images.reduce((s, i) => s + i.h, 0) + gap * (images.length - 1);
+            let composites = [];
+            let y = 0;
+            for (const img of images) {{
+              composites.push({{ input: img.buf, top: y, left: 0 }});
+              y += img.h + gap;
+            }}
+            const bg = {{ r:242, g:244, b:246, alpha:1 }};
+            const out = await sharp({{ create: {{ width: w, height: totalH, channels: 4, background: bg }} }})
+              .composite(composites).png().toBuffer();
+            process.stdout.write(out);
+          }} else {{
+            // single screen or no sharp: just output first
+            process.stdout.write(bufs[0]);
+          }}
+          await browser.close();
+        }})();
+    """)
+
+    with tempfile.NamedTemporaryFile(suffix=".js", delete=False, mode="w") as f:
+        f.write(script)
+        script_path = f.name
+
+    try:
+        result = await run_in_threadpool(
+            lambda: subprocess.run(
+                [node_bin, script_path],
+                capture_output=True,
+                timeout=30,
+            )
+        )
+    finally:
+        os.unlink(script_path)
+
+    if result.returncode != 0:
+        err = result.stderr.decode(errors="replace")[:500]
+        return Response(content=f"Playwright error: {err}", status_code=500)
+
+    filename = (session.session_name or "ux-screens").replace(" ", "-").lower() + ".png"
+    return Response(
+        content=result.stdout,
+        media_type="image/png",
+        headers={"Content-Disposition": f"attachment; filename={filename}"},
     )
