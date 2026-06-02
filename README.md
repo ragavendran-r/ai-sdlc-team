@@ -151,18 +151,68 @@ pytest . -v
 
 ## 🏗️ Architecture
 
+### Workflow dependency graph
+
+Each agent reads from and writes to the shared **Context Store** (on-disk JSON
+artifacts). Arrows show which artifact produced by one agent is consumed as
+input by another. Human review gates (⏸) pause the pipeline until a team
+member approves in the browser.
+
+```mermaid
+flowchart TD
+    REQ(["📋 Product Requirements\n(human input)"])
+
+    subgraph PO_BOX ["🏢 PO Agent — port 8001"]
+        PO["Story creation\nPriority scoring\nAcceptance criteria\n\n⏸ Human review"]
+    end
+
+    subgraph EM_BOX ["📊 EM Agent — port 8002"]
+        EM["Sprint planning\nCapacity estimation\nDependency mapping\n\n⏸ Human review"]
+    end
+
+    subgraph UX_BOX ["🎨 UX Agent — port 8003"]
+        UX["Persona generation\nUser flow mapping\nWireframe briefs\n\n⏸ Human review"]
+    end
+
+    subgraph BE_BOX ["⚙️ Backend Agent — CLI"]
+        BE["Domain modeling\nAPI contract design\nDatabase schema"]
+    end
+
+    subgraph FE_BOX ["💻 Frontend Agent — port 8004"]
+        FE["Component scaffolding\nState management\nA11y + unit tests\n\n⏸ Human review"]
+    end
+
+    OUT(["🚀 Implementation Package\nComponents · Tests · PR description · API contract"])
+
+    REQ --> PO
+    PO -- "backlog" --> EM
+    EM -- "sprint-plan" --> UX
+    EM -- "sprint-plan" --> BE
+    UX -- "ux-handoff" --> BE
+    UX -- "ux-handoff" --> FE
+    BE -- "api-contract" --> FE
+    FE -- "frontend-output" --> OUT
+
+    style PO_BOX fill:#dbeafe,stroke:#3b82f6,color:#000
+    style EM_BOX fill:#ede9fe,stroke:#8b5cf6,color:#000
+    style UX_BOX fill:#fce7f3,stroke:#ec4899,color:#000
+    style BE_BOX fill:#d1fae5,stroke:#10b981,color:#000
+    style FE_BOX fill:#fef3c7,stroke:#f59e0b,color:#000
 ```
-TEAM ORCHESTRATOR (Events, Store, Router)
-    ├── PO Agent (User Stories)
-    ├── EM Agent (Sprint Planning)
-    ├── UX Agent (Component Design)
-    ├── Backend Agent (API & Database)
-    └── Frontend Agent (React Components)
-         ↓
-    CONTEXT STORE (Persistent Artifacts)
-         ↓
-    OUTPUT: Ready-to-implement specification
-```
+
+### Artifact handoff summary
+
+| Artifact | Produced by | Consumed by | Contains |
+|----------|-------------|-------------|----------|
+| `backlog` | PO Agent | EM Agent | User stories, priorities, acceptance criteria |
+| `sprint-plan` | EM Agent | UX Agent, Backend Agent | Tasks, estimates, dependencies, story map |
+| `ux-handoff` | UX Agent | Backend Agent, Frontend Agent | Personas, user flows, wireframe briefs |
+| `api-contract` | Backend Agent | Frontend Agent | Endpoints, schemas, auth, error codes |
+| `frontend-output` | Frontend Agent | — | Scaffolded components, tests, PR description |
+
+All artifacts are stored as JSON in `team_contracts/context-store/` and
+exchanged through the **Team Orchestrator** event bus. Each web interface
+process writes its artifact on approval; downstream processes poll on load.
 
 ## 🔧 Configuration
 
