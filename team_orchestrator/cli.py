@@ -197,7 +197,7 @@ Examples:
         """Start PO/EM/UX web interfaces as background processes."""
         python = sys.executable
         repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        env = {**os.environ, "PYTHONPATH": repo_root}
+        env = {**os.environ, "PYTHONPATH": repo_root, "PYTHONWARNINGS": "ignore"}
 
         servers = [
             ("PO", "po_agent_workspace.interface.app:app", 8001),
