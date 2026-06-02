@@ -20,7 +20,7 @@ from ux_agent_workspace.agents import UXWorkflowState, compile_ux_workflow_web
 from team_contracts.schemas import UserStory
 from team_orchestrator import ContextStore, Event, EventBus, EventSeverity, EventType
 
-from .session import UXSessionState
+from .session import UXSessionState, persist
 
 # Single worker pool shared by all sessions in this process.
 _executor = ThreadPoolExecutor(max_workers=4)
@@ -177,17 +177,27 @@ def _run_until_interrupt(
             input_stories=to_user_stories(story_dicts),
             web_mode=True,
         )
+        last_state = None
         for step in compiled.stream(initial, _config(session.session_id)):
-            for node_name in step.keys():
+            for node_name, node_output in step.items():
                 session.current_node = node_name
                 if node_name not in session.completed_nodes:
                     session.completed_nodes.append(node_name)
+                last_state = node_output
 
-        values = _state_values(compiled, session.session_id)
+        if last_state is not None and hasattr(last_state, "to_dict"):
+            values = last_state.to_dict()
+        elif last_state is not None and isinstance(last_state, dict):
+            values = {k: _serialize(v) for k, v in last_state.items()}
+        else:
+            values = _state_values(compiled, session.session_id)
+
         _capture_review(session, values)
+        persist(session)
     except Exception as exc:  # noqa: BLE001 - surface any failure to the UI
         session.status = "error"
         session.error = str(exc)
+        persist(session)
 
 
 def approve(
@@ -233,6 +243,7 @@ def approve(
 
     session.status = "approved"
     session.completed_at = datetime.utcnow()
+    persist(session)
 
 
 def reject(session: UXSessionState, feedback: str) -> None:
@@ -245,6 +256,7 @@ def reject(session: UXSessionState, feedback: str) -> None:
         {"briefs_approved": False, "approval_feedback": feedback},
     )
     session.status = "running"
+    persist(session)
     _executor.submit(_resume_after_reject, session)
 
 
@@ -252,17 +264,27 @@ def _resume_after_reject(session: UXSessionState) -> None:
     try:
         compiled = _get_compiled()
         config = _config(session.session_id)
+        last_state = None
         for step in compiled.stream(None, config):
-            for node_name in step.keys():
+            for node_name, node_output in step.items():
                 session.current_node = node_name
                 if node_name not in session.completed_nodes:
                     session.completed_nodes.append(node_name)
+                last_state = node_output
 
-        values = _state_values(compiled, session.session_id)
+        if last_state is not None and hasattr(last_state, "to_dict"):
+            values = last_state.to_dict()
+        elif last_state is not None and isinstance(last_state, dict):
+            values = {k: _serialize(v) for k, v in last_state.items()}
+        else:
+            values = _state_values(compiled, session.session_id)
+
         _capture_review(session, values)
+        persist(session)
     except Exception as exc:  # noqa: BLE001
         session.status = "error"
         session.error = str(exc)
+        persist(session)
 
 
 def _publish(

@@ -27,7 +27,15 @@ from starlette.concurrency import run_in_threadpool
 from team_orchestrator import ContextStore, EventBus
 
 from . import workflow_runner
-from .session import PROGRESS_STEPS, UXSessionState, sessions
+from .session import (
+    PROGRESS_STEPS,
+    UXSessionState,
+    configure_persistence,
+    get_session,
+    load_all_from_disk,
+    persist,
+    sessions,
+)
 
 load_dotenv()
 
@@ -43,6 +51,10 @@ context_store = ContextStore(
     base_path=os.getenv("CONTEXT_STORE_PATH", "team_contracts/context-store")
 )
 event_bus = EventBus()
+
+# Enable disk persistence so sessions survive server restarts.
+configure_persistence(str(_BASE_DIR / "_sessions"))
+load_all_from_disk()
 
 
 # ---------------------------------------------------------------------------
@@ -133,6 +145,7 @@ def sessions_run(session_name: str = Form(...)) -> Response:
         session_name=session_name[:80],
     )
     sessions[session_id] = session
+    persist(session)
     workflow_runner.start_session(session, stories)
     return Response(
         status_code=303,
@@ -147,7 +160,7 @@ def sessions_run(session_name: str = Form(...)) -> Response:
 
 @app.get("/sessions/{session_id}/progress", response_class=HTMLResponse)
 def session_progress(request: Request, session_id: str) -> HTMLResponse:
-    session = sessions.get(session_id)
+    session = get_session(session_id)
     if session is None:
         return _not_found(request)
     return templates.TemplateResponse(
@@ -168,7 +181,7 @@ def session_progress(request: Request, session_id: str) -> HTMLResponse:
 
 @app.get("/sessions/{session_id}/status")
 def session_status(session_id: str) -> JSONResponse:
-    session = sessions.get(session_id)
+    session = get_session(session_id)
     if session is None:
         return JSONResponse({"error": "not found"}, status_code=404)
     return JSONResponse(session.to_status_dict())
@@ -176,7 +189,7 @@ def session_status(session_id: str) -> JSONResponse:
 
 @app.get("/sessions/{session_id}/debug")
 def session_debug(session_id: str) -> JSONResponse:
-    session = sessions.get(session_id)
+    session = get_session(session_id)
     if session is None:
         return JSONResponse({"error": "not found"}, status_code=404)
     import json
@@ -201,7 +214,7 @@ def session_debug(session_id: str) -> JSONResponse:
 
 @app.get("/sessions/{session_id}/review", response_class=HTMLResponse)
 def session_review(request: Request, session_id: str) -> HTMLResponse:
-    session = sessions.get(session_id)
+    session = get_session(session_id)
     if session is None:
         return _not_found(request)
     return templates.TemplateResponse(
@@ -222,7 +235,7 @@ def session_review(request: Request, session_id: str) -> HTMLResponse:
 
 @app.post("/sessions/{session_id}/approve")
 async def session_approve(session_id: str, request: Request) -> JSONResponse:
-    session = sessions.get(session_id)
+    session = get_session(session_id)
     if session is None:
         return JSONResponse({"error": "not found"}, status_code=404)
     try:
@@ -243,7 +256,7 @@ async def session_approve(session_id: str, request: Request) -> JSONResponse:
 
 @app.post("/sessions/{session_id}/reject")
 async def session_reject(session_id: str, request: Request) -> JSONResponse:
-    session = sessions.get(session_id)
+    session = get_session(session_id)
     if session is None:
         return JSONResponse({"error": "not found"}, status_code=404)
 
@@ -265,7 +278,7 @@ async def session_reject(session_id: str, request: Request) -> JSONResponse:
 
 @app.get("/sessions/{session_id}/summary", response_class=HTMLResponse)
 def session_summary(request: Request, session_id: str) -> HTMLResponse:
-    session = sessions.get(session_id)
+    session = get_session(session_id)
     if session is None:
         return _not_found(request)
     return templates.TemplateResponse(
@@ -286,7 +299,7 @@ def session_summary(request: Request, session_id: str) -> HTMLResponse:
 
 @app.get("/sessions/{session_id}/export/markdown")
 def export_markdown(session_id: str) -> Response:
-    session = sessions.get(session_id)
+    session = get_session(session_id)
     if session is None:
         return Response(content="Not found", status_code=404)
 
@@ -334,7 +347,7 @@ def export_markdown(session_id: str) -> Response:
 
 @app.get("/sessions/{session_id}/export/csv")
 def export_csv(session_id: str) -> Response:
-    session = sessions.get(session_id)
+    session = get_session(session_id)
     if session is None:
         return Response(content="Not found", status_code=404)
 
@@ -365,7 +378,7 @@ def export_csv(session_id: str) -> Response:
 
 @app.post("/sessions/{session_id}/export/screens-png")
 async def export_screens_png(session_id: str, request: Request) -> Response:
-    session = sessions.get(session_id)
+    session = get_session(session_id)
     if session is None:
         return Response(content="Not found", status_code=404)
     if not session.wireframe_briefs:

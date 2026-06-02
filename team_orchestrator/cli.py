@@ -203,6 +203,7 @@ Examples:
             ("PO", "po_agent_workspace.interface.app:app", 8001),
             ("EM", "em_agent_workspace.interface.app:app", 8002),
             ("UX", "ux_agent_workspace.interface.app:app", 8003),
+            ("Frontend", "frontend_agent_workspace.interface.app:app", 8004),
         ]
 
         procs = []
@@ -236,11 +237,12 @@ Examples:
         print("\n" + "=" * 80)
         print(" WEB INTERFACES READY")
         print("=" * 80)
-        print("  PO Workspace  →  http://localhost:8001")
-        print("  EM Workspace  →  http://localhost:8002")
-        print("  UX Workspace  →  http://localhost:8003")
+        print("  PO Workspace      →  http://localhost:8001")
+        print("  EM Workspace      →  http://localhost:8002")
+        print("  UX Workspace      →  http://localhost:8003")
+        print("  Frontend Workspace →  http://localhost:8004")
         print("\n  Lifecycle: paste requirements in PO → approve backlog → EM plans")
-        print("  sprint → UX reviews design → backend/frontend consume artifacts")
+        print("  sprint → UX reviews design → Frontend consumes UX handoff")
         print("=" * 80)
 
         # Simulate PO workflow
@@ -356,9 +358,10 @@ Examples:
         print("\n" + "=" * 80)
         print(" SERVERS RUNNING — Press Ctrl+C to stop")
         print("=" * 80)
-        print("  PO Workspace  →  http://localhost:8001")
-        print("  EM Workspace  →  http://localhost:8002")
-        print("  UX Workspace  →  http://localhost:8003")
+        print("  PO Workspace      →  http://localhost:8001")
+        print("  EM Workspace      →  http://localhost:8002")
+        print("  UX Workspace      →  http://localhost:8003")
+        print("  Frontend Workspace →  http://localhost:8004")
 
         def _shutdown(signum, frame):
             print("\n\nShutting down web interfaces...")

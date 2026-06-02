@@ -180,13 +180,26 @@ def _run_until_interrupt(
             ux_handoff=ux_handoff_obj,
             web_mode=True,
         )
+        # Capture the last node output directly from the stream — this is the raw
+        # FrontendWorkflowState returned by the node, with no checkpoint
+        # serialization involved. Checkpoint reading (_state_values) can silently
+        # lose fields for dataclass states with non-JSON-serializable members
+        # (datetime, Pydantic models), so we prefer the stream output.
+        last_state: Optional[Any] = None
         for step in compiled.stream(initial, _config(session.session_id)):
-            for node_name in step.keys():
+            for node_name, node_output in step.items():
                 session.current_node = node_name
                 if node_name not in session.completed_nodes:
                     session.completed_nodes.append(node_name)
+                last_state = node_output
 
-        values = _state_values(compiled, session.session_id)
+        if last_state is not None and hasattr(last_state, "to_dict"):
+            values = last_state.to_dict()
+        elif last_state is not None and isinstance(last_state, dict):
+            values = {k: _serialize(v) for k, v in last_state.items()}
+        else:
+            values = _state_values(compiled, session.session_id)
+
         _capture_review(session, values)
     except Exception as exc:  # noqa: BLE001
         session.status = "error"
@@ -261,13 +274,21 @@ def _resume_after_reject(session: FrontendSessionState) -> None:
     try:
         compiled = _get_compiled()
         config = _config(session.session_id)
+        last_state: Optional[Any] = None
         for step in compiled.stream(None, config):
-            for node_name in step.keys():
+            for node_name, node_output in step.items():
                 session.current_node = node_name
                 if node_name not in session.completed_nodes:
                     session.completed_nodes.append(node_name)
+                last_state = node_output
 
-        values = _state_values(compiled, session.session_id)
+        if last_state is not None and hasattr(last_state, "to_dict"):
+            values = last_state.to_dict()
+        elif last_state is not None and isinstance(last_state, dict):
+            values = {k: _serialize(v) for k, v in last_state.items()}
+        else:
+            values = _state_values(compiled, session.session_id)
+
         _capture_review(session, values)
     except Exception as exc:  # noqa: BLE001
         session.status = "error"
