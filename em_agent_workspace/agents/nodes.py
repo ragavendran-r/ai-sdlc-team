@@ -1,5 +1,6 @@
 """Agent nodes for EM Agent workflow."""
 
+import os
 from typing import Optional, Dict, List
 from datetime import datetime, timedelta
 from langchain_anthropic import ChatAnthropic
@@ -23,11 +24,10 @@ from team_contracts.schemas import (
     BlockerType,
 )
 
-# Initialize Claude Sonnet
 llm = ChatAnthropic(
-    model="claude-sonnet-4-20250514",
-    temperature=0.7,
-    max_tokens=2048,
+    model=os.getenv("CLAUDE_MODEL", "claude-sonnet-4-5"),
+    temperature=float(os.getenv("CLAUDE_TEMPERATURE", "0.7")),
+    max_tokens=int(os.getenv("CLAUDE_MAX_TOKENS", "2048")),
 )
 
 

@@ -1,6 +1,7 @@
 """Frontend Agent workflow nodes."""
 
 import json
+import os
 from anthropic import Anthropic
 from .state import FrontendWorkflowState
 from .tools import (
@@ -10,7 +11,7 @@ from .tools import (
 
 
 LLM = Anthropic()
-MODEL = "claude-sonnet-4-20250514"
+MODEL = os.getenv("CLAUDE_MODEL", "claude-sonnet-4-5")
 
 
 def ux_handoff_intake(state: FrontendWorkflowState) -> FrontendWorkflowState:

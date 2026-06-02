@@ -53,7 +53,7 @@ services:
       GITHUB_REPO: ${GITHUB_REPO:-}
       SLACK_WEBHOOK_URL: ${SLACK_WEBHOOK_URL:-}
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
-      CLAUDE_MODEL: claude-sonnet-4-20250514
+      CLAUDE_MODEL: claude-sonnet-4-5
       CLAUDE_TEMPERATURE: 0.7
       CLAUDE_MAX_TOKENS: 2048
     ports:

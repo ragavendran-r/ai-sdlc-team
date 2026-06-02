@@ -1,6 +1,7 @@
 """Backend Agent nodes for LangGraph workflow."""
 
 import json
+import os
 from datetime import datetime
 from anthropic import Anthropic
 
@@ -11,7 +12,7 @@ from .tools import (
 )
 
 # LLM Configuration
-MODEL = "claude-sonnet-4-20250514"
+MODEL = os.getenv("CLAUDE_MODEL", "claude-sonnet-4-5")
 client = Anthropic()
 
 
