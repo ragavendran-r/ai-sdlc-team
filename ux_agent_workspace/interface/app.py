@@ -9,10 +9,6 @@ context store for the downstream Frontend workspace.
 import csv
 import io
 import os
-import shutil
-import subprocess
-import tempfile
-import textwrap
 import uuid
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -376,6 +372,49 @@ def export_csv(session_id: str) -> Response:
 # ---------------------------------------------------------------------------
 
 
+def _capture_screens_png(summary_url: str) -> bytes:
+    """Load the summary page in a headless browser and stitch .preview-canvas
+    elements into one tall PNG.  Uses playwright-python (sync API)."""
+    from playwright.sync_api import sync_playwright
+
+    with sync_playwright() as pw:
+        browser = pw.chromium.launch(headless=True)
+        page = browser.new_page(viewport={"width": 1200, "height": 900})
+        page.goto(summary_url)
+        page.wait_for_load_state("networkidle")
+
+        canvases = page.query_selector_all(".preview-canvas")
+        if not canvases:
+            browser.close()
+            raise RuntimeError("No .preview-canvas elements found on the page")
+
+        buffers = [el.screenshot() for el in canvases]
+        browser.close()
+
+    if len(buffers) == 1:
+        return buffers[0]
+
+    # Stitch vertically with Pillow when multiple screens are present.
+    try:
+        import io as _io
+        from PIL import Image
+
+        gap = 24
+        images = [Image.open(_io.BytesIO(b)) for b in buffers]
+        total_h = sum(img.height for img in images) + gap * (len(images) - 1)
+        max_w = max(img.width for img in images)
+        canvas = Image.new("RGB", (max_w, total_h), (242, 244, 246))
+        y = 0
+        for img in images:
+            canvas.paste(img, (0, y))
+            y += img.height + gap
+        out = _io.BytesIO()
+        canvas.save(out, format="PNG")
+        return out.getvalue()
+    except ImportError:
+        return buffers[0]
+
+
 @app.post("/sessions/{session_id}/export/screens-png")
 async def export_screens_png(session_id: str, request: Request) -> Response:
     session = get_session(session_id)
@@ -384,83 +423,17 @@ async def export_screens_png(session_id: str, request: Request) -> Response:
     if not session.wireframe_briefs:
         return Response(content="No wireframe briefs", status_code=400)
 
-    node_bin = shutil.which("node")
-    if node_bin is None:
-        return Response(content="node not found on PATH", status_code=500)
-
-    # Build the URL of the summary page (same host that served this request)
     base_url = str(request.base_url).rstrip("/")
     summary_url = f"{base_url}/sessions/{session_id}/summary"
 
-    # Playwright script: loads the summary page, waits for content, stitches
-    # all .preview-canvas elements into one tall PNG.
-    script = textwrap.dedent(f"""
-        const {{ chromium }} = require('playwright');
-        (async () => {{
-          const browser = await chromium.launch({{ headless: true }});
-          const page = await browser.newPage();
-          await page.setViewportSize({{ width: 1200, height: 900 }});
-          await page.goto({repr(summary_url)});
-          await page.waitForLoadState('networkidle');
-
-          const canvases = await page.$$('.preview-canvas');
-          if (!canvases.length) {{ process.exit(1); }}
-
-          // screenshot each canvas block
-          const bufs = [];
-          for (const el of canvases) {{
-            const buf = await el.screenshot({{ type: 'png' }});
-            bufs.push(buf);
-          }}
-
-          // stitch vertically
-          const sharp = (() => {{ try {{ return require('sharp'); }} catch(e) {{ return null; }} }})();
-          if (sharp && bufs.length > 1) {{
-            const meta = await sharp(bufs[0]).metadata();
-            const w = meta.width;
-            const gap = 24;
-            const images = await Promise.all(bufs.map(b => sharp(b).metadata().then(m => ({{ buf: b, h: m.height }}))));
-            const totalH = images.reduce((s, i) => s + i.h, 0) + gap * (images.length - 1);
-            let composites = [];
-            let y = 0;
-            for (const img of images) {{
-              composites.push({{ input: img.buf, top: y, left: 0 }});
-              y += img.h + gap;
-            }}
-            const bg = {{ r:242, g:244, b:246, alpha:1 }};
-            const out = await sharp({{ create: {{ width: w, height: totalH, channels: 4, background: bg }} }})
-              .composite(composites).png().toBuffer();
-            process.stdout.write(out);
-          }} else {{
-            // single screen or no sharp: just output first
-            process.stdout.write(bufs[0]);
-          }}
-          await browser.close();
-        }})();
-    """)
-
-    with tempfile.NamedTemporaryFile(suffix=".js", delete=False, mode="w") as f:
-        f.write(script)
-        script_path = f.name
-
     try:
-        result = await run_in_threadpool(
-            lambda: subprocess.run(
-                [node_bin, script_path],
-                capture_output=True,
-                timeout=30,
-            )
-        )
-    finally:
-        os.unlink(script_path)
-
-    if result.returncode != 0:
-        err = result.stderr.decode(errors="replace")[:500]
-        return Response(content=f"Playwright error: {err}", status_code=500)
+        png_bytes = await run_in_threadpool(_capture_screens_png, summary_url)
+    except Exception as exc:
+        return Response(content=f"Screenshot error: {exc}", status_code=500)
 
     filename = (session.session_name or "ux-screens").replace(" ", "-").lower() + ".png"
     return Response(
-        content=result.stdout,
+        content=png_bytes,
         media_type="image/png",
         headers={"Content-Disposition": f"attachment; filename={filename}"},
     )
