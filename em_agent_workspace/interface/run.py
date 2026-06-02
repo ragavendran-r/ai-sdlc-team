@@ -9,10 +9,15 @@ import os
 
 import uvicorn
 
-if __name__ == "__main__":
+
+def main() -> None:
     uvicorn.run(
         "em_agent_workspace.interface.app:app",
         host=os.getenv("HOST", "0.0.0.0"),
         port=int(os.getenv("PORT", "8000")),
         reload=bool(os.getenv("RELOAD")),
     )
+
+
+if __name__ == "__main__":
+    main()

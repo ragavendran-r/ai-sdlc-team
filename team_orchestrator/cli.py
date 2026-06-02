@@ -1,8 +1,12 @@
 """Team CLI for running the full pipeline."""
 
+import os
+import signal
+import subprocess
 import sys
 import json
-from typing import Optional, List
+import time
+from typing import List, Optional
 import argparse
 
 from .orchestrator import TeamOrchestrator
@@ -189,10 +193,54 @@ Examples:
         self._show_status(args)
         return 0
 
+    def _start_web_servers(self) -> List[subprocess.Popen]:
+        """Start PO/EM/UX web interfaces as background processes."""
+        python = sys.executable
+        repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        env = {**os.environ, "PYTHONPATH": repo_root}
+
+        servers = [
+            ("PO", "po_agent_workspace.interface.app:app", 8001),
+            ("EM", "em_agent_workspace.interface.app:app", 8002),
+            ("UX", "ux_agent_workspace.interface.app:app", 8003),
+        ]
+
+        procs = []
+        for name, app_module, port in servers:
+            proc = subprocess.Popen(
+                [
+                    python, "-m", "uvicorn", app_module,
+                    "--host", "127.0.0.1",
+                    "--port", str(port),
+                    "--log-level", "warning",
+                ],
+                env=env,
+                cwd=repo_root,
+            )
+            procs.append(proc)
+            print(f"  Starting {name} interface (port {port})... PID {proc.pid}")
+
+        # Give servers a moment to bind their ports.
+        time.sleep(2)
+        return procs
+
     def _run_demo(self, verbose: bool = False) -> int:
-        """Run demonstration with simulated workflows."""
+        """Run demonstration with simulated workflows and live web interfaces."""
         print("\n" + "=" * 80)
         print(" DEMO MODE: Running simulated team workflows")
+        print("=" * 80)
+
+        print("\n🌐 Starting web interfaces...")
+        server_procs = self._start_web_servers()
+
+        print("\n" + "=" * 80)
+        print(" WEB INTERFACES READY")
+        print("=" * 80)
+        print("  PO Workspace  →  http://localhost:8001")
+        print("  EM Workspace  →  http://localhost:8002")
+        print("  UX Workspace  →  http://localhost:8003")
+        print("\n  Lifecycle: paste requirements in PO → approve backlog → EM plans")
+        print("  sprint → UX reviews design → backend/frontend consume artifacts")
         print("=" * 80)
 
         # Simulate PO workflow
@@ -304,6 +352,28 @@ Examples:
 
         self.orchestrator.complete_pipeline()
         self._show_status(argparse.Namespace(json=False))
+
+        print("\n" + "=" * 80)
+        print(" SERVERS RUNNING — Press Ctrl+C to stop")
+        print("=" * 80)
+        print("  PO Workspace  →  http://localhost:8001")
+        print("  EM Workspace  →  http://localhost:8002")
+        print("  UX Workspace  →  http://localhost:8003")
+
+        def _shutdown(signum, frame):
+            print("\n\nShutting down web interfaces...")
+            for proc in server_procs:
+                proc.terminate()
+            for proc in server_procs:
+                proc.wait()
+            sys.exit(0)
+
+        signal.signal(signal.SIGINT, _shutdown)
+        signal.signal(signal.SIGTERM, _shutdown)
+
+        while True:
+            time.sleep(1)
+
         return 0
 
     def _simulate_workflow(self, workflow: str, verbose: bool = False) -> None:

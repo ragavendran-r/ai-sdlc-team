@@ -48,6 +48,9 @@ python -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
 export ANTHROPIC_API_KEY=sk-your-key-here
 python run_team_pipeline.py run --demo
+# Starts PO (http://localhost:8001), EM (http://localhost:8002),
+# UX (http://localhost:8003) web interfaces and runs the demo pipeline.
+# Press Ctrl+C to stop all servers.
 ```
 
 ## 🖥️ Accessing each workspace
