@@ -17,7 +17,6 @@ from .nodes import (
 )
 from .checkpoints import (
     should_proceed_to_sprint_creation,
-    should_revise_sprint,
 )
 
 
@@ -79,12 +78,10 @@ def create_em_workflow() -> StateGraph:
     # Phase 1: Linear flow to validate and map dependencies
     workflow.add_edge("backlog_intake", "dependency_mapping")
 
-    # Phase 2: Analyze capacity and risks (can be parallel)
+    # Phase 2: Analyze capacity then risks (sequential — dataclass state
+    # does not support concurrent writes to shared fields)
     workflow.add_edge("dependency_mapping", "capacity_analysis")
-    workflow.add_edge("dependency_mapping", "risk_assessment")
-
-    # Converge on sprint composition
-    workflow.add_edge("capacity_analysis", "sprint_composition")
+    workflow.add_edge("capacity_analysis", "risk_assessment")
     workflow.add_edge("risk_assessment", "sprint_composition")
 
     # Phase 3: Plan sprint with DoD checklist
@@ -233,8 +230,6 @@ def run_em_workflow(
     Returns:
         Final workflow state with sprint plan and artifacts
     """
-    import json
-
     # Create and compile workflow
     compiled_workflow = compile_em_workflow()
 
@@ -265,14 +260,16 @@ def run_em_workflow(
         print(f"Validated Stories: {len(final_state.validated_stories)}")
         print(f"Dependency Graph: {len(final_state.dependency_graph)} stories")
         print(f"Circular Dependencies: {len(final_state.circular_dependencies)}")
-        print(f"Capacity Report: {final_state.capacity_report.estimated_story_points_capacity if final_state.capacity_report else 'None'} points")
+        capacity_pts = final_state.capacity_report.estimated_story_points_capacity if final_state.capacity_report else 'None'
+        print(f"Capacity Report: {capacity_pts} points")
         print(f"Risk Flags: {len(final_state.risk_flags)}")
         print(f"Draft Sprint: {final_state.draft_sprint.sprint.id if final_state.draft_sprint else 'None'}")
         print(f"Sprint Approved: {final_state.sprint_approved}")
         print(f"DoD Checklist: {len(final_state.dod_checklist.items) if final_state.dod_checklist else 0} items")
         print(f"Sprint ID: {final_state.sprint_id}")
         print(f"Jira Tickets: {len(final_state.jira_tickets_created)}")
-        print(f"Sprint Status: {final_state.current_sprint_status.health_status if final_state.current_sprint_status else 'None'}")
+        sprint_health = final_state.current_sprint_status.health_status if final_state.current_sprint_status else 'None'
+        print(f"Sprint Status: {sprint_health}")
         print(f"Blockers: {len(final_state.blockers)}")
         print(f"Report Generated: {final_state.report_generated}")
         print(f"\nWorkflow Messages: {len(final_state.messages)}")
