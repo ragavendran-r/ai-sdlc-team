@@ -133,9 +133,20 @@ def _risk_strings(state_values: Dict[str, Any]) -> List[str]:
     return out
 
 
+def _to_dict(obj: Any) -> Any:
+    """Serialize a dataclass/Pydantic object to a plain dict, or return as-is."""
+    if obj is None:
+        return None
+    if hasattr(obj, "to_dict"):
+        return obj.to_dict()
+    if hasattr(obj, "model_dump"):
+        return obj.model_dump()
+    return obj
+
+
 def _capture_review(session: EMSessionState, values: Dict[str, Any]) -> None:
-    session.draft_sprint = values.get("draft_sprint")
-    session.capacity_report = values.get("capacity_report")
+    session.draft_sprint = _to_dict(values.get("draft_sprint"))
+    session.capacity_report = _to_dict(values.get("capacity_report"))
     session.risk_flags = _risk_strings(values)
     session.status = "awaiting_review"
 
@@ -180,7 +191,7 @@ def approve(
     final = compiled.invoke(None, config)
     values = final.to_dict() if hasattr(final, "to_dict") else dict(final)
 
-    draft = values.get("draft_sprint") or session.draft_sprint or {}
+    draft = _to_dict(values.get("draft_sprint")) or session.draft_sprint or {}
     context_store.write_artifact(
         key="sprint-plan",
         data=draft,
