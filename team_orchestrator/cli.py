@@ -194,9 +194,13 @@ Examples:
         return 0
 
     def _start_web_servers(self) -> List[subprocess.Popen]:
-        """Start PO/EM/UX web interfaces as background processes."""
-        python = sys.executable
+        """Start PO/EM/UX/Frontend web interfaces as background processes."""
         repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        # Prefer the project venv so all installed packages (playwright, etc.)
+        # are available in the server processes regardless of which Python was
+        # used to invoke run_team_pipeline.py.
+        venv_python = os.path.join(repo_root, ".venv", "bin", "python")
+        python = venv_python if os.path.exists(venv_python) else sys.executable
         env = {**os.environ, "PYTHONPATH": repo_root, "PYTHONWARNINGS": "ignore"}
 
         servers = [

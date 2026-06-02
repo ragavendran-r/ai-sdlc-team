@@ -6,9 +6,14 @@ three tabs in the browser, and on approval publishes a UX handoff to the shared
 context store for the downstream Frontend workspace.
 """
 
+import base64
 import csv
 import io
+import json
 import os
+import subprocess
+import sys
+import textwrap
 import uuid
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -372,35 +377,82 @@ def export_csv(session_id: str) -> Response:
 # ---------------------------------------------------------------------------
 
 
+def _playwright_python() -> str:
+    """Return a Python interpreter that has playwright installed.
+
+    Checks the project .venv first (the canonical location after
+    `pip install playwright`), then falls back to sys.executable.
+    Raises RuntimeError with setup instructions if neither has it.
+    """
+    repo_root = _BASE_DIR.parent.parent
+    candidates = [
+        repo_root / ".venv" / "bin" / "python",
+        repo_root / "venv" / "bin" / "python",
+        Path(sys.executable),
+    ]
+    for candidate in candidates:
+        if not candidate.exists():
+            continue
+        result = subprocess.run(
+            [str(candidate), "-c", "import playwright"],
+            capture_output=True,
+        )
+        if result.returncode == 0:
+            return str(candidate)
+    raise RuntimeError(
+        "playwright not found. Install it with:\n"
+        "  .venv/bin/pip install playwright\n"
+        "  .venv/bin/python -m playwright install chromium"
+    )
+
+
 def _capture_screens_png(summary_url: str) -> bytes:
-    """Load the summary page in a headless browser and stitch .preview-canvas
-    elements into one tall PNG.  Uses playwright-python (sync API)."""
-    from playwright.sync_api import sync_playwright
+    """Screenshot every .preview-canvas on the summary page and stitch them
+    into one tall PNG.  Runs playwright in the venv Python via subprocess so
+    the correct packages are available regardless of which interpreter started
+    the server."""
+    py_bin = _playwright_python()
 
-    with sync_playwright() as pw:
-        browser = pw.chromium.launch(headless=True)
-        page = browser.new_page(viewport={"width": 1200, "height": 900})
-        page.goto(summary_url)
-        page.wait_for_load_state("networkidle")
-
-        canvases = page.query_selector_all(".preview-canvas")
-        if not canvases:
+    # The subprocess screenshots each canvas, encodes as base64 JSON, and
+    # writes to stdout so we can stitch in the main process.
+    script = textwrap.dedent(f"""
+        import sys, base64, json
+        from playwright.sync_api import sync_playwright
+        with sync_playwright() as pw:
+            browser = pw.chromium.launch(headless=True)
+            page = browser.new_page(viewport={{"width": 1200, "height": 900}})
+            page.goto({repr(summary_url)})
+            page.wait_for_load_state("networkidle")
+            canvases = page.query_selector_all(".preview-canvas")
+            if not canvases:
+                browser.close()
+                sys.stderr.write("No .preview-canvas elements found")
+                sys.exit(1)
+            bufs = [base64.b64encode(el.screenshot()).decode() for el in canvases]
             browser.close()
-            raise RuntimeError("No .preview-canvas elements found on the page")
+        print(json.dumps(bufs))
+    """)
 
-        buffers = [el.screenshot() for el in canvases]
-        browser.close()
+    result = subprocess.run(
+        [py_bin, "-c", script],
+        capture_output=True,
+        timeout=60,
+    )
+    if result.returncode != 0:
+        err = result.stderr.decode(errors="replace")[:500]
+        raise RuntimeError(err)
+
+    buffers = [base64.b64decode(b) for b in json.loads(result.stdout)]
 
     if len(buffers) == 1:
         return buffers[0]
 
-    # Stitch vertically with Pillow when multiple screens are present.
+    # Stitch vertically with Pillow (installed alongside playwright in the venv).
     try:
-        import io as _io
         from PIL import Image
 
         gap = 24
-        images = [Image.open(_io.BytesIO(b)) for b in buffers]
+        images = [Image.open(io.BytesIO(b)) for b in buffers]
         total_h = sum(img.height for img in images) + gap * (len(images) - 1)
         max_w = max(img.width for img in images)
         canvas = Image.new("RGB", (max_w, total_h), (242, 244, 246))
@@ -408,7 +460,7 @@ def _capture_screens_png(summary_url: str) -> bytes:
         for img in images:
             canvas.paste(img, (0, y))
             y += img.height + gap
-        out = _io.BytesIO()
+        out = io.BytesIO()
         canvas.save(out, format="PNG")
         return out.getvalue()
     except ImportError:
