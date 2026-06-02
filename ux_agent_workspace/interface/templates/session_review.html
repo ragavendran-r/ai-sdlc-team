@@ -95,6 +95,84 @@
 
   /* ── Action bar ─────────────────────────────────────────────────────── */
   .action-bar { position:sticky; bottom:0; background:#fff; border-top:1px solid #e5e7eb; padding:1rem 0; margin-top:2rem; display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap; }
+
+  /* ── Design Preview ─────────────────────────────────────────────────── */
+  .preview-canvas {
+    background:#dde1e7; border-radius:12px; padding:2.5rem;
+    display:flex; justify-content:center; margin-bottom:1.25rem;
+  }
+  .browser-frame {
+    background:#fff; border-radius:10px; overflow:hidden; width:100%; max-width:500px;
+    box-shadow:0 8px 40px rgba(0,0,0,0.18);
+  }
+  .browser-bar {
+    background:#ebebeb; padding:0.5rem 0.75rem; display:flex;
+    align-items:center; gap:0.6rem; border-bottom:1px solid #d0d0d0;
+  }
+  .browser-dots { display:flex; gap:5px; flex-shrink:0; }
+  .browser-dots span { display:inline-block; width:10px; height:10px; border-radius:50%; }
+  .dot-r { background:#ff5f57; } .dot-y { background:#febc2e; } .dot-g { background:#28c840; }
+  .browser-url {
+    flex:1; background:#fff; border:1px solid #d0d0d0; border-radius:4px;
+    padding:0.22rem 0.6rem; font-size:0.72rem; color:#666;
+  }
+  .screen-body {
+    padding:2rem 2.5rem 2.5rem; display:flex; flex-direction:column; gap:1rem;
+  }
+  .screen-title-area { margin-bottom:0.25rem; }
+  .screen-title-area h2 { font-size:1.4rem; font-weight:700; margin:0 0 0.2rem; color:#111; line-height:1.25; }
+  .screen-title-area p { font-size:0.85rem; color:#6b7280; margin:0; }
+  /* Mock components */
+  .mc-field { display:flex; flex-direction:column; gap:0.3rem; }
+  .mc-label { font-size:0.78rem; font-weight:600; color:#374151; }
+  .mc-input {
+    border:1.5px solid #d1d5db; border-radius:7px; padding:0.55rem 0.8rem;
+    font-size:0.875rem; color:#9ca3af; font-style:italic; background:#fff;
+  }
+  .mc-input.focused {
+    border-color:#1d4ed8; box-shadow:0 0 0 3px rgba(29,78,216,0.12);
+    color:#374151; font-style:normal;
+  }
+  .mc-password { color:#374151; font-style:normal; letter-spacing:0.15em; }
+  .mc-btn {
+    padding:0.65rem 1rem; border-radius:8px; border:none; background:#1d4ed8;
+    color:#fff; font-weight:600; font-size:0.9rem; cursor:default; text-align:center;
+    display:block;
+  }
+  .mc-btn.outline { background:#fff; border:1.5px solid #c7d2fe; color:#1d4ed8; }
+  .mc-btn.ghost { background:transparent; color:#1d4ed8; font-size:0.85rem; padding:0.35rem; text-decoration:underline; }
+  .mc-btn.danger { background:#dc2626; }
+  .mc-link { color:#1d4ed8; font-size:0.875rem; text-decoration:underline; cursor:default; }
+  .mc-divider { border:none; border-top:1px solid #e5e7eb; }
+  .mc-image {
+    background:#f3f4f6; border:1.5px dashed #d1d5db; border-radius:8px;
+    height:90px; display:flex; align-items:center; justify-content:center;
+    color:#9ca3af; font-size:1.5rem;
+  }
+  .mc-select {
+    border:1.5px solid #d1d5db; border-radius:7px; padding:0.55rem 0.8rem;
+    font-size:0.875rem; color:#6b7280; background:#fff;
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .mc-textarea {
+    border:1.5px solid #d1d5db; border-radius:7px; padding:0.55rem 0.8rem;
+    font-size:0.875rem; color:#6b7280; min-height:70px; font-style:italic; background:#fff;
+  }
+  .mc-navbar {
+    background:#1d4ed8; color:#fff; padding:0.75rem 1rem;
+    font-weight:600; font-size:0.9rem; margin:-2rem -2.5rem 0;
+  }
+  .mc-checkbox, .mc-radio { display:flex; align-items:center; gap:0.5rem; font-size:0.875rem; color:#374151; }
+  .mc-switch-row { display:flex; justify-content:space-between; align-items:center; font-size:0.875rem; color:#374151; }
+  .mc-switch { width:36px; height:20px; background:#1d4ed8; border-radius:10px; position:relative; flex-shrink:0; }
+  .mc-switch::after { content:''; position:absolute; width:16px; height:16px; background:#fff; border-radius:50%; top:2px; right:2px; }
+  .mc-card { border:1px solid #e5e7eb; border-radius:8px; padding:0.75rem; font-size:0.875rem; color:#374151; background:#fafafa; }
+  .mc-list-item { display:flex; justify-content:space-between; align-items:center; padding:0.5rem 0; border-bottom:1px solid #f3f4f6; font-size:0.875rem; color:#374151; }
+  .mc-text { font-size:0.875rem; color:#374151; }
+  .mc-heading { font-size:1.05rem; font-weight:600; color:#111; }
+  .mc-generic { border:1.5px dashed #c7d2fe; border-radius:6px; padding:0.55rem 0.8rem; font-size:0.8rem; color:#4b5563; background:#eff6ff; display:flex; gap:0.5rem; align-items:center; }
+  .mc-type-badge { background:#dbeafe; color:#1d4ed8; font-size:0.72rem; font-weight:700; padding:0.1rem 0.4rem; border-radius:4px; flex-shrink:0; }
+  .preview-screen-label { font-size:0.72rem; color:#9ca3af; text-align:center; margin-top:0.6rem; letter-spacing:0.04em; }
 </style>
 
 <!-- Summary stats -->
@@ -117,6 +195,7 @@
   <button class="tab-btn active" onclick="switchTab(this,'personas')">Personas ({{ session.personas|length }})</button>
   <button class="tab-btn" onclick="switchTab(this,'flows')">User flows ({{ session.user_flows|length }})</button>
   <button class="tab-btn" onclick="switchTab(this,'wireframes')">Wireframes ({{ session.wireframe_briefs|length }})</button>
+  <button class="tab-btn" onclick="switchTab(this,'preview')">Design preview ({{ session.wireframe_briefs|length }})</button>
 </div>
 
 <!-- ── Personas ─────────────────────────────────────────────────────────── -->
@@ -253,6 +332,138 @@
     </div>
     {% endif %}
     {% endfor %}
+    {% endif %}
+  </div>
+  {% else %}
+  <p class="muted">No wireframe briefs generated.</p>
+  {% endfor %}
+</div>
+
+<!-- ── Design Preview ───────────────────────────────────────────────────── -->
+<div class="tab-panel" id="tab-preview">
+  {% for w in session.wireframe_briefs %}
+  {% set screen_label = w.get('purpose') or w.get('screen_name') or 'Screen' %}
+  {% set viewports = w.get('viewport_sizes') or [] %}
+  <div style="margin-bottom:2.5rem;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;">
+      <div>
+        <strong style="font-size:1.05rem;">{{ screen_label }}</strong>
+        <span class="chip gray" style="margin-left:0.5rem;">{{ w.get('layout_type','standard') }}</span>
+      </div>
+      <div>
+        {% for vp in viewports %}<span class="chip blue" style="margin-left:0.25rem;">{{ vp }}</span>{% endfor %}
+        {% if not viewports %}<span class="chip blue">web</span>{% endif %}
+      </div>
+    </div>
+
+    <!-- Canvas -->
+    <div class="preview-canvas">
+      <div class="browser-frame">
+        <!-- macOS-style browser chrome -->
+        <div class="browser-bar">
+          <div class="browser-dots">
+            <span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span>
+          </div>
+          <div class="browser-url">app.example.com/{{ screen_label|lower|replace(' ','-') }}</div>
+        </div>
+        <!-- Screen body -->
+        <div class="screen-body">
+          {# -- render navbar components first, pinned to top -- #}
+          {% for c in (w.get('components') or []) %}{% if c is mapping %}
+          {% set cname = (c.get('component_name','') or '')|lower %}
+          {% if 'nav' in cname or 'appbar' in cname or 'toolbar' in cname %}
+          <div class="mc-navbar">{{ c.get('content') or c.get('purpose') or screen_label }}</div>
+          {% endif %}
+          {% endif %}{% endfor %}
+
+          {# -- screen title -- #}
+          <div class="screen-title-area">
+            <h2>{{ screen_label }}</h2>
+            {% if w.get('description') and w.get('description') != screen_label %}
+            <p>{{ w.get('description') }}</p>
+            {% endif %}
+          </div>
+
+          {# -- all non-navbar components -- #}
+          {% for c in (w.get('components') or []) %}{% if c is mapping %}
+          {% set cname = (c.get('component_name','') or '')|lower %}
+          {% set clabel = c.get('content') or c.get('purpose') or '' %}
+
+          {% if 'nav' in cname or 'appbar' in cname or 'toolbar' in cname %}
+            {# already rendered above #}
+          {% elif 'password' in cname %}
+            <div class="mc-field">
+              <span class="mc-label">{{ clabel or 'Password' }}</span>
+              <div class="mc-input mc-password">••••••••</div>
+            </div>
+          {% elif 'search' in cname %}
+            <div class="mc-field">
+              <span class="mc-label">{{ clabel or 'Search' }}</span>
+              <div class="mc-input">🔍 {{ clabel or 'Search...' }}</div>
+            </div>
+          {% elif 'textfield' in cname or 'input' in cname or 'text_field' in cname or 'email' in cname %}
+            <div class="mc-field">
+              <span class="mc-label">{{ clabel }}</span>
+              <div class="mc-input {% if loop.first %}focused{% endif %}">{{ clabel or 'Enter text…' }}</div>
+            </div>
+          {% elif 'textarea' in cname or 'text_area' in cname or 'multiline' in cname %}
+            <div class="mc-field">
+              <span class="mc-label">{{ clabel }}</span>
+              <div class="mc-textarea">{{ c.get('purpose','') }}</div>
+            </div>
+          {% elif 'select' in cname or 'dropdown' in cname or 'picker' in cname %}
+            <div class="mc-field">
+              <span class="mc-label">{{ clabel }}</span>
+              <div class="mc-select"><span>Select…</span><span>▾</span></div>
+            </div>
+          {% elif 'button' in cname or 'btn' in cname %}
+            {% set is_ghost = 'forgot' in clabel|lower or 'link' in clabel|lower or 'skip' in clabel|lower %}
+            {% set is_secondary = 'cancel' in clabel|lower or 'back' in clabel|lower or 'secondary' in clabel|lower %}
+            {% set is_danger = 'delete' in clabel|lower or 'remove' in clabel|lower or 'danger' in clabel|lower %}
+            <div class="mc-btn {% if is_ghost %}ghost{% elif is_secondary %}outline{% elif is_danger %}danger{% endif %}">
+              {{ clabel or c.get('purpose') or 'Submit' }}
+            </div>
+          {% elif 'link' in cname or 'hyperlink' in cname %}
+            <div style="text-align:center;"><span class="mc-link">{{ clabel }}</span></div>
+          {% elif 'checkbox' in cname %}
+            <label class="mc-checkbox"><input type="checkbox" disabled> <span>{{ clabel }}</span></label>
+          {% elif 'radio' in cname %}
+            <label class="mc-radio"><input type="radio" disabled> <span>{{ clabel }}</span></label>
+          {% elif 'switch' in cname or 'toggle' in cname %}
+            <div class="mc-switch-row"><span>{{ clabel }}</span><div class="mc-switch"></div></div>
+          {% elif 'divider' in cname or 'separator' in cname %}
+            <div class="mc-divider"></div>
+          {% elif 'image' in cname or 'avatar' in cname or 'photo' in cname %}
+            <div class="mc-image">🖼</div>
+          {% elif 'card' in cname %}
+            <div class="mc-card">{{ clabel }}</div>
+          {% elif 'list' in cname or 'listitem' in cname or 'row' in cname %}
+            <div class="mc-list-item"><span>{{ clabel }}</span><span>›</span></div>
+          {% elif 'heading' in cname or 'title' in cname %}
+            <div class="mc-heading">{{ clabel }}</div>
+          {% elif 'text' in cname or 'label' in cname or 'body' in cname %}
+            <div class="mc-text">{{ clabel }}</div>
+          {% else %}
+            <div class="mc-generic">
+              <span class="mc-type-badge">{{ c.get('component_name','') }}</span>
+              <span>{{ clabel }}</span>
+            </div>
+          {% endif %}
+          {% endif %}{% endfor %}
+        </div>
+      </div>
+    </div>
+    <p class="preview-screen-label">{{ screen_label }} · {{ w.get('layout_type','standard') }} layout · {{ w.get('components')|length }} component{{ 's' if (w.get('components')|length) != 1 else '' }}</p>
+
+    {% if w.get('interactions') %}
+    <p class="section-label" style="margin-top:1rem;">Interactions</p>
+    {% for i in (w.get('interactions') or []) %}{% if i is mapping %}
+    <div class="interaction-row">
+      <span class="trigger">{{ i.get('trigger','') }}</span>
+      <span class="arrow">→</span>
+      <span>{{ i.get('action','') }}{% if i.get('result') %} → <em>{{ i.get('result') }}</em>{% endif %}</span>
+    </div>
+    {% endif %}{% endfor %}
     {% endif %}
   </div>
   {% else %}
