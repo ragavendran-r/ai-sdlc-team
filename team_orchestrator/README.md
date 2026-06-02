@@ -172,10 +172,23 @@ Unified command-line interface:
 ### Run Demo Pipeline
 
 ```bash
+# Via the main entry point (recommended) — starts all 4 web interfaces
+python run_team_pipeline.py run --demo
+
+# Or via the orchestrator module directly (no web servers)
 python -m team_orchestrator run --demo
 ```
 
-This simulates:
+`run --demo` simulates the full pipeline and starts four browser-based workspaces:
+
+| Workspace | URL |
+|-----------|-----|
+| PO | http://localhost:8001 |
+| EM | http://localhost:8002 |
+| UX | http://localhost:8003 |
+| Frontend | http://localhost:8004 |
+
+The simulated pipeline:
 1. PO creates user stories
 2. EM creates sprint plan
 3. UX creates design handoff

@@ -43,8 +43,8 @@ git remote add upstream https://github.com/ORIGINAL-ORG/ai-sdlc-team.git
 ### 1. Create Virtual Environment
 
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 ```
 
 ### 2. Install Dependencies
@@ -59,7 +59,7 @@ pip install -r em_agent_workspace/agents/requirements.txt
 pip install -r ux_agent_workspace/agents/requirements.txt
 pip install -r backend_agent_workspace/agents/requirements.txt
 pip install -r frontend_agent_workspace/agents/requirements.txt
-pip install -r team-orchestrator/requirements.txt
+pip install -r team_orchestrator/requirements.txt
 
 # Install development tools
 pip install pytest pytest-cov black flake8 isort mypy
@@ -85,7 +85,7 @@ export ANTHROPIC_API_KEY=sk-your-key-here
 python run_team_pipeline.py run --demo
 
 # Check all tests pass
-pytest team-orchestrator/tests/ -v
+pytest team_orchestrator/tests/ -v
 ```
 
 ## Project Structure
@@ -105,7 +105,7 @@ ai-sdlc-team/
 ├── backend_agent_workspace/         # Backend Engineer agent
 ├── frontend_agent_workspace/        # Frontend Engineer agent
 │
-├── team-orchestrator/               # Central orchestrator
+├── team_orchestrator/               # Central orchestrator
 │   ├── events.py                    # Event system
 │   ├── context_store.py             # Artifact storage
 │   ├── router.py                    # Workflow routing
@@ -149,7 +149,7 @@ git checkout -b bugfix/issue-description
 # Follow code standards (see below)
 
 # Run tests frequently
-pytest team-orchestrator/tests/ -v
+pytest team_orchestrator/tests/ -v
 
 # Check formatting
 black . --check
@@ -231,7 +231,7 @@ You want to add a new specialized agent (e.g., Security Auditor).
 5. **Add to orchestrator**
 
    ```python
-   # In team-orchestrator/orchestrator.py
+   # In team_orchestrator/orchestrator.py
 
    # Add route from backend to security auditor
    orchestrator.router.add_route(
@@ -356,7 +356,7 @@ Connect to GitHub for PR creation.
 ### Add New Event Type
 
 ```python
-# team-orchestrator/events.py
+# team_orchestrator/events.py
 
 class EventType(str, Enum):
     # ... existing events
@@ -366,7 +366,7 @@ class EventType(str, Enum):
 ### Add New Route
 
 ```python
-# team-orchestrator/orchestrator.py
+# team_orchestrator/orchestrator.py
 
 def _setup_default_routes(self) -> None:
     # ... existing routes
@@ -418,7 +418,7 @@ __all__ = [
 
 ```bash
 # Orchestrator tests
-pytest team-orchestrator/tests/ -v
+pytest team_orchestrator/tests/ -v
 
 # Individual agent tests
 pytest po_agent_workspace/tests/ -v
@@ -593,7 +593,7 @@ client.messages.create(
 
 ### Q: How do I add a new event type?
 
-A: Add to `team-orchestrator/events.py`:
+A: Add to `team_orchestrator/events.py`:
 
 ```python
 class EventType(str, Enum):
@@ -611,7 +611,7 @@ DATABASE_URL=postgresql://user:pass@localhost/db
 Then update context store initialization:
 
 ```python
-# team-orchestrator/orchestrator.py
+# team_orchestrator/orchestrator.py
 self.context_store = ContextStore(
     backend="postgresql",
     connection_string=os.getenv("DATABASE_URL")

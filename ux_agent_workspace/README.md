@@ -2,19 +2,30 @@
 
 A complete LangGraph-based workflow for the UX/Design agent in the AI SDLC Team. Takes user stories and produces detailed wireframe briefs, user flows, information architecture, and design specifications ready for frontend implementation.
 
-## Web interface
+## Web interface (port 8003)
 
-This workspace ships a minimal web interface (`interface/`, FastAPI + Jinja2, no
+This workspace ships a browser-based interface (`interface/`, FastAPI + Jinja2, no
 build step) so a designer can read the EM sprint plan, run the UX pipeline, review
-personas / user flows / wireframe briefs across three tabs, and approve to publish
-a `ux-handoff` artifact for the downstream Frontend workspace.
+personas / user flows / wireframe briefs / design preview across four tabs, and
+approve to publish a `ux-handoff` artifact for the downstream Frontend workspace.
 
-Run it from the repo root: `python -m ux_agent_workspace.interface.run` then
-open http://localhost:8000 (or via docker-compose on port 8003).
-Tests: `pytest ux_agent_workspace/interface/tests -v`.
+```bash
+# From the repo root
+python -m ux_agent_workspace.interface.run
+# → http://localhost:8003
+```
+
+Tests: `pytest ux_agent_workspace/interface/tests -v`
+
+**Session persistence:** Sessions are written to
+`ux_agent_workspace/interface/_sessions/{id}.json` and reloaded on startup, so
+restarting the server does not lose in-progress or completed sessions.
+
+**Design preview tab:** Renders browser-frame HTML mockups of each wireframe screen.
+**PNG download:** Export all wireframe screens as a stitched PNG from the summary page.
 
 > **This interface is a starting point. Replace it with your team's preferred
-> tool — the workflow underneath does not change.**
+> tool — the LangGraph workflow underneath does not change.**
 
 ## 🎯 Purpose
 

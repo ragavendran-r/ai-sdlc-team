@@ -143,20 +143,72 @@ graph TD
   - **Real Integration:** Design token validation service
   - **TODO:** Check tokens exist in design system
 
+## 🌐 Web Interface (port 8004)
+
+The Frontend workspace ships a full browser-based interface — the same LangGraph
+pipeline runs in the background, pauses for human review, and resumes on approval.
+Sessions are persisted to disk so they survive server restarts.
+
+### Start the server
+
+```bash
+# From the repo root
+python -m frontend_agent_workspace.interface.run
+# → http://localhost:8004
+```
+
+Or start all four web interfaces together:
+
+```bash
+python run_team_pipeline.py run --demo
+```
+
+### Workflow in the browser
+
+1. **New session** — reads the `ux-handoff` artifact published by UX workspace
+2. **Progress page** — live step ticker while the pipeline runs (component breakdown → scaffolding → a11y → tests)
+3. **Review page** — four tabs:
+   - **Components** — scaffolded React components with props, API calls, ARIA attrs
+   - **Tests** — generated test files with test case list
+   - **State plan** — global store recommendation, context layers, implementation order
+   - **Review** — intake gaps (amber), token gaps (amber), review comments (severity-coded)
+4. **Approve** → resumes workflow: generates PR description + code review → writes `frontend-output` artifact
+5. **Reject** → re-runs from `component_scaffolding` with your feedback
+
+### Session persistence
+
+Sessions are written to `frontend_agent_workspace/interface/_sessions/{id}.json`
+and reloaded on startup, so restarting the server does not lose in-progress or
+completed sessions.
+
 ## 📋 File Structure
 
 ```
 frontend_agent_workspace/
 ├── agents/
-│   ├── state.py              (150 LOC) - FrontendWorkflowState
-│   ├── nodes.py              (850 LOC) - 11 agent implementations
-│   ├── tools.py              (300 LOC) - Stubbed tools (15 total)
-│   ├── checkpoints.py        (15 LOC)  - Human approval logic
-│   ├── workflow.py           (350 LOC) - LangGraph StateGraph
+│   ├── state.py              - FrontendWorkflowState (web_mode flag)
+│   ├── nodes.py              - 11 agent node implementations
+│   ├── tools.py              - Stubbed tools (15 total)
+│   ├── checkpoints.py        - Human approval routing logic
+│   ├── workflow.py           - LangGraph StateGraph + compile_frontend_workflow_web()
 │   ├── __init__.py           - Module exports
 │   └── requirements.txt      - Dependencies
+├── interface/
+│   ├── app.py                - FastAPI routes (port 8004)
+│   ├── run.py                - Uvicorn entry point
+│   ├── session.py            - FrontendSessionState + disk persistence
+│   ├── workflow_runner.py    - Background thread execution + approve/reject
+│   ├── _sessions/            - Persisted session JSON files (auto-created)
+│   ├── static/app.js         - Tab switching, polling, approve/reject fetch
+│   └── templates/
+│       ├── base.html
+│       ├── session_new.html
+│       ├── session_progress.html
+│       ├── session_review.html
+│       ├── session_summary.html
+│       └── not_found.html
 ├── tests/
-│   ├── test_nodes.py         (400+ LOC) - Unit tests
+│   ├── test_nodes.py         - Unit tests for all agent nodes
 │   └── __init__.py
 └── README.md
 ```
@@ -198,15 +250,20 @@ pytest frontend_agent_workspace/tests/test_nodes.py --cov=frontend_agent_workspa
 
 ### Prerequisites
 ```bash
-cd frontend_agent_workspace
-pip install -r agents/requirements.txt
+pip install -r frontend_agent_workspace/agents/requirements.txt
 export ANTHROPIC_API_KEY=your_key_here
 ```
 
-### Run the Workflow
+### Web interface (recommended)
 ```bash
-python agents/workflow.py
-python agents/workflow.py --verbose
+# From repo root
+python -m frontend_agent_workspace.interface.run
+# Open http://localhost:8004
+```
+
+### CLI workflow (reads UX handoff from context store)
+```bash
+python -m frontend_agent_workspace.agents.workflow
 ```
 
 ### Example Usage
@@ -259,13 +316,13 @@ Plus: **UXHandoff** and **APIContract** from other agents
 
 ## 📈 Next Steps
 
-1. **Test locally** → `pytest frontend_agent_workspace/tests/ -v`
-2. **Run workflow** → `python frontend_agent_workspace/agents/workflow.py`
-3. **Integrate inputs** → Feed UXHandoff and APIContract
-4. **Implement tools** → Connect real APIs
-5. **Deploy** → Add persistence and orchestration
+1. **Test** → `pytest frontend_agent_workspace/tests/ -v`
+2. **Run web interface** → `python -m frontend_agent_workspace.interface.run`
+3. **Integrate inputs** → Feed real UXHandoff from UX workspace approval
+4. **Implement tools** → Connect real GitHub API, TypeScript compiler
+5. **Extend** → Add more review tabs or custom approval conditions
 
 ---
 
-**Status:** ✅ Complete and Production-Ready
-**Last Updated:** 2026-05-31
+**Status:** ✅ Complete — web interface on port 8004, sessions persisted to disk
+**Last Updated:** 2026-06-03

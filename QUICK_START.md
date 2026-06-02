@@ -34,6 +34,20 @@ python run_team_pipeline.py run --demo
 - 30+ events published
 - 15+ artifacts stored
 - Full pipeline status
+- 4 web interfaces started: PO (8001), EM (8002), UX (8003), Frontend (8004)
+
+## Web Interfaces
+
+The demo starts four browser-based workspaces automatically:
+
+| Workspace | URL | What you do there |
+|-----------|-----|-------------------|
+| PO | http://localhost:8001 | Paste requirements → approve backlog |
+| EM | http://localhost:8002 | Review sprint plan → approve |
+| UX | http://localhost:8003 | Review personas/flows/wireframes → approve |
+| Frontend | http://localhost:8004 | Review scaffolded components → approve → generate PR |
+
+Press Ctrl+C in the terminal to stop all servers.
 
 ## Explore Results (2 minutes)
 
@@ -62,7 +76,7 @@ python run_team_pipeline.py context --list
 - `frontend_agent_workspace/` - Frontend Engineer agent
 
 **Orchestrator:**
-- `team-orchestrator/` - Central coordination system
+- `team_orchestrator/` - Central coordination system
 
 **Schemas:**
 - `team_contracts/schemas/` - 23 shared data contracts
@@ -71,7 +85,7 @@ python run_team_pipeline.py context --list
 
 ```bash
 # Test orchestrator
-pytest team-orchestrator/tests/ -v
+pytest team_orchestrator/tests/ -v
 
 # Test individual agents
 pytest po_agent_workspace/tests/ -v
@@ -205,7 +219,7 @@ ai-sdlc-team/
 │   ├── agents/
 │   └── tests/
 │
-├── team-orchestrator/            # Central coordinator
+├── team_orchestrator/            # Central coordinator
 │   ├── events.py
 │   ├── context_store.py
 │   ├── router.py

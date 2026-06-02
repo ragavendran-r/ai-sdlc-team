@@ -44,65 +44,70 @@ docker-compose logs -f app
 ### Without Docker
 
 ```bash
-python -m venv venv && source venv/bin/activate
+python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 export ANTHROPIC_API_KEY=sk-your-key-here
 python run_team_pipeline.py run --demo
-# Starts PO (http://localhost:8001), EM (http://localhost:8002),
-# UX (http://localhost:8003) web interfaces and runs the demo pipeline.
-# Press Ctrl+C to stop all servers.
+# Starts PO (8001), EM (8002), UX (8003), Frontend (8004) web interfaces
+# and runs the demo pipeline. Press Ctrl+C to stop all servers.
 ```
 
 ## 🖥️ Accessing each workspace
 
-The three human-in-the-loop roles (PO, EM, UX) ship a minimal web interface
-(FastAPI + Jinja2, no build step). The two developer roles stay CLI. Handoff
-flows through the shared on-disk context store (`team_contracts/context-store`):
-each interface writes an artifact (`backlog`, `sprint-plan`, `ux-handoff`) that
-the next workspace reads — file-based handoff, since each app is its own process.
+All five agents expose a web interface (FastAPI + Jinja2, no build step).
+Handoff flows through the shared on-disk context store (`team_contracts/context-store`):
+each interface writes an artifact that the next workspace reads — file-based
+handoff since each app runs as its own process.
 
-| Workspace | Interface | URL (docker-compose) | Role |
-|-----------|-----------|----------------------|------|
-| PO Agent | Web | http://localhost:8001 | Paste requirements → review/approve stories → publish backlog |
-| EM Agent | Web | http://localhost:8002 | Read backlog → plan sprint → review/approve → publish sprint plan |
-| UX Agent | Web | http://localhost:8003 | Read sprint plan → review personas/flows/wireframes → publish handoff |
-| Backend Agent | CLI | — | Consumes contracts |
-| Frontend Agent | CLI | — | Consumes UX handoff |
+| Workspace | URL | Role |
+|-----------|-----|------|
+| PO Agent | http://localhost:8001 | Paste requirements → review/approve stories → publish backlog |
+| EM Agent | http://localhost:8002 | Read backlog → plan sprint → review/approve → publish sprint plan |
+| UX Agent | http://localhost:8003 | Read sprint plan → review personas/flows/wireframes → publish handoff |
+| Frontend Agent | http://localhost:8004 | Read UX handoff → review scaffolded components → approve → generate PR |
+| Backend Agent | CLI | Consumes UX handoff + sprint plan → generates API contract |
 
 > Each web interface is a **starting point** — replace it with your team's
 > preferred tool. The LangGraph workflow underneath does not change.
 
-### Run the web workspaces together
+### Run all web workspaces together
 
 ```bash
-# Bring up all three web interfaces (they share the context-store volume)
+# Start all four web interfaces (they share the context-store volume)
 export ANTHROPIC_API_KEY=sk-your-key-here
-docker compose up po_interface em_interface ux_interface
-# Then open PO (8001) → publish a backlog → EM (8002) → plan a sprint → UX (8003)
+docker compose up po_interface em_interface ux_interface frontend_interface
+# PO (8001) → EM (8002) → UX (8003) → Frontend (8004)
+```
+
+Or use the demo command which starts all four automatically:
+
+```bash
+python run_team_pipeline.py run --demo
 ```
 
 ### Run a single web workspace
 
 ```bash
-# One service via Docker (PO on 8001 / EM on 8002 / UX on 8003)
-docker compose up po_interface
+# Via Docker
+docker compose up po_interface   # or em_interface / ux_interface / frontend_interface
 
-# Or locally without Docker, from the repo root (serves http://localhost:8000)
-python -m po_agent_workspace.interface.run    # or em_ / ux_agent_workspace
+# Or locally without Docker, from the repo root
+python -m po_agent_workspace.interface.run        # http://localhost:8001
+python -m em_agent_workspace.interface.run        # http://localhost:8002
+python -m ux_agent_workspace.interface.run        # http://localhost:8003
+python -m frontend_agent_workspace.interface.run  # http://localhost:8004
 ```
 
-### Run the developer (CLI) workspaces
+### Run the Backend (CLI) workspace
 
-Backend and Frontend have no web UI — they consume artifacts from the context
-store and run as workflows:
+Backend consumes artifacts from the context store and runs as a workflow:
 
 ```bash
-# Via Docker (defined as services in docker-compose.yml)
-docker compose up backend_agent     # or frontend_agent
+# Via Docker
+docker compose up backend_agent
 
 # Or locally (run from the repo root)
 PYTHONPATH="$PWD" python -m backend_agent_workspace.agents.workflow
-PYTHONPATH="$PWD" python -m frontend_agent_workspace.agents.workflow
 ```
 
 ## 📖 Documentation
