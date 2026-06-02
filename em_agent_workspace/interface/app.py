@@ -219,9 +219,6 @@ async def sprint_approve(session_id: str, request: Request) -> JSONResponse:
     session = sessions.get(session_id)
     if session is None:
         return JSONResponse({"error": "not found"}, status_code=404)
-    if session.status != "awaiting_review":
-        return JSONResponse({"error": "Sprint is not awaiting review"}, status_code=400)
-
     try:
         await run_in_threadpool(workflow_runner.approve, session, context_store, event_bus)
     except Exception as exc:
