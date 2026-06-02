@@ -221,7 +221,12 @@ async def sprint_approve(session_id: str, request: Request) -> JSONResponse:
     if session.status != "awaiting_review":
         return JSONResponse({"error": "Sprint is not awaiting review"}, status_code=400)
 
-    workflow_runner.approve(session, context_store, event_bus)
+    try:
+        workflow_runner.approve(session, context_store, event_bus)
+    except Exception as exc:
+        session.status = "error"
+        session.error = str(exc)
+        return JSONResponse({"error": str(exc)}, status_code=500)
     return JSONResponse({"status": "approved", "redirect": "/sprint/dashboard"})
 
 

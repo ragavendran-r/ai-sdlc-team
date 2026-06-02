@@ -302,11 +302,15 @@ def sprint_composition(state: EMWorkflowState) -> EMWorkflowState:
     state.current_agent = "sprint_composition"
 
     # Use LLM to determine sprint composition
+    capacity_points = (
+        state.capacity_report.estimated_story_points_capacity
+        if state.capacity_report else "unknown"
+    )
     composition_prompt = f"""Plan a sprint with these stories:
 {[s.title for s in state.validated_stories]}
 
 Constraints:
-- Capacity: {state.capacity_report.estimated_story_points_capacity} points
+- Capacity: {capacity_points} points
 - Dependencies: {state.dependency_graph}
 - Risks: {[r.title for r in state.risk_flags[:3]]}
 
