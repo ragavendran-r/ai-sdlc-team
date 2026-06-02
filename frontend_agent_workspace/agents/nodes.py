@@ -472,6 +472,11 @@ def human_checkpoint(state: FrontendWorkflowState) -> FrontendWorkflowState:
     """
     state.current_agent = "human_checkpoint"
 
+    if state.web_mode:
+        state.checkpoint_reached = True
+        state.messages.append({"agent": "human_checkpoint", "message": "Checkpoint reached — awaiting web review"})
+        return state
+
     # Print summary for human review
     print("\n" + "=" * 80)
     print(" FRONTEND WORKFLOW CHECKPOINT: COMPONENT REVIEW")

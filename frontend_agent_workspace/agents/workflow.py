@@ -125,6 +125,16 @@ def compile_frontend_workflow() -> object:
     return workflow_graph.compile()
 
 
+def compile_frontend_workflow_web() -> object:
+    """Compile with MemorySaver checkpointer and interrupt before human_checkpoint."""
+    from langgraph.checkpoint.memory import MemorySaver
+    workflow_graph = create_frontend_workflow()
+    return workflow_graph.compile(
+        checkpointer=MemorySaver(),
+        interrupt_before=["human_checkpoint"],
+    )
+
+
 def print_workflow_graph(compiled_graph: object) -> None:
     """Print ASCII representation of the workflow graph."""
     print("\n" + "="*80)

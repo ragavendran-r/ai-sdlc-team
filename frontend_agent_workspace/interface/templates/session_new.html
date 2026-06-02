@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>New implementation session</h1>
+<p class="muted">The pipeline reads the UX handoff and scaffolds React components with
+accessibility, state management, and unit test stubs.</p>
+
+{% if not handoff_ready %}
+<div class="banner amber">
+  No UX handoff is available. Ask the UX workspace to publish one first.
+</div>
+{% else %}
+
+<div class="card" style="margin-bottom: 1.5rem;">
+  <h3 style="margin: 0 0 0.75rem;">UX handoff preview</h3>
+  <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; text-align: center;">
+    <div style="background: #eff6ff; border-radius: 8px; padding: 0.75rem;">
+      <div style="font-size: 1.6rem; font-weight: 700; color: #1d4ed8;">{{ persona_count }}</div>
+      <div style="font-size: 0.78rem; color: #6b7280;">Personas</div>
+    </div>
+    <div style="background: #eff6ff; border-radius: 8px; padding: 0.75rem;">
+      <div style="font-size: 1.6rem; font-weight: 700; color: #1d4ed8;">{{ screen_count }}</div>
+      <div style="font-size: 0.78rem; color: #6b7280;">Screens</div>
+    </div>
+    <div style="background: #eff6ff; border-radius: 8px; padding: 0.75rem;">
+      <div style="font-size: 1.6rem; font-weight: 700; color: #1d4ed8;">{{ flow_count }}</div>
+      <div style="font-size: 0.78rem; color: #6b7280;">User flows</div>
+    </div>
+  </div>
+</div>
+
+<form method="post" action="/sessions/run">
+  <div class="field">
+    <label for="session_name">Session name</label>
+    <input type="text" id="session_name" name="session_name"
+      placeholder="e.g. Checkout implementation"
+      value="{{ session_name_hint }}" required>
+  </div>
+  <button type="submit" class="btn">Start implementation</button>
+</form>
+
+{% endif %}
+
+{% endblock %}

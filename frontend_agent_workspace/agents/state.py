@@ -114,6 +114,13 @@ class FrontendWorkflowState:
     messages: List[Dict[str, str]] = field(default_factory=list)
     errors: List[str] = field(default_factory=list)
 
+    # ========================================================================
+    # WEB MODE
+    # ========================================================================
+
+    web_mode: bool = False
+    checkpoint_reached: bool = False
+
     def to_dict(self) -> dict:
         """Convert state to dictionary for serialization."""
         return {
@@ -149,4 +156,6 @@ class FrontendWorkflowState:
             "current_agent": self.current_agent,
             "messages": self.messages,
             "errors": self.errors,
+            "web_mode": self.web_mode,
+            "checkpoint_reached": self.checkpoint_reached,
         }

@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Frontend workspace</h1>
+<p class="muted">Implement components from the UX handoff into scaffolded, accessible React code.</p>
+
+{% if handoff_ready %}
+<div class="banner green">UX handoff ready — start implementation.</div>
+<div class="row" style="margin: 1rem 0;">
+  <a class="btn" href="/sessions/new">+ New implementation session</a>
+</div>
+{% else %}
+<div class="banner amber">
+  No UX handoff available yet. The UX workspace must publish a handoff
+  before you can start frontend implementation.
+</div>
+{% endif %}
+
+{% if awaiting %}
+<div class="banner amber"><strong>{{ awaiting|length }} session(s) awaiting your review.</strong></div>
+{% endif %}
+
+<h2>Sessions</h2>
+{% if sessions %}
+{% for s in sessions %}
+<div class="card">
+  <div class="row" style="justify-content: space-between;">
+    <div>
+      <strong>{{ s.session_name }}</strong><br>
+      <span class="muted">{{ s.session_id[:8] }}</span>
+    </div>
+    <div class="row">
+      {% if s.status == "awaiting_review" %}
+      <span class="badge amber">needs review</span>
+      <a class="btn secondary" href="/sessions/{{ s.session_id }}/review">Review</a>
+      {% elif s.status == "running" %}
+      <span class="badge blue">running</span>
+      <a class="btn ghost" href="/sessions/{{ s.session_id }}/progress">View</a>
+      {% elif s.status == "approved" %}
+      <span class="badge green">approved</span>
+      <a class="btn ghost" href="/sessions/{{ s.session_id }}/summary">Summary</a>
+      {% elif s.status == "error" %}
+      <span class="badge red">error</span>
+      <a class="btn ghost" href="/sessions/{{ s.session_id }}/progress">Details</a>
+      {% else %}
+      <span class="badge gray">{{ s.status }}</span>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endfor %}
+{% else %}
+<p class="muted">No sessions yet.</p>
+{% endif %}
+
+{% endblock %}

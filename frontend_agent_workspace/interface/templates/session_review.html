@@ -1,0 +1,308 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Review implementation</h1>
+<p class="muted">{{ session.session_name }}</p>
+
+{% if not ready %}
+<div class="banner amber">This session is not ready for review yet.</div>
+{% else %}
+
+<style>
+  /* ── Tab strip ─────────────────────────────────────────────────────── */
+  .tab-strip { display:flex; gap:0; border-bottom:2px solid #e5e7eb; margin-bottom:1.5rem; }
+  .tab-btn {
+    padding:0.6rem 1.25rem; border:none; background:none; cursor:pointer;
+    font-size:0.95rem; color:#6b7280; border-bottom:3px solid transparent;
+    margin-bottom:-2px; font-weight:500;
+  }
+  .tab-btn.active { color:#1d4ed8; border-bottom-color:#1d4ed8; }
+  .tab-panel { display:none; }
+  .tab-panel.active { display:block; }
+
+  /* ── Summary bar ────────────────────────────────────────────────────── */
+  .summary-bar { display:grid; grid-template-columns:repeat(auto-fit,minmax(110px,1fr)); gap:0.75rem; margin-bottom:1.5rem; }
+  .summary-stat { background:#fff; border:1px solid #e5e7eb; border-radius:10px; padding:0.85rem; text-align:center; }
+  .summary-stat .n { font-size:1.6rem; font-weight:700; color:#1d4ed8; }
+  .summary-stat .l { font-size:0.75rem; color:#6b7280; }
+
+  /* ── Component card ─────────────────────────────────────────────────── */
+  .comp-card { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:1.25rem; margin-bottom:1rem; }
+  .comp-header { display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.75rem; }
+  .comp-name { font-size:1.05rem; font-weight:700; font-family:monospace; }
+  .chip { display:inline-block; padding:0.2rem 0.65rem; border-radius:999px; font-size:0.78rem; font-weight:600; background:#ede9fe; color:#5b21b6; }
+  .chip.blue { background:#dbeafe; color:#1e40af; }
+  .chip.gray { background:#f3f4f6; color:#374151; }
+  .chip.green { background:#dcfce7; color:#166534; }
+  .chip.amber { background:#fef3c7; color:#92400e; }
+  .chip.red { background:#fee2e2; color:#991b1b; }
+  .props-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:0.5rem; margin-top:0.5rem; }
+  .prop-chip { background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:0.35rem 0.6rem; font-size:0.8rem; font-family:monospace; color:#0f172a; }
+
+  /* ── Test card ──────────────────────────────────────────────────────── */
+  .test-card { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:1.25rem; margin-bottom:1rem; }
+  .test-case { background:#f8fafc; border-radius:6px; padding:0.5rem 0.75rem; margin:0.35rem 0; font-size:0.85rem; display:flex; align-items:center; gap:0.5rem; }
+  .test-case::before { content:"▸"; color:#1d4ed8; }
+
+  /* ── State plan ─────────────────────────────────────────────────────── */
+  .state-section { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:1.25rem; margin-bottom:1rem; }
+  .state-section h3 { font-size:0.85rem; text-transform:uppercase; letter-spacing:0.06em; color:#6b7280; margin:0 0 0.75rem; }
+  .state-shape { background:#1e1e2e; color:#cdd6f4; border-radius:8px; padding:1rem; font-family:monospace; font-size:0.82rem; line-height:1.6; white-space:pre-wrap; overflow-x:auto; }
+  .action-item { display:flex; align-items:flex-start; gap:0.5rem; margin-bottom:0.4rem; font-size:0.88rem; }
+  .action-item::before { content:"→"; color:#1d4ed8; flex-shrink:0; }
+
+  /* ── Review comments ────────────────────────────────────────────────── */
+  .review-card { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:1.25rem; margin-bottom:0.75rem; }
+  .review-title { font-weight:700; margin-bottom:0.25rem; }
+  .review-msg { font-size:0.9rem; color:#374151; }
+  .sev-major { border-left:4px solid #dc2626; }
+  .sev-minor { border-left:4px solid #f59e0b; }
+  .sev-info  { border-left:4px solid #3b82f6; }
+  .gap-item { background:#fffbeb; border:1px solid #fde68a; border-radius:8px; padding:0.5rem 0.75rem; margin:0.35rem 0; font-size:0.88rem; color:#92400e; }
+
+  /* ── Action bar ─────────────────────────────────────────────────────── */
+  .action-bar { position:sticky; bottom:0; background:#fff; border-top:1px solid #e5e7eb; padding:1rem 0; margin-top:2rem; display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap; }
+</style>
+
+<!-- Summary stats -->
+<div class="summary-bar">
+  <div class="summary-stat"><div class="n">{{ session.component_plan|length }}</div><div class="l">Components</div></div>
+  <div class="summary-stat"><div class="n">{{ session.test_files|length }}</div><div class="l">Test files</div></div>
+  <div class="summary-stat"><div class="n">{{ session.token_gaps|length }}</div><div class="l">Token gaps</div></div>
+  <div class="summary-stat"><div class="n">{{ session.review_comments|length }}</div><div class="l">Review notes</div></div>
+</div>
+
+<!-- Tab strip -->
+<div class="tab-strip">
+  <button class="tab-btn active" onclick="switchTab(this,'components')">
+    Components ({{ session.scaffolded_components|length }})
+  </button>
+  <button class="tab-btn" onclick="switchTab(this,'tests')">
+    Tests ({{ session.test_files|length }})
+  </button>
+  <button class="tab-btn" onclick="switchTab(this,'state')">State plan</button>
+  <button class="tab-btn" onclick="switchTab(this,'review')">
+    Review ({{ (session.token_gaps|length) + (session.intake_gaps|length) + (session.review_comments|length) }})
+  </button>
+</div>
+
+<!-- ── Components tab ────────────────────────────────────────────────────── -->
+<div class="tab-panel active" id="tab-components">
+  {% set a11y_map = {} %}
+  {% for ac in session.a11y_enriched_components %}
+    {% set _ = a11y_map.update({ac.get('name',''): ac}) %}
+  {% endfor %}
+
+  {% for comp in session.scaffolded_components %}
+  {% set a11y = a11y_map.get(comp.get('name','')) %}
+  <div class="comp-card">
+    <div class="comp-header">
+      <div>
+        <div class="comp-name">{{ comp.get('name','') }}</div>
+        <div style="font-size:0.82rem;color:#6b7280;margin-top:0.2rem;">{{ comp.get('file_path','') }}</div>
+      </div>
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:flex-start;">
+        {% if comp.get('tokens_used') %}
+        <span class="chip green">{{ comp.get('tokens_used')|length }} token(s)</span>
+        {% endif %}
+        {% if a11y and a11y.get('aria_attributes') %}
+        <span class="chip blue">{{ a11y.get('aria_attributes')|length }} ARIA attrs</span>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if comp.get('props_interface') %}
+    <div style="margin-bottom:0.5rem;font-size:0.82rem;color:#6b7280;">Props interface</div>
+    {% endif %}
+    {% if comp.get('props_interface') or comp.get('api_calls') %}
+    <div class="props-grid">
+      {% if comp.get('api_calls') %}
+      {% for call in comp.get('api_calls') %}
+      <div class="prop-chip">API: {{ call }}</div>
+      {% endfor %}
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <div style="display:flex;gap:1rem;margin-top:0.75rem;font-size:0.82rem;color:#6b7280;">
+      {% if comp.get('hook_stubs') %}
+      <span>{{ comp.get('hook_stubs')|length }} hook stub(s)</span>
+      {% endif %}
+      {% if a11y and a11y.get('keyboard_handlers') %}
+      <span>{{ a11y.get('keyboard_handlers')|length }} keyboard handler(s)</span>
+      {% endif %}
+    </div>
+  </div>
+  {% else %}
+  <p class="muted">No scaffolded components yet.</p>
+  {% endfor %}
+</div>
+
+<!-- ── Tests tab ─────────────────────────────────────────────────────────── -->
+<div class="tab-panel" id="tab-tests">
+  {% for tf in session.test_files %}
+  <div class="test-card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.75rem;flex-wrap:wrap;gap:0.5rem;">
+      <div>
+        <div style="font-weight:700;font-family:monospace;">{{ tf.get('file_path','') }}</div>
+        <div style="font-size:0.82rem;color:#6b7280;">Component: {{ tf.get('component_name','') }}</div>
+      </div>
+      {% if tf.get('test_cases') %}
+      <span class="chip blue">{{ tf.get('test_cases')|length }} test(s)</span>
+      {% endif %}
+    </div>
+    {% for tc in (tf.get('test_cases') or []) %}
+    <div class="test-case">{{ tc.get('name','') }}
+      {% if tc.get('type') %}<span class="chip gray" style="margin-left:0.5rem;">{{ tc.get('type') }}</span>{% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="muted">No test files generated.</p>
+  {% endfor %}
+</div>
+
+<!-- ── State plan tab ────────────────────────────────────────────────────── -->
+<div class="tab-panel" id="tab-state">
+  {% if session.state_plan %}
+  {% set sp = session.state_plan %}
+
+  {% if sp.get('global_store_recommendation') %}
+  <div class="state-section">
+    <h3>Store recommendation</h3>
+    <div style="display:flex;align-items:center;gap:0.75rem;">
+      <span style="font-size:1.1rem;font-weight:700;">{{ sp.get('global_store_recommendation') }}</span>
+      {% if sp.get('requires_global_store') %}
+      <span class="chip amber">Global store required</span>
+      {% else %}
+      <span class="chip green">Local state sufficient</span>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if sp.get('recommended_context_layers') %}
+  <div class="state-section">
+    <h3>Context layers</h3>
+    {% for ctx in sp.get('recommended_context_layers') %}
+    <div class="action-item">{{ ctx }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if sp.get('state_groups') %}
+  <div class="state-section">
+    <h3>State groups</h3>
+    {% for group in sp.get('state_groups') %}
+    <div class="card" style="margin-bottom:0.75rem;">
+      <div style="font-weight:700;margin-bottom:0.25rem;">{{ group.get('name','') or group.get('id','') }}</div>
+      {% if group.get('strategy') %}<div style="font-size:0.88rem;color:#6b7280;">Strategy: {{ group.get('strategy') }}</div>{% endif %}
+      {% if group.get('components') %}<div style="font-size:0.82rem;margin-top:0.35rem;color:#374151;">Components: {{ group.get('components')|join(', ') }}</div>{% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if sp.get('implementation_order') %}
+  <div class="state-section">
+    <h3>Implementation order</h3>
+    {% for item in sp.get('implementation_order') %}
+    <div class="action-item">{{ loop.index }}. {{ item }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% else %}
+  <p class="muted">No state plan available.</p>
+  {% endif %}
+</div>
+
+<!-- ── Review tab ────────────────────────────────────────────────────────── -->
+<div class="tab-panel" id="tab-review">
+  {% if session.intake_gaps %}
+  <h3 style="font-size:0.9rem;color:#6b7280;text-transform:uppercase;letter-spacing:0.06em;">Intake gaps</h3>
+  {% for gap in session.intake_gaps %}
+  <div class="gap-item">{{ gap }}</div>
+  {% endfor %}
+  {% endif %}
+
+  {% if session.token_gaps %}
+  <h3 style="font-size:0.9rem;color:#6b7280;text-transform:uppercase;letter-spacing:0.06em;margin-top:1rem;">Token gaps</h3>
+  {% for gap in session.token_gaps %}
+  <div class="gap-item">{{ gap }}</div>
+  {% endfor %}
+  {% endif %}
+
+  {% if session.review_comments %}
+  <h3 style="font-size:0.9rem;color:#6b7280;text-transform:uppercase;letter-spacing:0.06em;margin-top:1rem;">Review comments</h3>
+  {% for comment in session.review_comments %}
+  {% set sev = comment.get('severity','info') %}
+  <div class="review-card sev-{{ sev }}">
+    <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.35rem;">
+      {% if sev == 'major' %}<span class="chip red">major</span>
+      {% elif sev == 'minor' %}<span class="chip amber">minor</span>
+      {% else %}<span class="chip blue">info</span>{% endif %}
+      {% if comment.get('category') %}<span class="chip gray">{{ comment.get('category') }}</span>{% endif %}
+    </div>
+    <div class="review-title">{{ comment.get('title','') }}</div>
+    <div class="review-msg">{{ comment.get('message','') }}</div>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  {% if not session.intake_gaps and not session.token_gaps and not session.review_comments %}
+  <p class="muted">No gaps or review comments.</p>
+  {% endif %}
+</div>
+
+<!-- ── Action bar ─────────────────────────────────────────────────────────── -->
+<div id="action-error" class="banner amber" style="display:none; margin-top:1rem;"></div>
+
+<div class="action-bar" data-review-session="{{ session.session_id }}">
+  <button type="button" class="btn"
+    onclick="(function(btn){
+      btn.disabled=true; btn.textContent='Generating PR…';
+      fetch('/sessions/{{ session.session_id }}/approve',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'})
+        .then(function(r){return r.ok?r.json():r.text().then(function(t){throw new Error(t);});})
+        .then(function(d){if(d.redirect)window.location.href=d.redirect;})
+        .catch(function(e){
+          btn.disabled=false; btn.textContent='Approve &amp; generate PR';
+          var el=document.getElementById('action-error');
+          el.style.display='block'; el.textContent='Error: '+e.message;
+        });
+    })(this)">Approve &amp; generate PR</button>
+  <button type="button" class="btn secondary"
+    onclick="document.getElementById('reject-box').style.display='block'">Reject &amp; revise</button>
+  <span class="muted" style="font-size:0.85rem;">Approval resumes the pipeline to generate the PR description and code review.</span>
+</div>
+
+<div id="reject-box" style="display:none; margin-top:1rem; background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:1.25rem;">
+  <div class="field">
+    <label for="feedback">What should change?</label>
+    <textarea id="feedback" rows="4" placeholder="Describe what needs revision…"></textarea>
+  </div>
+  <button type="button" class="btn danger"
+    onclick="(function(btn){
+      btn.disabled=true; btn.textContent='Submitting…';
+      fetch('/sessions/{{ session.session_id }}/reject',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({feedback:document.getElementById('feedback').value})})
+        .then(function(r){return r.ok?r.json():r.text().then(function(t){throw new Error(t);});})
+        .then(function(d){if(d.redirect)window.location.href=d.redirect;})
+        .catch(function(e){
+          btn.disabled=false; btn.textContent='Submit feedback';
+          var el=document.getElementById('action-error');
+          el.style.display='block'; el.textContent='Error: '+e.message;
+        });
+    })(this)">Submit feedback</button>
+</div>
+
+<script>
+function switchTab(btn, name) {
+  document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+}
+</script>
+
+{% endif %}
+{% endblock %}
