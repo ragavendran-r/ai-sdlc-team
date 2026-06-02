@@ -51,9 +51,23 @@
   <p class="muted">No tasks were composed for this sprint.</p>
   {% endif %}
 
+  <div id="action-error" class="banner amber" style="display:none; margin-top:1rem;"></div>
+
   <div class="row" style="margin-top: 1rem;">
-    <button type="button" id="approve-btn" class="btn">Approve &amp; publish sprint</button>
-    <button type="button" id="reject-btn" class="btn danger">Reject &amp; revise</button>
+    <button type="button" id="approve-btn" class="btn"
+      onclick="(function(btn){
+        btn.disabled=true; btn.textContent='Publishing…';
+        fetch('/sprint/{{ session.session_id }}/approve',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'})
+          .then(function(r){return r.ok ? r.json() : r.text().then(function(t){throw new Error(t);});})
+          .then(function(d){if(d.redirect) window.location.href=d.redirect;})
+          .catch(function(e){
+            btn.disabled=false; btn.textContent='Approve &amp; publish sprint';
+            var el=document.getElementById('action-error');
+            el.style.display='block'; el.textContent='Error: '+e.message;
+          });
+      })(this)">Approve &amp; publish sprint</button>
+    <button type="button" id="reject-btn" class="btn danger"
+      onclick="document.getElementById('reject-box').style.display='block'">Reject &amp; revise</button>
   </div>
 </form>
 
@@ -62,7 +76,18 @@
     <label for="feedback">What should change?</label>
     <textarea id="feedback" rows="3"></textarea>
   </div>
-  <button type="button" id="submit-reject" class="btn danger">Submit feedback</button>
+  <button type="button" id="submit-reject" class="btn danger"
+    onclick="(function(btn){
+      btn.disabled=true; btn.textContent='Submitting…';
+      fetch('/sprint/{{ session.session_id }}/reject',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({feedback:document.getElementById('feedback').value})})
+        .then(function(r){return r.ok ? r.json() : r.text().then(function(t){throw new Error(t);});})
+        .then(function(d){if(d.redirect) window.location.href=d.redirect;})
+        .catch(function(e){
+          btn.disabled=false; btn.textContent='Submit feedback';
+          var el=document.getElementById('action-error');
+          el.style.display='block'; el.textContent='Error: '+e.message;
+        });
+    })(this)">Submit feedback</button>
 </div>
 
 {% endif %}
