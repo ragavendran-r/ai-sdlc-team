@@ -170,6 +170,27 @@ def session_status(session_id: str) -> JSONResponse:
     return JSONResponse(session.to_status_dict())
 
 
+@app.get("/sessions/{session_id}/debug")
+def session_debug(session_id: str) -> JSONResponse:
+    import dataclasses
+    session = sessions.get(session_id)
+    if session is None:
+        return JSONResponse({"error": "not found"}, status_code=404)
+    import json
+    payload = {
+        "status": session.status,
+        "personas_count": len(session.personas),
+        "flows_count": len(session.user_flows),
+        "wireframes_count": len(session.wireframe_briefs),
+        "persona_keys": list(session.personas[0].keys()) if session.personas else [],
+        "flow_keys": list(session.user_flows[0].keys()) if session.user_flows else [],
+        "wireframe_keys": list(session.wireframe_briefs[0].keys()) if session.wireframe_briefs else [],
+        "flow_sample": session.user_flows[0] if session.user_flows else None,
+        "wireframe_sample": session.wireframe_briefs[0] if session.wireframe_briefs else None,
+    }
+    return Response(content=json.dumps(payload, default=str), media_type="application/json")
+
+
 # ---------------------------------------------------------------------------
 # Route 6: Review page (3 tabs)
 # ---------------------------------------------------------------------------

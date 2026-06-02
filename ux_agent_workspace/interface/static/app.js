@@ -37,18 +37,7 @@ function updateSteps(completed, current) {
 }
 
 function initTabs() {
-  const buttons = document.querySelectorAll(".tab-btn");
-  if (!buttons.length) return;
-  buttons.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const tab = btn.getAttribute("data-tab");
-      document.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("active"));
-      document.querySelectorAll(".tab-panel").forEach((p) => p.classList.remove("active"));
-      btn.classList.add("active");
-      const panel = document.querySelector(`[data-panel="${tab}"]`);
-      if (panel) panel.classList.add("active");
-    });
-  });
+  // Tabs now use inline onclick with switchTab() — nothing to wire up here.
 }
 
 function initReviewPage(sessionId) {
