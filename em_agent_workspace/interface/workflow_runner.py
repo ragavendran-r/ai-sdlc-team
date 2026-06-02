@@ -189,7 +189,13 @@ def approve(
 
     compiled.update_state(config, {"sprint_approved": True})
     final = compiled.invoke(None, config)
-    values = final.to_dict() if hasattr(final, "to_dict") else dict(final)
+    if hasattr(final, "to_dict"):
+        values = final.to_dict()
+    elif isinstance(final, dict):
+        values = {k: _to_dict(v) if hasattr(v, "to_dict") or hasattr(v, "model_dump") else v
+                  for k, v in final.items()}
+    else:
+        values = dict(final)
 
     draft = _to_dict(values.get("draft_sprint")) or session.draft_sprint or {}
     context_store.write_artifact(
@@ -255,7 +261,7 @@ def _build_report(draft: Dict[str, Any], values: Dict[str, Any]) -> str:
         f"**Sprint ID:** {sprint.get('id', '')}",
         f"**Tasks:** {len(tasks)}",
     ]
-    capacity = values.get("capacity_report") or {}
+    capacity = _to_dict(values.get("capacity_report")) or {}
     if capacity:
         lines.append(
             f"**Capacity:** {capacity.get('estimated_story_points_capacity', '—')} "
