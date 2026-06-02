@@ -110,20 +110,36 @@ def to_user_stories(story_dicts: List[Dict[str, Any]]) -> List[UserStory]:
     return stories
 
 
+def _serialize(obj: Any) -> Any:
+    """Recursively serialize Pydantic/dataclass objects to plain dicts."""
+    if obj is None:
+        return None
+    if isinstance(obj, list):
+        return [_serialize(i) for i in obj]
+    if isinstance(obj, dict):
+        return {k: _serialize(v) for k, v in obj.items()}
+    if hasattr(obj, "to_dict"):
+        return obj.to_dict()
+    if hasattr(obj, "model_dump"):
+        return obj.model_dump()
+    return obj
+
+
 def _state_values(compiled, session_id: str) -> Dict[str, Any]:
-    """Read the current checkpointed state values as a dict."""
+    """Read the current checkpointed state values as a fully-serialized dict."""
     snapshot = compiled.get_state(_config(session_id))
     values = snapshot.values
     if hasattr(values, "to_dict"):
         return values.to_dict()
     if isinstance(values, dict):
-        return values
-    return dict(values)
+        return {k: _serialize(v) for k, v in values.items()}
+    return {k: _serialize(v) for k, v in dict(values).items()}
 
 
 def _a11y_strings(state_values: Dict[str, Any]) -> List[str]:
     out: List[str] = []
     for flag in state_values.get("a11y_flags", []) or []:
+        flag = _serialize(flag)
         if isinstance(flag, dict):
             issue = (
                 flag.get("title")
@@ -138,29 +154,11 @@ def _a11y_strings(state_values: Dict[str, Any]) -> List[str]:
     return out
 
 
-def _to_dict(obj: Any) -> Any:
-    """Serialize a dataclass/Pydantic object to a plain dict, or return as-is."""
-    if obj is None:
-        return None
-    if hasattr(obj, "to_dict"):
-        return obj.to_dict()
-    if hasattr(obj, "model_dump"):
-        return obj.model_dump()
-    return obj
-
-
-def _to_dict_list(lst: Any) -> List[Any]:
-    """Serialize each item in a list via _to_dict."""
-    if not lst:
-        return []
-    return [_to_dict(item) for item in lst]
-
-
 def _capture_review(session: UXSessionState, values: Dict[str, Any]) -> None:
-    session.personas = _to_dict_list(values.get("personas") or [])
-    session.user_flows = _to_dict_list(values.get("user_flows") or [])
+    session.personas = _serialize(values.get("personas") or [])
+    session.user_flows = _serialize(values.get("user_flows") or [])
     briefs = values.get("updated_wireframe_briefs") or values.get("wireframe_briefs")
-    session.wireframe_briefs = _to_dict_list(briefs or [])
+    session.wireframe_briefs = _serialize(briefs or [])
     session.a11y_flags = _a11y_strings(values)
     session.status = "awaiting_review"
 
@@ -205,21 +203,18 @@ def approve(
     final = compiled.invoke(None, config)
     if hasattr(final, "to_dict"):
         values = final.to_dict()
-    elif isinstance(final, dict):
-        values = {k: _to_dict(v) if hasattr(v, "to_dict") or hasattr(v, "model_dump") else v
-                  for k, v in final.items()}
     else:
-        values = dict(final)
+        values = {k: _serialize(v) for k, v in dict(final).items()}
 
     handoff = {
-        "personas": _to_dict_list(values.get("personas") or []) or session.personas,
-        "user_flows": _to_dict_list(values.get("user_flows") or []) or session.user_flows,
-        "wireframe_briefs": _to_dict_list(
+        "personas": _serialize(values.get("personas") or []) or session.personas,
+        "user_flows": _serialize(values.get("user_flows") or []) or session.user_flows,
+        "wireframe_briefs": _serialize(
             values.get("updated_wireframe_briefs")
             or values.get("wireframe_briefs")
             or session.wireframe_briefs
         ),
-        "ux_handoff": _to_dict(values.get("ux_handoff")),
+        "ux_handoff": _serialize(values.get("ux_handoff")),
         "session_name": session.session_name,
         "published_at": datetime.utcnow().isoformat(),
     }
