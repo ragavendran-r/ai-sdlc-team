@@ -470,11 +470,10 @@ validation at every cross-workspace handoff boundary. Agents build these objects
 before writing to the context store; downstream agents deserialize them back.
 
 ✅ **Event-driven architecture**
-The `TeamOrchestrator` wires five independent agent processes together through
-an `EventBus`. Each workspace publishes a typed `Event` (e.g.
-`EventType.UX_HANDOFF_READY`) on approval; the orchestrator's `WorkflowRouter`
-matches it to a route and forwards the payload to the target workflow — keeping
-all agents decoupled from each other.
+Agents communicate by publishing typed `Event` objects (e.g.
+`EventType.UX_HANDOFF_READY`) to a central `EventBus`. The `WorkflowRouter`
+matches each event to a route and forwards the payload downstream, keeping
+agents fully decoupled.
 
 ✅ **Pub/sub patterns**
 `EventBus.subscribe(event_types, handler)` registers one or more handlers for a
