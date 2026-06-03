@@ -444,16 +444,74 @@ Duration:                ~30 seconds (demo mode)
 
 The project demonstrates:
 
-✅ LangGraph state machines
-✅ Claude API integration
-✅ Type-safe Python with dataclasses
-✅ Pydantic schemas
-✅ Event-driven architecture
-✅ Pub/sub patterns
-✅ File-based persistence
-✅ CLI design
-✅ Test-driven development
-✅ Multi-agent coordination
+✅ **LangGraph state machines**
+Each agent workflow is a `StateGraph` compiled with `interrupt_before` and a
+`MemorySaver` checkpointer. Nodes are Python functions that receive the typed
+state dataclass, mutate it, and return it. Conditional edges implement
+approve/reject loops (e.g. `should_proceed_to_pr_description` routes back to
+`component_scaffolding` on rejection). The web interfaces use
+`compile_*_workflow_web()` variants that pause mid-run for human review.
+
+✅ **Claude API integration**
+Every agent node calls `anthropic.Anthropic().messages.create(model=MODEL, ...)`
+with a structured prompt built from the current workflow state. The model
+(`claude-sonnet-4-6`, overridable via `CLAUDE_MODEL` env var) returns JSON that
+is parsed and written back into the state — driving the next node downstream.
+
+✅ **Type-safe Python with dataclasses**
+Each workspace defines a `@dataclass` (e.g. `FrontendWorkflowState`,
+`UXSessionState`) with typed fields for every pipeline stage — `List[Dict]` for
+collections, `Optional[str]` for nullable outputs, `bool` flags for phase
+completion. The `to_dict()` / `from_dict()` methods power both JSON
+serialization and disk persistence.
+
+✅ **Pydantic schemas**
+`team_contracts/schemas/` holds 26 `BaseModel` subclasses (e.g. `UXHandoff`,
+`APIContract`, `UserStory`, `ComponentSpec`) that enforce field types and
+validation at every cross-workspace handoff boundary. Agents build these objects
+before writing to the context store; downstream agents deserialize them back.
+
+✅ **Event-driven architecture**
+The `TeamOrchestrator` wires five independent agent processes together through
+an `EventBus`. Each workspace publishes a typed `Event` (e.g.
+`EventType.UX_HANDOFF_READY`) on approval; the orchestrator's `WorkflowRouter`
+matches it to a route and forwards the payload to the target workflow — keeping
+all agents decoupled from each other.
+
+✅ **Pub/sub patterns**
+`EventBus.subscribe(event_types, handler)` registers one or more handlers for a
+set of `EventType` values. When `EventBus.publish(event)` is called, every
+matching subscriber is invoked synchronously. The orchestrator uses this to
+trigger downstream routing, update pipeline state, and maintain the
+`event_history` log.
+
+✅ **File-based persistence**
+`ContextStore` (`team_orchestrator/context_store.py`) writes each artifact as a
+JSON file under `team_contracts/context-store/{workflow}/{key}.json` with a
+metadata sidecar. Web session state is also persisted to
+`{workspace}/interface/_sessions/{id}.json` so sessions survive server restarts
+and the UX PNG export route can find sessions loaded from any prior run.
+
+✅ **CLI design**
+`run_team_pipeline.py` delegates to `TeamPipelineCLI` in
+`team_orchestrator/cli.py`, which uses `argparse` subcommands (`run`, `status`,
+`routes`, `events`, `context`, `export`, `config`). The `--demo` flag starts all
+four web servers as uvicorn subprocesses using the project venv Python, then
+blocks on a signal handler for clean Ctrl+C shutdown.
+
+✅ **Test-driven development**
+Each workspace has a `tests/` directory with `pytest` classes (e.g.
+`TestComponentScaffolding`, `TestUXHandoffIntake`). All external calls — Claude
+API, context store, file I/O — are mocked so tests run offline. A root
+`conftest.py` adds the repo to `sys.path` so every package is importable by name
+without path hacks.
+
+✅ **Multi-agent coordination**
+Five independent Python processes (PO, EM, UX, Backend, Frontend) communicate
+exclusively through two shared channels: the on-disk **context store** (for
+structured artifact handoff) and the in-process **event bus** (for pipeline
+lifecycle signals). No agent imports from another agent's workspace; all coupling
+goes through `team_contracts` schemas and `team_orchestrator` events.
 
 ## 🔮 Future Enhancements
 
