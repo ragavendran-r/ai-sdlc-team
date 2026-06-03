@@ -445,12 +445,10 @@ Duration:                ~30 seconds (demo mode)
 The project demonstrates:
 
 ✅ **LangGraph state machines**
-Each agent workflow is a `StateGraph` compiled with `interrupt_before` and a
-`MemorySaver` checkpointer. Nodes are Python functions that receive the typed
-state dataclass, mutate it, and return it. Conditional edges implement
-approve/reject loops (e.g. `should_proceed_to_pr_description` routes back to
-`component_scaffolding` on rejection). The web interfaces use
-`compile_*_workflow_web()` variants that pause mid-run for human review.
+Each agent is a `StateGraph` where nodes are plain Python functions that mutate
+a typed state dataclass. Conditional edges handle approve/reject loops, and
+`interrupt_before` with a `MemorySaver` checkpointer pauses the graph for
+human review in the browser.
 
 ✅ **Claude API integration**
 Every agent node calls `anthropic.Anthropic().messages.create(model=MODEL, ...)`
