@@ -2,130 +2,118 @@
 
 ## Purpose
 
-The team contracts define the **communication protocols, schemas, and shared state** that enable agents to collaborate reliably. This is the contract layer that ensures:
+The team contracts define the **communication protocols, schemas, and shared state** that enable agents to collaborate reliably:
 
-- **Schema Validation**: All handoffs between agents use validated contracts
-- **Event-Driven Communication**: Agents emit and subscribe to well-defined events
-- **Shared Context**: A central context store maintains team-wide state
-- **Type Safety**: TypeScript/JSON schemas ensure consistency across agents
+- **Schema Validation**: All handoffs between agents use Pydantic-validated Python models
+- **Event-Driven Communication**: Agents emit and subscribe to typed `Event` objects via `EventBus`
+- **Shared Context**: A central `ContextStore` stores JSON artifacts on disk for cross-workspace handoff
+- **Type Safety**: 26 Pydantic schemas ensure consistency across all agents
 
 ## Architecture
 
 ```
 ┌─────────────────────────────────────────────┐
 │        Shared Context Store                 │
-│  (Team state, decisions, dependencies)      │
+│  (JSON artifacts in context-store/          │
+│   artifacts/ — read and written by each     │
+│   agent workspace on approval)              │
 └─────────────────────────────────────────────┘
-         ↑                ↑                ↑
-    ┌────────────┐  ┌──────────────┐  ┌────────────┐
-    │  Schemas   │  │    Events    │  │ Contracts  │
-    │ (Handoff   │  │  (Status,    │  │ (Msg       │
-    │  Messages) │  │   Updates)   │  │  Templates)│
-    └────────────┘  └──────────────┘  └────────────┘
+         ↑                ↑
+    ┌────────────┐  ┌──────────────┐
+    │  schemas/  │  │  EventBus    │
+    │  (Python   │  │  (Python,    │
+    │  Pydantic) │  │  EventType)  │
+    └────────────┘  └──────────────┘
 ```
 
 ## Folder Structure
 
 ```
 team_contracts/
-├── schemas/          # Handoff contract definitions (JSON Schema, TypeScript types)
-├── events/           # Event type definitions and registry
-├── context-store/    # Shared context schema and management
+├── schemas/          # Python Pydantic models for all inter-agent artifacts
+├── events/           # Event type documentation (implementation in team_orchestrator/events.py)
+├── context-store/    # On-disk artifact storage (JSON files)
 └── README.md
 ```
 
 ### Folders
 
 **`schemas/`**
-- Defines the structure of handoffs between agents
+- Python Pydantic models (`BaseModel`) for all handoff data
 - Examples:
-  - `po-to-em.schema.json` - Requirements and priorities handoff
-  - `ux-to-frontend.schema.json` - Design specifications handoff
-  - `backend-to-frontend.schema.json` - API contract handoff
-- Each schema includes:
-  - Input structure
-  - Validation rules
-  - Required fields
-  - Examples
+  - `backlog.py` — PO → EM: user stories, priorities, acceptance criteria
+  - `sprint_plan.py` — EM → UX/Backend: tasks, estimates, dependencies
+  - `ux_handoff.py` — UX → Backend/Frontend: personas, user flows, wireframe briefs
+  - `api_contract.py` — Backend → Frontend: endpoints, schemas, auth
+- Each schema includes field validation, defaults, and a `to_dict()` helper
 
 **`events/`**
-- Defines event types emitted by agents
-- Examples:
-  - `execution-status.event.ts` - Task progress and blocking issues
-  - `requirement-updated.event.ts` - Requirements changed
-  - `design-ready.event.ts` - Design specifications are ready for implementation
-- Event registry ensures agents subscribe to the right events
+- Documents the event types used for agent coordination
+- Implementation lives in `team_orchestrator/events.py` (`EventType` enum, `EventBus`)
+- 24 event types: `USER_STORIES_CREATED`, `SPRINT_CREATED`, `HANDOFF_CREATED`,
+  `API_CONTRACT_PUBLISHED`, `COMPONENTS_SCAFFOLDED`, and more
 
 **`context-store/`**
-- Defines the shape of shared team state
-- Includes:
-  - Current roadmap and priorities
-  - In-flight requirements and specs
-  - Task assignments and status
-  - Technical constraints and decisions
-  - Team context (team members, capacity, deadlines)
+- On-disk JSON artifact storage (`artifacts/`, `metadata/`, `workflows/` subdirs)
+- Implemented in `team_orchestrator/context_store.py` (`ContextStore` class)
+- Each web interface writes its artifact on approval; downstream interfaces read on load
 
 ## Key Principles
 
-1. **Schema-First**: All inter-agent communication is validated against schemas
-2. **Immutable Contracts**: Once published, contracts stay stable for backward compatibility
-3. **Semantic Versioning**: Breaking changes increment the contract version
-4. **Event Sourcing**: Critical events are logged for audit and replay
-5. **Context as Source of Truth**: Shared context store is the single source of truth for team state
+1. **Schema-First**: All inter-agent communication is validated against Pydantic models
+2. **File-Based Handoff**: Artifacts are JSON files on disk — no network calls between workspaces
+3. **Event Sourcing**: `EventBus` logs all events with timestamps for audit and replay
+4. **Context as Source of Truth**: `ContextStore` is the single source of truth for team state
+
+## Artifact Flow
+
+| Artifact | Produced by | Consumed by | Schema |
+|----------|-------------|-------------|--------|
+| `backlog` | PO Agent | EM Agent | `schemas/backlog.py` |
+| `sprint-plan` | EM Agent | UX Agent, Backend Agent | `schemas/sprint_plan.py` |
+| `ux-handoff` | UX Agent | Backend Agent, Frontend Agent | `schemas/ux_handoff.py` |
+| `api-contract` | Backend Agent | Frontend Agent | `schemas/api_contract.py` |
+| `frontend-output` | Frontend Agent | — | `schemas/frontend_output.py` |
 
 ## Usage
 
-### For Agent Developers
+### Reading an artifact
 
-1. **Sending a Handoff**: 
-   - Load the appropriate schema from `schemas/`
-   - Validate your output against the schema
-   - Emit the handoff event
-   - Update the shared context
+```python
+from team_orchestrator import ContextStore
 
-2. **Receiving a Handoff**:
-   - Subscribe to the appropriate event type from `events/`
-   - Validate incoming data against the schema
-   - Read context from `context-store/`
-   - Update your local state
-
-3. **Emitting Status**:
-   - Use `events/execution-status.event.ts` to report progress
-   - Update shared context with blockers or completed work
-
-### For Integration Tests
-
-- Load schemas to validate agent outputs
-- Load event definitions to verify agent subscriptions
-- Use context-store schema to validate shared state updates
-
-## Examples
-
-### PO → EM Handoff
-```
-Schema: schemas/po-to-em.schema.json
-Event: events/requirement-ready.event.ts
-Context Update: Update roadmap in context-store/team-context.ts
+context_store = ContextStore(base_path="team_contracts/context-store")
+sprint_plan = context_store.read_artifact("sprint-plan")  # returns dict or None
 ```
 
-### UX → Frontend Handoff
-```
-Schema: schemas/ux-to-frontend.schema.json
-Event: events/design-ready.event.ts
-Context Update: Add design specs to context-store/active-specs.ts
+### Writing an artifact
+
+```python
+context_store.write_artifact(
+    key="backlog",
+    data=backlog_dict,
+    artifact_type="backlog",
+    source_workflow="po",
+)
 ```
 
-### Backend → Frontend API Contract
-```
-Schema: schemas/backend-to-frontend.schema.json
-Event: events/api-ready.event.ts
-Context Update: Register endpoints in context-store/api-registry.ts
+### Publishing an event
+
+```python
+from team_orchestrator import EventBus, Event, EventType
+
+event_bus = EventBus()
+event_bus.publish(Event(
+    event_type=EventType.USER_STORIES_CREATED,
+    workflow="po",
+    payload={"stories": [...]},
+    source_agent="po-agent",
+))
 ```
 
 ## Development Notes
 
-- Add new handoff schemas to `schemas/` before implementing agents
-- Define corresponding events in `events/` for status and completion
-- Update `context-store/` schema when adding new shared state
-- Version contracts carefully to avoid breaking existing agents
-- Keep schemas simple and focused — one handoff per schema
+- Add new schemas to `schemas/` as Pydantic `BaseModel` subclasses
+- Register new artifacts in `team_orchestrator/context_store.py`
+- Add new `EventType` values in `team_orchestrator/events.py`
+- Keep schemas simple and focused — one artifact type per file

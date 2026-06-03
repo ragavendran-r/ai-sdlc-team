@@ -9,7 +9,7 @@ A comprehensive orchestration system that coordinates all AI SDLC Team workflows
 ### Core Files
 
 ```
-team-orchestrator/
+team_orchestrator/
 ├── events.py           (550 lines) ✅ Event system with 24 event types
 ├── context_store.py    (400 lines) ✅ Persistent artifact storage
 ├── router.py           (300 lines) ✅ Workflow routing with data mapping
@@ -25,7 +25,7 @@ team-orchestrator/
 ```
 
 **Documentation**:
-- `team-orchestrator/README.md` - Architecture and component guide
+- `team_orchestrator/README.md` - Architecture and component guide
 - `TEAM_ORCHESTRATOR_GUIDE.md` - Complete usage guide
 - `run_team_pipeline.py` - Executable entry point
 
@@ -420,7 +420,7 @@ orchestrator.event_bus.subscribe(
 
 ## 📚 Documentation
 
-- **team-orchestrator/README.md** - Architecture and components
+- **team_orchestrator/README.md** - Architecture and components
 - **TEAM_ORCHESTRATOR_GUIDE.md** - Complete usage guide
 - **Code comments** - Inline documentation
 - **Docstrings** - All classes and methods documented

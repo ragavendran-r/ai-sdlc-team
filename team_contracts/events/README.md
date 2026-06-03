@@ -1,157 +1,92 @@
 # Event Definitions
 
-This folder contains TypeScript definitions for all events emitted by agents in the system.
+Events are the coordination mechanism between agent workspaces. When a workspace
+approves and publishes an artifact it emits a typed `Event` object to the central
+`EventBus`; the `WorkflowRouter` in `team_orchestrator` matches the event to a
+route and forwards the payload downstream.
+
+## Implementation
+
+Events are implemented in Python in `team_orchestrator/events.py`:
+
+```python
+from team_orchestrator import EventBus, Event, EventType, EventSeverity
+
+event_bus = EventBus()
+
+# Publish
+event_bus.publish(Event(
+    event_type=EventType.USER_STORIES_CREATED,
+    workflow="po",
+    severity=EventSeverity.INFO,
+    payload={"stories": [...]},
+    source_agent="po-agent",
+))
+
+# Subscribe
+def on_stories(event: Event) -> None:
+    print(event.payload["stories"])
+
+event_bus.subscribe(EventType.USER_STORIES_CREATED, on_stories)
+```
 
 ## Event Categories
 
-### Status Events
-Events emitted by agents to report progress, completion, or blocking issues.
+### Workflow output events
 
-- **`execution-status.ts`** - Task progress updates
-  - Task started, in-progress, blocked, completed
-  - Blocker details, estimated time to resolution
+| Event | Emitted by | Triggers |
+|-------|-----------|---------|
+| `USER_STORIES_CREATED` | PO workspace | EM sprint planning |
+| `USER_STORIES_UPDATED` | PO workspace | EM re-plan |
+| `SPRINT_CREATED` | EM workspace | UX design + Backend contract |
+| `SPRINT_UPDATED` | EM workspace | Downstream refresh |
+| `HANDOFF_CREATED` | UX workspace | Backend + Frontend consumption |
+| `HANDOFF_UPDATED` | UX workspace | Re-design loop |
+| `API_CONTRACT_PUBLISHED` | Backend CLI | Frontend scaffolding |
+| `COMPONENTS_SCAFFOLDED` | Frontend workspace | Pipeline complete |
+| `FRONTEND_COMPLETE` | Frontend workspace | Final handoff |
 
-- **`requirement-updated.ts`** - Requirement status changes
-  - Requirement clarified, scope changed
-  - Impact analysis, dependent tasks affected
+### System events
 
-- **`design-ready.ts`** - Design specifications ready for implementation
-  - Component specs finalized
-  - Design system updates
-
-- **`api-ready.ts`** - API specifications ready for frontend integration
-  - Endpoints finalized, schemas approved
-  - Error handling and authentication specs
-
-### Coordination Events
-Events that coordinate work between agents or signal readiness for handoff.
-
-- **`handoff-ready.ts`** - General readiness for handoff
-  - Sender agent, receiver agent, handoff type
-  - Context reference, artifacts
-
-- **`blocker-identified.ts`** - Work is blocked, needs intervention
-  - Blocker description, blocking agent/task
-  - Requested action, urgency level
-
-- **`scope-change.ts`** - Scope has changed
-  - What changed, impact, affected agents
-  - Recommended actions
-
-### Decision Events
-Events that record important team decisions.
-
-- **`priority-decision.ts`** - Priority determination or change
-  - Feature/task, new priority, reasoning
-  - Impact on timeline and dependencies
-
-- **`technical-decision.ts`** - Technical architecture decision
-  - Decision summary, alternatives considered
-  - Rationale, impact on other agents
-
-- **`requirement-clarification.ts`** - Requirement has been clarified
-  - Original requirement, clarification, source
-  - Impact on estimates and design
+| Event | Meaning |
+|-------|---------|
+| `WORKFLOW_STARTED` | A workflow node began |
+| `WORKFLOW_COMPLETED` | A workflow finished successfully |
+| `WORKFLOW_FAILED` | A workflow encountered an error |
+| `BLOCKERS_DETECTED` | EM agent flagged a blocker |
+| `DESIGN_TOKENS_DEFINED` | UX published design token set |
+| `DOMAIN_MODEL_CREATED` | Backend completed domain modeling |
+| `DATABASE_SCHEMA_READY` | Backend completed schema design |
 
 ## Event Structure
 
-Each event file follows this pattern:
-
-```typescript
-// events/execution-status.ts
-export type ExecutionStatus = 'started' | 'in-progress' | 'blocked' | 'completed' | 'failed';
-
-export interface ExecutionStatusEvent {
-  id: string;                    // Unique event ID
-  timestamp: Date;
-  task_id: string;              // Reference to task
-  agent: string;                // Emitting agent
-  status: ExecutionStatus;
-  progress_percentage?: number;
-  blocker?: BlockerDetail;
-  completed_at?: Date;
-  context_id?: string;          // Reference to shared context
-  metadata?: Record<string, any>;
-}
-
-export interface BlockerDetail {
-  description: string;
-  blocking_agent?: string;
-  blocking_on?: string;
-  requested_action?: string;
-  urgency: 'low' | 'medium' | 'high' | 'critical';
-}
-```
-
-## Event Registry
-
-The `index.ts` file exports all event types and provides a registry:
-
-```typescript
-// events/index.ts
-export * from './execution-status';
-export * from './requirement-updated';
-export * from './design-ready';
-// ... other events
-
-export type TeamEvent = 
-  | ExecutionStatusEvent
-  | RequirementUpdatedEvent
-  | DesignReadyEvent
-  // ... other event types
-```
-
-## Publishing Events
-
-Agents publish events to a central event bus. Example:
-
-```typescript
-// In agent code
-const event: ExecutionStatusEvent = {
-  id: uuid(),
-  timestamp: new Date(),
-  task_id: task.id,
-  agent: 'frontend-agent',
-  status: 'completed',
-  completed_at: new Date(),
-  context_id: contextId
-};
-
-await eventBus.publish(event);
-```
-
-## Subscribing to Events
-
-Agents subscribe to events they care about:
-
-```typescript
-// In agent code
-eventBus.subscribe('execution-status', (event: ExecutionStatusEvent) => {
-  if (event.agent === 'backend-agent' && event.status === 'blocked') {
-    // Take action on backend blockers
-  }
-});
+```python
+@dataclass
+class Event:
+    event_type: EventType       # Enum value
+    workflow: str               # e.g. "po", "em", "ux"
+    severity: EventSeverity     # INFO / WARNING / ERROR / CRITICAL
+    payload: dict               # Artifact data
+    source_agent: str           # e.g. "po-agent"
+    timestamp: datetime         # Auto-set on creation
+    event_id: str               # UUID, auto-generated
 ```
 
 ## Adding New Events
 
-1. Create a new event file: `{event-name}.ts`
-2. Define the interface with all required and optional fields
-3. Export the type
-4. Add to event registry in `index.ts`
-5. Document in this README
-6. Update agents that should subscribe to this event
+1. Add a new value to `EventType` in `team_orchestrator/events.py`
+2. Emit it from the agent workspace on completion
+3. Add a route in `team_orchestrator/orchestrator.py` if it should trigger a downstream workflow
+4. Document it in this README
 
-## Event Sourcing
+## Event History
 
-Critical events are logged for:
-- Audit trail (who made decisions, when)
-- Timeline reconstruction (understanding how we got here)
-- Replay (reconstructing state if needed)
+The `EventBus` stores all events in memory for the session:
 
-Key events to source:
-- Requirement changes
-- Priority decisions
-- Technical decisions
-- Scope changes
-- Major blocker/resolution cycles
+```bash
+# CLI: view recent events
+python run_team_pipeline.py events
+
+# Filter by workflow
+python run_team_pipeline.py events --workflow po --limit 10
+```

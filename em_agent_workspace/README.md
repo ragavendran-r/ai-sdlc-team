@@ -10,7 +10,7 @@ sprint-planning pipeline, review the draft sprint (tasks, capacity, risks), and
 approve to publish a `sprint-plan` artifact for the downstream workspaces.
 
 Run it from the repo root: `python -m em_agent_workspace.interface.run` then
-open http://localhost:8000 (or via docker-compose on port 8002).
+open http://localhost:8002.
 Tests: `pytest em_agent_workspace/interface/tests -v`.
 
 > **This interface is a starting point. Replace it with your team's preferred

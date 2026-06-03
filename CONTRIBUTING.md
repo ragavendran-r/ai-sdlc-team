@@ -193,8 +193,8 @@ You want to add a new specialized agent (e.g., Security Auditor).
 1. **Copy template workspace**
 
    ```bash
-   cp -r po_agent_workspace security-auditor-workspace
-   cd security-auditor-workspace
+   cp -r po_agent_workspace security_auditor_workspace
+   cd security_auditor_workspace
    ```
 
 2. **Update configuration**

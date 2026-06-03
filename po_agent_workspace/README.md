@@ -10,7 +10,7 @@ pipeline, review/edit the generated stories, and approve to publish a `backlog`
 artifact for the downstream workspaces.
 
 Run it from the repo root: `python -m po_agent_workspace.interface.run` then
-open http://localhost:8000 (or via docker-compose on port 8001).
+open http://localhost:8001.
 Tests: `pytest po_agent_workspace/interface/tests -v`.
 
 > **This interface is a starting point. Replace it with your team's preferred

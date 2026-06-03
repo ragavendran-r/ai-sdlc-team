@@ -36,13 +36,8 @@ Complete containerized environment with 9 services:
 
 ✅ **PostgreSQL** - Primary database with health checks
 ✅ **Redis** - Caching and message queue
-✅ **Main App** - Flask/FastAPI application
-✅ **Agent Services** - Individual containers for each agent
-  - PO Agent
-  - EM Agent
-  - UX Agent
-  - Backend Agent
-  - Frontend Agent
+✅ **Web Interfaces** - FastAPI + Jinja2 (PO, EM, UX, Frontend workspaces)
+✅ **Backend Agent** - CLI-only (no web interface)
 ✅ **Debug Tools** - PgAdmin and Redis Commander (optional)
 ✅ **Networking** - Isolated network bridge
 ✅ **Volumes** - Persistent data storage
@@ -54,12 +49,11 @@ Complete containerized environment with 9 services:
 |---------|------|------|---------|
 | postgres | DB | 5432 | Main database |
 | redis | Cache | 6379 | Caching & queue |
-| app | Flask | 8000 | Main application |
-| po_agent | Agent | - | PO workflow |
-| em_agent | Agent | - | EM workflow |
-| ux_agent | Agent | - | UX workflow |
-| backend_agent | Agent | - | Backend workflow |
-| frontend_agent | Agent | - | Frontend workflow |
+| po_interface | FastAPI | 8001 | PO workspace web UI |
+| em_interface | FastAPI | 8002 | EM workspace web UI |
+| ux_interface | FastAPI | 8003 | UX workspace web UI |
+| frontend_interface | FastAPI | 8004 | Frontend workspace web UI |
+| backend_agent | Agent | - | Backend workflow (CLI) |
 | pgadmin | UI | 5050 | Database management |
 | redis-commander | UI | 8081 | Redis inspection |
 
@@ -306,8 +300,11 @@ export ANTHROPIC_API_KEY=sk-prod-key
 # Start services
 docker-compose -f docker-compose.yml up -d
 
-# Verify health
-curl http://localhost:8000/health
+# Verify health (check each web interface)
+curl http://localhost:8001/health
+curl http://localhost:8002/health
+curl http://localhost:8003/health
+curl http://localhost:8004/health
 ```
 
 **Using Kubernetes (future):**
@@ -465,7 +462,7 @@ SLACK_WEBHOOK_URL=...   # Notifications
 4. **Deploy:**
    - Set up .env with real credentials
    - Run `docker-compose up -d`
-   - Verify with `curl http://localhost:8000/health`
+   - Verify with `curl http://localhost:8001/health` (PO), `curl http://localhost:8002/health` (EM), etc.
    - Configure monitoring (Sentry, Datadog, Slack)
 
 ---

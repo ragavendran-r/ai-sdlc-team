@@ -18,31 +18,6 @@ Complete example of building a user authentication and product listing feature f
 - Security review (backend agent)
 - Accessibility features (frontend agent)
 
-### 2. SaaS Dashboard
-**Location:** `saas-dashboard/`
-**Complexity:** Advanced
-**Duration:** 3-5 minutes (demo mode)
-
-Building a real-time analytics dashboard for a SaaS platform with data visualization, real-time updates, and role-based access control.
-
-**Demonstrates:**
-- Complex data modeling
-- Performance optimization
-- Real-time architecture patterns
-- Multi-role access control
-
-### 3. Mobile App Backend
-**Location:** `mobile-app-backend/`
-**Complexity:** Intermediate
-**Duration:** 2-3 minutes (demo mode)
-
-Building a REST API backend for a mobile app with offline support and data synchronization.
-
-**Demonstrates:**
-- API versioning
-- Offline-first architecture
-- Conflict resolution strategies
-- Push notification integration
 
 ## Running Examples
 

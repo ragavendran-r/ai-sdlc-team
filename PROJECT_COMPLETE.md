@@ -11,7 +11,7 @@ A sophisticated multi-agent system where each AI agent specializes in a role (Pr
 ### Total Project Scope
 
 ```
-Agent Workflows:        4 complete (PO, EM, UX, Backend, Frontend)
+Agent Workflows:        5 complete (PO, EM, UX, Backend, Frontend)
 Team Schemas:           20+ shared data contracts
 Team Orchestrator:      1 comprehensive coordination system
 CLI Entry Points:       2 (agent-specific + team pipeline)
@@ -201,7 +201,7 @@ Repositories:           5 agent workspaces + 1 orchestrator
 
 ## 🎯 Team Orchestrator
 
-**Location:** `team-orchestrator/`
+**Location:** `team_orchestrator/`
 **Status:** ✅ Complete (2,100+ lines)
 
 **Components:**
